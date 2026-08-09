@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>龙薇 · 个人作品集</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:       #1a1d24;
+      --ink-soft:  #4a4f5c;
+      --ink-mute:  #8a8f9e;
+      --bg:        #f7f6f2;
+      --bg-card:   #ffffff;
+      --accent:    #2a5caa;
+      --accent-lt: #e8eef8;
+      --rule:      #dddbd4;
+      --radius:    6px;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(247, 246, 242, 0.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--rule);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+
+    .nav-logo {
+      font-family: 'Noto Serif SC', serif;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--ink-soft);
+      font-size: 0.875rem;
+      font-weight: 400;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--accent); }
+
+    /* ── HERO ── */
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 80px 2rem 64px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    .hero-text {}
+
+    .hero-eyebrow {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .hero-name {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 600;
+      line-height: 1.2;
+      color: var(--ink);
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-bio {
+      font-size: 1rem;
+      color: var(--ink-soft);
+      line-height: 1.8;
+      max-width: 520px;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .tag {
+      background: var(--accent-lt);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 500;
+      padding: 0.3em 0.9em;
+      border-radius: 20px;
+    }
+
+    .hero-photo {
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--rule);
+      flex-shrink: 0;
+      /* Placeholder gradient when no photo */
+      background: linear-gradient(135deg, #c8d8f0 0%, #e8d5c0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--ink-mute);
+      font-size: 0.75rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .hero-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── DIVIDER ── */
+    .section-divider {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+      border: none;
+      border-top: 1px solid var(--rule);
+    }
+
+    /* ── SECTION ── */
+    .section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 56px 2rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-family: 'Noto Serif SC', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .section-count {
+      font-size: 0.8rem;
+      color: var(--ink-mute);
+      font-weight: 400;
+    }
+
+    /* ── ARTICLE LIST ── */
+    .article-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      background: var(--rule);
+      border: 1px solid var(--rule);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .article-item {
+      background: var(--bg-card);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      text-decoration: none;
+      color: inherit;
+      transition: background 0.15s;
+    }
+
+    .article-item:hover { background: var(--accent-lt); }
+
+    .article-item:hover .article-title { color: var(--accent); }
+
+    .article-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--accent-lt);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1rem;
+    }
+
+    .article-body { flex: 1; min-width: 0; }
+
+    .article-title {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--ink);
+      transition: color 0.15s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .article-meta {
+      font-size: 0.78rem;
+      color: var(--ink-mute);
+      margin-top: 0.2em;
+    }
+
+    .article-arrow {
+      color: var(--ink-mute);
+      font-size: 1rem;
+      flex-shrink: 0;
+      transition: transform 0.15s, color 0.15s;
+    }
+
+    .article-item:hover .article-arrow {
+      transform: translateX(3px);
+      color: var(--accent);
+    }
+
+    /* Empty state */
+    .empty-state {
+      background: var(--bg-card);
+      border: 1px dashed var(--rule);
+      border-radius: var(--radius);
+      padding: 2.5rem;
+      text-align: center;
+      color: var(--ink-mute);
+      font-size: 0.875rem;
+    }
+
+    .empty-state span { display: block; font-size: 1.5rem; margin-bottom: 0.5rem; }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--rule);
+      text-align: center;
+      padding: 2rem;
+      color: var(--ink-mute);
+      font-size: 0.8rem;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 640px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding-top: 48px;
+      }
+      .hero-photo {
+        width: 100px;
+        height: 100px;
+        order: -1;
+      }
+      .nav-links { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-logo" href="#">龙薇 · 个人作品集</a>
+    <ul class="nav-links">
+      <li><a href="#ai">AI 知识</a></li>
+      <li><a href="#research">行业调研</a></li>
+      <li><a href="#projects">项目实战</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-text">
+      <p class="hero-eyebrow">Portfolio · 个人作品</p>
+      <h1 class="hero-name">龙薇</h1>
+      <p class="hero-bio">
+        产品经理，华中科技大学硕士，曾任职于京东、新浪微博、蚂蚁集团，现专注于 AI 产品落地。主导从 0 到 1 构建 AI 质检系统，推动 RAG 检索链路与大模型评测体系落地。持续记录 AI 知识积累、行业研究与项目实战。
+      </p>
+      <div class="hero-tags">
+        <span class="tag">AI 产品</span>
+        <span class="tag">交易系统</span>
+        <span class="tag">LLM 应用</span>
+        <span class="tag">RAG</span>
+        <span class="tag">武汉</span>
+      </div>
+    </div>
+    <div class="hero-photo">
+      <img src="个人照片.jpg" alt="龙薇"
+           onerror="this.parentElement.innerHTML='<span style=\'font-size:2rem\'>👤</span>'" />
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- SECTION 1：AI 知识积累 -->
+  <section class="section" id="ai">
+    <div class="section-header">
+      <h2 class="section-title">AI 知识积累</h2>
+      <span class="section-count" id="ai-count"></span>
+    </div>
+
+    <!--
+      ✏️ 新增文章：复制一个 <a class="article-item"> 块，填写：
+         href  = 你的 html 文件路径，例如 "articles/gpt-intro.html"
+         title = 文章标题
+         meta  = 日期或副标题
+    -->
+    <div class="article-list" id="ai-list">
+
+      <!-- 示例条目（上传第一篇后替换或在此基础上增加） -->
+      <a class="article-item" href="#">
+        <div class="article-icon">📘</div>
+        <div class="article-body">
+          <div class="article-title">示例：大模型基础原理入门</div>
+          <div class="article-meta">2025-01-01 · AI 基础</div>
+        </div>
+        <span class="article-arrow">→</span>
+      </a>
+
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- SECTION 2：行业信息调研 -->
+  <section class="section" id="research">
+    <div class="section-header">
+      <h2 class="section-title">行业信息调研</h2>
+      <span class="section-count" id="research-count"></span>
+    </div>
+
+    <div class="article-list" id="research-list">
+
+      <a class="article-item" href="#">
+        <div class="article-icon">🔍</div>
+        <div class="article-body">
+          <div class="article-title">示例：2025 年 AI 教育行业报告</div>
+          <div class="article-meta">2025-01-01 · 行业研究</div>
+        </div>
+        <span class="article-arrow">→</span>
+      </a>
+
+    </div>
+  </section>
+
+  <hr class="section-divider" />
+
+  <!-- SECTION 3：项目实战 -->
+  <section class="section" id="projects">
+    <div class="section-header">
+      <h2 class="section-title">项目实战</h2>
+      <span class="section-count" id="projects-count"></span>
+    </div>
+
+    <div class="article-list" id="projects-list">
+
+      <a class="article-item" href="#">
+        <div class="article-icon">🚀</div>
+        <div class="article-body">
+          <div class="article-title">示例：XX 产品从 0 到 1 的落地记录</div>
+          <div class="article-meta">2025-01-01 · 项目复盘</div>
+        </div>
+        <span class="article-arrow">→</span>
+      </a>
+
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 龙薇 · longweiwork@outlook.com · 用心记录，持续成长</p>
+  </footer>
+
+  <script>
+    // 自动统计每个分区的条目数量
+    const sections = [
+      { listId: 'ai-list',       countId: 'ai-count' },
+      { listId: 'research-list', countId: 'research-count' },
+      { listId: 'projects-list', countId: 'projects-count' },
+    ];
+
+    sections.forEach(({ listId, countId }) => {
+      const list  = document.getElementById(listId);
+      const count = document.getElementById(countId);
+      const n = list ? list.querySelectorAll('.article-item').length : 0;
+      if (count) count.textContent = n + ' 篇';
+    });
+  </script>
+
+</body>
+</html>
