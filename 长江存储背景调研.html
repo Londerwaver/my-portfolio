@@ -9,17 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    color-scheme: dark;
-    --bg: #080D1C;
-    --bg2: #0F172A;
-    --bg3: #162035;
-    --accent: #00C8F5;
-    --accent2: #0085B0;
-    --text: #E8EEF8;
-    --text2: #8899BB;
-    --text3: #4A5878;
-    --border: #1E2D4A;
-    --highlight: rgba(0, 200, 245, 0.08);
+    color-scheme: light;
+    --bg: #f7f6f2;
+    --bg2: #ffffff;
+    --bg3: #eeecea;
+    --accent: #2a5caa;
+    --accent2: #1a3d7a;
+    --text: #1a1d24;
+    --text2: #4a4f5c;
+    --text3: #8a8f9e;
+    --border: #dddbd4;
+    --highlight: rgba(42, 92, 170, 0.07);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +38,7 @@
     position: fixed;
     top: 0; left: 0; right: 0;
     height: 56px;
-    background: rgba(8, 13, 28, 0.92);
+    background: rgba(247, 246, 242, 0.92);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
     z-index: 200;
@@ -498,6 +498,7 @@
 
 <!-- Top Tab Bar -->
 <header class="topbar">
+  <a href="../index.html" style="font-size:13px;color:var(--text3);text-decoration:none;margin-right:24px;white-space:nowrap;">← 返回首页</a>
   <div class="topbar-logo">长江存储 AI 战略 <span>RESEARCH NOTE</span></div>
   <nav class="tabs">
     <button class="tab-btn active" onclick="switchTab('tab-industry')">
