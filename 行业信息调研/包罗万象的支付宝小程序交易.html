@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>包罗万象的支付宝小程序交易 · 行业信息调研</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1f2430;
+  --ink-soft:#5b6472;
+  --muted:#8a93a3;
+  --paper:#f6f5f2;
+  --surface:#ffffff;
+  --line:#e7e4dd;
+  --accent:#3d4cc4;
+  --accent-deep:#2c3a9e;
+  --glow:#0ea5a3;
+  --warn:#d97706;
+  --ok:#16a34a;
+  --radius:12px;
+  --radius-lg:16px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+  --font-body:'Inter','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-head:'Noto Serif SC','Songti SC',serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.85;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(61,76,196,.14)}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  height:56px;display:flex;align-items:center;gap:12px;
+  padding:0 24px;background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .logo{
+  width:26px;height:26px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;
+}
+.topbar a.brand{
+  font-family:var(--font-head);font-weight:600;font-size:14.5px;
+  color:var(--ink);text-decoration:none;letter-spacing:.3px;
+}
+.topbar a.brand:hover{color:var(--accent)}
+.topbar .badge{
+  margin-left:auto;font-size:12px;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:3px 12px;
+  background:var(--surface);
+}
+
+.main{max-width:780px;margin:0 auto;padding:64px 28px 96px}
+
+.hero{padding:8px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.hero .kicker::before{content:"";width:22px;height:2px;background:var(--glow);border-radius:2px}
+.hero h1{
+  font-family:var(--font-head);
+  font-size:36px;line-height:1.35;letter-spacing:.5px;font-weight:600;
+}
+.hero .sub{
+  margin-top:16px;font-size:15.5px;color:var(--ink-soft);
+  max-width:660px;
+}
+.hero .meta{
+  margin-top:24px;display:flex;flex-wrap:wrap;gap:8px;
+}
+.hero .meta span{
+  font-size:12.5px;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:4px 13px;
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.hero .meta a{color:var(--accent);text-decoration:none}
+.hero .meta a:hover{text-decoration:underline}
+
+.chapter{margin-bottom:60px}
+.ch-head{display:flex;gap:14px;align-items:center;margin-bottom:26px}
+.ch-num{
+  flex:none;width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  color:#fff;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:15px;
+  box-shadow:0 5px 14px rgba(61,76,196,.25);
+}
+.ch-head h2{font-size:24px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+
+.article p{margin-bottom:14px;text-align:justify}
+.article strong{color:var(--accent-deep);font-weight:600}
+.article .lead{color:var(--ink-soft)}
+
+.article ul,.article ol{margin:0 0 16px 24px}
+.article li{margin-bottom:8px}
+.article li::marker{color:var(--accent)}
+
+.quote{
+  font-size:15px;color:var(--ink-soft);
+  border-left:3px solid var(--accent);
+  background:rgba(61,76,196,.05);
+  padding:16px 20px;margin:20px 0;
+  border-radius:0 var(--radius) var(--radius) 0;
+}
+.quote p{margin-bottom:8px;text-align:justify}
+.quote p:last-child{margin-bottom:0}
+.quote .src{
+  display:block;margin-top:6px;font-size:12.5px;color:var(--muted);
+}
+.quote a{color:var(--accent)}
+
+.table-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:13.5px;min-width:600px}
+th{
+  background:linear-gradient(180deg,#fafaf7,#f2f1ec);
+  font-weight:650;text-align:left;padding:11px 16px;
+  border-bottom:1px solid var(--line);color:var(--ink);
+  white-space:nowrap;
+}
+td{padding:10px 16px;border-bottom:1px solid var(--line);color:var(--ink-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(61,76,196,.03)}
+td:first-child{font-family:var(--mono);color:var(--accent-deep);font-weight:600;white-space:nowrap}
+.caption{font-size:12.5px;color:var(--muted);text-align:center;margin:6px 0 20px}
+
+.footnote{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--muted);
+}
+.footnote a{color:var(--accent);text-decoration:none}
+.footnote a:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .main{padding:40px 18px 64px}
+  .hero h1{font-size:27px}
+  .ch-head h2{font-size:20px}
+  .topbar .badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">调</div>
+  <a class="brand" href="../index.html">龙薇 · 个人作品集</a>
+  <span class="badge">行业信息调研</span>
+</div>
+
+<div class="main">
+
+  <header class="hero">
+    <div class="kicker">行业调研</div>
+    <h1>包罗万象的支付宝小程序交易</h1>
+    <p class="sub">从蚂蚁森林到余额宝，拆解支付宝如何以小程序为抓手，构建覆盖13个行业、64种订单模板的泛生活服务生态。</p>
+    <div class="meta">
+      <span>✍️ 作者 <b>逗逗龙</b></span>
+      <span>📅 发布时间 <b>2024-01-09</b></span>
+      <span>📮 公众号 <b>逗逗龙的产品趣谈</b></span>
+      <span>🔗 <a href="https://mp.weixin.qq.com/s/O_SYB35pX0CIVzMACyLD-w" target="_blank" rel="noopener">原文链接 ↗</a></span>
+    </div>
+  </header>
+
+  <article class="article">
+    <p class="lead">支付宝作为国民级应用，从公开的数据可知，有10亿的注册用户，月活用户7亿左右。支付宝存在人们的衣食住行里，为用户提供便捷的生活服务。本文还是以两个问题的形式来阐述支付宝小程序交易。</p>
+    <ul>
+      <li>支付宝小程序定位是什么</li>
+      <li>支付宝小程序有包含哪些交易场景</li>
+    </ul>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">01</div>
+        <h2>支付宝小程序定位是什么</h2>
+      </div>
+      <p>在互联网浪潮中，每一个人都是一朵浪花。支付宝作为国民级应用，和人们生活息息相关，让我们来画一幅围绕着支付宝的用户地图。</p>
+      <p>早上小何起床，赖了一会床，赶紧点击收集了昨天蚂蚁森林的绿色能量；洗漱完之后，准备上班，搭乘地铁，打开支付宝的行程码刷码进站；到公司楼下了，在楼下早餐店买了两个包子，用支付宝扫了付款码，提着包子到了工位；到了午饭时间，本来想点外卖，已经打开了支付宝的饿了么小程序在选购了，同事说新开了家不错的酸菜鱼，遂放弃了点外卖的想法，和同事结伴去新店打卡；到了酸菜鱼店，通过座位上的二维码可以直接扫码点餐并且支付，和同事美美地吃了一顿，小何赶紧回公司补补午觉；下午忙碌的工作，小何很想来杯咖啡提神，在支付宝上点了杯咖啡，选择了自提的方式；到了下班时间，打开支付宝的行程码坐地铁回家；到家后，打开了支付宝【我的快递】看下买包裹物流到哪里了，然后又在支付宝用积分兑换下单抽纸，预计下周就能到；夜深了，小何躺在床上最后看了眼余额宝的昨天的收益，然后进入了梦乡。</p>
+      <p>我们发现小何生活的一天，处处都离不开支付宝，支付宝不再仅仅是一个支付软件，而且包含了支付、出行、餐饮、物流、金融等多功能的工具。但是这只是小何的一天，窥一斑而知全豹，支付宝如今已发展成了一个数字化的泛生活服务平台。</p>
+      <p>在其他平台可以想象的线上交易，大多数都能在支付宝找到，为用户提供各类的生活服务，而以上所有交易都是通过支付宝的小程序来承接的。在支付宝的开放平台是这样定义小程序的。</p>
+
+      <div class="quote">
+        <p>小程序是一种全新的开放模式，让合作伙伴有机会分享支付宝流量和商业能力，为用户提供更好的用户体验，助力商家经营升级。</p>
+        <span class="src">—— 支付宝开放平台</span>
+      </div>
+
+      <p>小程序的开发者有两种，分别为自研商家和服务商，这点和其他电商开放平台的接入者类似。而支付宝在2023年的生态合作伙伴大会表示："支付宝会坚定以小程序为核心建设平台开放生态"。</p>
+
+      <div class="quote">
+        <p>过去一年，支付宝活跃小程序规模增长119%，商家小程序GMV增长79%，数字化活跃服务商规模增长103%。</p>
+        <span class="src">—— 管仲，2023，《支付宝合作伙伴大会-支付宝坚定助力商家数字化》</span>
+      </div>
+
+      <div class="quote">
+        <p>第三方调研机构阿拉丁最新发布的报告显示，目前支付宝小程序规模达400万，吸引了零售、餐饮等主要行业近9成商家布局，是国内第二大商业开放生态。</p>
+        <span class="src">—— <a href="https://mp.weixin.qq.com/s/xqX5C-tzEEyvSZ4Ef92tBQ" target="_blank" rel="noopener">支付百科：《支付宝2023合作伙伴大会：升级两大政策，加大投入帮助服务商增收》</a></span>
+      </div>
+
+      <p>从上述数据上，不难发现支付宝对于大力发展小程序的野心。那么为什么小程序在战略定位上占有如此重要的地位？2020年，时任支付宝蚂蚁集团CEO胡晓明宣布支付宝升级为数字生活开放平台。</p>
+
+      <div class="quote">
+        <p>2019年-2021年间，蚂蚁集团的收入构成主要包括数字金融、数字支付与商家服务和创新及其他业务，其中超过6成营收来自数字金融科技服务，其中微贷科技占40%，理财科技占15%，保险科技占8%。支付宝平台的能力体系定位为数字支付及生活服务、数字金融科技两大块，从营收来看，站内大部分流量也都导向了金融业务。撑起了蚂蚁的亿万估值，令其被誉为"全球第一独角兽"。</p>
+        <p>2020年的国庆之后，蚂蚁内部达到信心的顶点，随后情况急转直下，全球史上最大的IPO折戟。在那段低谷期，支付宝内部进行过深刻反思，重新梳理组织和业务逻辑，并重新确立了互联网开放的平台发展方向。</p>
+        <span class="src">—— <a href="https://mp.weixin.qq.com/s/XvvMfhdXJgq1JXPE8snl7w" target="_blank" rel="noopener">36氪：《从三年蛰伏到亚运开幕，支付宝如何求变》</a></span>
+      </div>
+
+      <p>蚂蚁金服在前三年期间，大部分的营收是来自于数字金融科技服务，但是2020年IPO的暂缓，让支付宝开始思考重新定位，支付宝不仅仅是向商家收单的服务提供者，而是需要打造一个商业平台。</p>
+
+      <div class="quote">
+        <p>36氪获取的信息显示，对于支付宝，在场的人似乎达成了一致意见：一个底座，支付；两个基本点，互联网公司，科技公司。互联网公司代表开放，科技就代表定位，坚持去中心化的商业模式。</p>
+        <span class="src">—— <a href="https://mp.weixin.qq.com/s/XvvMfhdXJgq1JXPE8snl7w" target="_blank" rel="noopener">36氪：《从三年蛰伏到亚运开幕，支付宝如何求变》</a></span>
+      </div>
+
+      <p>在支付宝的战略中，开放和去中心化，变成了两个基本点。而小程序就是实现上述两个基本点的重要工具。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">02</div>
+        <h2>支付宝小程序包含哪些交易场景</h2>
+      </div>
+      <p>在梳理支付宝的小程序到底包含哪些交易场景，此处主要参考的是支付宝的开放平台和商家平台公开的资料。</p>
+      <p>从支付宝开放平台上订单中心的接口文档来看，目前支付宝订单中心涉及到13个行业的业务场景，包括：餐饮、零售批发、交通出行、商业生活、车主生活、教育培训、医疗卫生、酒旅景区、生活缴费、物流运输、网络通讯、休闲娱乐、公共管理和社会组织。</p>
+      <p>支付宝的小程序通过抽象出不同行业下订单能力，规范13个行业中细分每一个场景所需要的订单能力，包括每一个场景标准化的流转、订单分发、订单状态的回调、订单跳转等等。目前开放平台行业订单模板列表共计有64个，支付宝的产品设计标准化的产品方案，以满足不同行业下的订单能力要求。这64个订单模板可以被分为六大类，分别为：到店、到家、实物邮寄、虚拟、出行、其他，可参考下表：</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>类别</th><th>具体产品能力</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>到店</td><td>门店自提、排队订单、扫码点餐、餐厅预定、快消扫码购、快消到店自提、预约到店、储值动账到店版、共享洗衣、共享充电宝、社区团购、证件照在线制作、商家核销场景、医疗医药单、医疗挂号单、体检预约、酒店预定、景区交通、预约入园、预约排队、医疗检查单、景区门票、线上预约线下排队</td></tr>
+            <tr><td>到家（即时零售）</td><td>餐饮外卖、零售到家、周期配送（周期订花）、上门回收、上门服务、酒店送餐</td></tr>
+            <tr><td>虚拟</td><td>虚拟商品购买、会员充值、积分兑换、线上课程、预约开票、生活缴费、充值、储值动账（油卡）</td></tr>
+            <tr><td>实物</td><td>电商实物商品购物</td></tr>
+            <tr><td>出行</td><td>打车、顺风车、共享单车、共享助力车、公共交通代扣、充电桩、高速收费、洗车、预约停车、租车、停车、汽车票、二轮充电桩、代驾</td></tr>
+            <tr><td>其他</td><td>代办服务、专利商标服务、高速收费、证件翻译、宠物领养、兼职招聘、线上租赁、线上洗护、同城跑腿、拉货搬家、到货登记、工商注册、预约寄件、校园水控</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">支付宝开放平台64个订单模板分类（图源：支付宝开放平台）</p>
+
+      <p>上述为支付宝订单模板的类型，基本涵盖了各个行业，包括了可被想象的线上交易场景。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">03</div>
+        <h2>总结</h2>
+      </div>
+      <p>让我们回到最初的两个问题，支付宝的小程序定位是什么？支付宝小程序的交易场景有哪些？</p>
+      <p>支付宝从2020年开始战略转型，以支付为抓手，坚持开放和去中心化两个基本点，小程序是实现两个基本点重要工具。通过支付宝的公开数据，支付宝小程序规模已达400万，进一步引入商家、服务商来支付宝小程序构建生态。</p>
+      <p>支付宝通过小程序提供数字化的泛生活服务，目前支付宝的订单中心涉及64个行业的订单模板，涵盖了13个行业，便于以更加开放的态度帮助商家标准化的接入和经营。</p>
+    </section>
+  </article>
+
+  <footer class="footnote">
+    <span>包罗万象的支付宝小程序交易 · 行业信息调研 · 2024</span>
+    <a href="../index.html">← 返回作品集</a>
+  </footer>
+
+</div>
+
+</body>
+</html>

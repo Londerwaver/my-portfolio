@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>如何从0到1设计商家系统 · 产品设计方法</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1f2430;
+  --ink-soft:#5b6472;
+  --muted:#8a93a3;
+  --paper:#f6f5f2;
+  --surface:#ffffff;
+  --line:#e7e4dd;
+  --accent:#3d4cc4;
+  --accent-deep:#2c3a9e;
+  --glow:#0ea5a3;
+  --warn:#d97706;
+  --ok:#16a34a;
+  --radius:12px;
+  --radius-lg:16px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+  --font-body:'Inter','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-head:'Noto Serif SC','Songti SC',serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.85;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(61,76,196,.14)}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  height:56px;display:flex;align-items:center;gap:12px;
+  padding:0 24px;background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .logo{
+  width:26px;height:26px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;
+}
+.topbar a.brand{
+  font-family:var(--font-head);font-weight:600;font-size:14.5px;
+  color:var(--ink);text-decoration:none;letter-spacing:.3px;
+}
+.topbar a.brand:hover{color:var(--accent)}
+.topbar .badge{
+  margin-left:auto;font-size:12px;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:3px 12px;
+  background:var(--surface);
+}
+
+.main{max-width:780px;margin:0 auto;padding:64px 28px 96px}
+
+.hero{padding:8px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.hero .kicker::before{content:"";width:22px;height:2px;background:var(--glow);border-radius:2px}
+.hero h1{
+  font-family:var(--font-head);
+  font-size:36px;line-height:1.35;letter-spacing:.5px;font-weight:600;
+}
+.hero .sub{
+  margin-top:16px;font-size:15.5px;color:var(--ink-soft);
+  max-width:660px;
+}
+.hero .meta{
+  margin-top:24px;display:flex;flex-wrap:wrap;gap:8px;
+}
+.hero .meta span{
+  font-size:12.5px;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:4px 13px;
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.hero .meta a{color:var(--accent);text-decoration:none}
+.hero .meta a:hover{text-decoration:underline}
+
+.chapter{margin-bottom:60px}
+.ch-head{display:flex;gap:14px;align-items:center;margin-bottom:26px}
+.ch-num{
+  flex:none;width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  color:#fff;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:15px;
+  box-shadow:0 5px 14px rgba(61,76,196,.25);
+}
+.ch-head h2{font-size:24px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+
+.article p{margin-bottom:14px;text-align:justify}
+.article strong{color:var(--accent-deep);font-weight:600}
+.article .lead{color:var(--ink-soft)}
+
+.article ul,.article ol{margin:0 0 16px 24px}
+.article li{margin-bottom:8px}
+.article li::marker{color:var(--accent)}
+
+.quote{
+  font-size:15px;color:var(--ink-soft);
+  border-left:3px solid var(--accent);
+  background:rgba(61,76,196,.05);
+  padding:16px 20px;margin:20px 0;
+  border-radius:0 var(--radius) var(--radius) 0;
+}
+.quote p{margin-bottom:8px;text-align:justify}
+.quote p:last-child{margin-bottom:0}
+.quote .src{
+  display:block;margin-top:6px;font-size:12.5px;color:var(--muted);
+}
+.quote a{color:var(--accent)}
+
+.table-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:13.5px;min-width:600px}
+th{
+  background:linear-gradient(180deg,#fafaf7,#f2f1ec);
+  font-weight:650;text-align:left;padding:11px 16px;
+  border-bottom:1px solid var(--line);color:var(--ink);
+  white-space:nowrap;
+}
+td{padding:10px 16px;border-bottom:1px solid var(--line);color:var(--ink-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(61,76,196,.03)}
+td:first-child{font-family:var(--mono);color:var(--accent-deep);font-weight:600;white-space:nowrap}
+.caption{font-size:12.5px;color:var(--muted);text-align:center;margin:6px 0 20px}
+
+.footnote{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--muted);
+}
+.footnote a{color:var(--accent);text-decoration:none}
+.footnote a:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .main{padding:40px 18px 64px}
+  .hero h1{font-size:27px}
+  .ch-head h2{font-size:20px}
+  .topbar .badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">设</div>
+  <a class="brand" href="../index.html">龙薇 · 个人作品集</a>
+  <span class="badge">产品设计方法</span>
+</div>
+
+<div class="main">
+
+  <header class="hero">
+    <div class="kicker">产品设计</div>
+    <h1>如何从0到1设计商家系统</h1>
+    <p class="sub">从业务目标、组件化设计思路到五级产品架构，拆解电商商家系统的设计之道。</p>
+    <div class="meta">
+      <span>✍️ 作者 <b>逗逗龙</b></span>
+      <span>📅 发布时间 <b>2023-11-11</b></span>
+      <span>📮 公众号 <b>逗逗龙的产品趣谈</b></span>
+      <span>🔗 <a href="https://mp.weixin.qq.com/s/digjEukvYxbORVbXSfvbCg" target="_blank" rel="noopener">原文链接 ↗</a></span>
+    </div>
+  </header>
+
+  <article class="article">
+    <p class="lead">电商行业正在快速发展，提到电商系统，我们可以立马想到一些耳熟能详的C端产品，例如淘宝、京东等。但是实际上一个电商平台的运行是依赖多产品协同的，除了服务于C端的购物平台，还包括服务于B端的商家系统。本文将通过回答如下三个问题：</p>
+    <ul>
+      <li>什么是商家系统，在电商中它的业务目标是什么？</li>
+      <li>商家系统需要遵循怎样的设计思路，才能实现业务目标？</li>
+      <li>商家系统是由什么组成的？</li>
+    </ul>
+    <p>上述的三个问题其实就对应着：Why？How？What？了解这三个问题的答案，就能为从0到1设计商家系统奠定基础。</p>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">01</div>
+        <h2>什么是商家系统</h2>
+      </div>
+      <p>要了解商家系统，首先要回答的是什么是商家系统？商家系统有很多不同的称呼，比如后台、商家后台、商家工作台、商家端，不同的角色在称呼这个系统时会有不同的偏好。</p>
+      <p>目前各大互联网平台为了商业化，先后都开始了电商的布局，如果聚焦在几个头部平台的商家系统，不难发现他们对于商家系统的定义是相对统一的。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>C端</th><th>公司</th><th>商家端</th><th>Slogan</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>淘宝</td><td>阿里巴巴</td><td>千牛</td><td>淘宝天猫商家一站式店铺管理工作台，千万商家都在使用，更多官方工具，等您解锁体验。</td></tr>
+            <tr><td>京东</td><td>京东</td><td>京麦</td><td>京东官方出品的一站式店铺管理平台。</td></tr>
+            <tr><td>拼多多</td><td>拼多多</td><td>拼多多商家端</td><td>拼多多官方推出的手机版店铺管理平台，一分钟掌握店铺动态，一站式搞定日常经营。</td></tr>
+            <tr><td>抖音</td><td>字节</td><td>抖店</td><td>抖店，抖音电商官方出品的商家移动工作台，提供一站式电商解决方案。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">Slogan来源：App Store应用介绍</p>
+
+      <p>不同电商平台的商家系统都有使用到"一站式"的概念，也就是商家在经营中所需要的全部工具、服务都可以在商家系统找到。当消费者在C端App上浏览、加购以及下单，那么对应也有商家在商家系统完成发布商品、营销设置、订单履约、客服接待等等相关操作，以向用户提供对应的服务。</p>
+      <p>在上述的论述中，我们一共提到了两个角色：消费者和商家，伴随各种电商模式的兴起，也衍生出了更多的角色。但是核心角色还是消费者和商家，对于电商平台而言，就是通过平台来链接由商家和消费者形成的供需两侧。所以按照经济学中最朴素的道理来讲清楚电商平台的商业模式，如果O是提高GMV，那么可以拆分出3个核心的KR：</p>
+      <ul>
+        <li><strong>KR1：</strong>提高供给侧的规模</li>
+        <li><strong>KR2：</strong>提高需求侧的规模</li>
+        <li><strong>KR3：</strong>提高供给和需求两者之间的匹配效率</li>
+      </ul>
+      <p>也就是说当供给和需求都能无限大时，平台链接供需之间的效率不断趋近100%，那么在电商平台就能产生无限大的交易额。值得注意的是KR1中提到的供给侧的规模并不是只指商家规模，而是平台侧的供给能力，商家、商品、服务都是供给能力的重要组成。</p>
+      <p>我们对【商家系统是什么】进行一个总结：商家系统则是实现KR1中的系统工具，核心的业务目标就是实现供给规模的提升，从而实现平台商业化目标。系统只是工具，作为产品设计者，需要谨记系统背后的业务目标，一切的产品设计都需要围绕着业务目标开展。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">02</div>
+        <h2>商家系统的设计思路</h2>
+      </div>
+      <p>介绍什么是商家系统后，那么接下来将介绍商家系统是如何围绕着【提高供给规模】来进行产品设计的。上文已经阐述了商家系统是商家的一站式经营平台，而商家系统又可以拆分为各个功能模块。</p>
+      <p>此时我们就不得不提到"组件化"的概念，简单来说组件化就像是搭积木，我们解耦复杂的系统，将他们划分重组，以此更好的适应业务的发展，使系统更具有可扩展性。伴随着电商行业的不断发展，商家系统为了实现业务目标，也不断进行衍生，商家系统也是非常复杂的系统。我们可以按照不同的维度，对商家系统进行定义和划分，通过各个功能模块来组成不同的商家工作台。</p>
+      <p>下面将举一个角色工作台的例子，来帮助大家更好来理解组件化的概念。电商平台有多种角色，对于KA商家，要维持一个店铺的经营，分工是精细化的，一般会存在：店长、运营、客服、美工、财务、仓储配送。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>角色</th><th>岗位描述</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>店长</td><td>处理店铺管理和日常运营的全部问题。</td></tr>
+            <tr><td>运营</td><td>处理店铺装修、商品管理、促销推广等运营问题。</td></tr>
+            <tr><td>客服</td><td>接待用户的进线咨询，包括用户的售前咨询和售后问题。</td></tr>
+            <tr><td>美工</td><td>处理店铺装修、商品发布中图片美化问题。</td></tr>
+            <tr><td>财务</td><td>处理店铺结算、发票问题。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>不同的角色在店铺日常经营中所负责的工作是差异化的，所以他们在工作中对商家系统各模块的使用也是差异化的。那么如果我们去搭一个不同角色工作台的时候，就是利用的组件化的思维，如同搭积木一样，将各个模块组合，根据不同角色的诉求来实现工具的组合。</p>
+      <p>我们试图还原一个电商店长的一天：阿伟是一家女装淘宝店长，每天打开电脑第一件事情就是看昨天的数据，发现销售数据没有达到预期，分析了数据，主要是客服接待效率没有跟上。马上618了，阿伟开始思考怎么结合利用618这个流量爆点。正好千牛的消息中心弹出了一则消息，正是淘宝官方邀请报名参与618的平台活动。阿伟看了下官方活动的规则，认为本次平台的补贴力度较大，可以报名参与。因此，阿伟拉会和同事讨论618的活动方案，根据平台官方的公布的活动节奏，确定活动的选品、促销力度、店铺装修、客服人员配置的方案等等。</p>
+      <p>透过阿伟的视角，我们简单勾勒了一个店长角色的用户地图。阿伟作为店长，在日常工作中制定店铺的经营策略，这就导致了他在使用商家系统时会因为他的工作角色而存在偏好。在阿伟的例子中，他使用了数据模块、客服模块、消息中心模块、营销模块的系统功能。但是，如果我们切换一个角色，比如财务、客服，他们的用户地图可能就和阿伟大相径庭。</p>
+      <p>除了按照角色来拆分之外，还有按照业务场景（虚拟、实物、到店等），按照商家的生命周期（按照新商、老商）等等。由于电商的业务足够复杂，在实现产品提效这个目标上，需要注意到用户的差异性，在产品设计上能够通过组件化的形式来快速打造出商家所需要的"刀枪棍棒"。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">03</div>
+        <h2>商家系统的组成</h2>
+      </div>
+      <p>组件化只是一种产品设计思路，核心要解决的如何适应电商复杂的业务场景，使得差异化的商家用户能够更高效的完成日常的经营工作。基于这个理解，那下一步需要明确的是，商家系统到底有哪些模块？也就是我们手中的"积木"有哪些？</p>
+      <p>在头部的电商大厂，会按照系统模块来划分组织架构。无论是在系统架构还是人员架构上都进行了组件化的拆分，实现在面对复杂的业务场景时，可以保持系统的可扩展性，以较少的开发周期实现商家提效的目的。我们可以用一张图来描述商家系统的搭建逻辑。</p>
+      <p>上图所展示的是一般POP（三方）商家系统的产品架构，我们从产品视角去理解商家系统时，大致有五层，分别为业务场景、终端、功能模块、系统层、底层能力，具体说明如下：</p>
+      <ul>
+        <li><strong>第一层：业务场景</strong>，最上层是业务场景。由于业务场景的复杂程度较高，可以不同的维度去拆分商家系统，实现精细化的运营。</li>
+        <li><strong>第二层：终端</strong>，可以理解商家系统的展示形态。由于业务场景的差异化，因此行业内的商家系统会出现APP、Web、PC、iPad、小程序等各种形态，以此去满足商家的日常经营需求。</li>
+        <li><strong>第三层：功能模块</strong>，也就是商家经营中使用的订单、商品等功能。在商家全链路经营中会存在多个模块，包括：招商入驻、店铺管理、商品管理等等，模块下又可以细分功能点。这些服务的提供方可以分为官方和三方，其中三方的服务是商家自行通过服务市场这个B2B平台购买。</li>
+        <li><strong>第四层：系统层</strong>，为了减少系统的耦合程度，在进行技术设计时，会区分各个系统，根据功能、代码量等因素，来去拆分各中心。在推进一个项目时，通常需要多个中心之间交互，通过接口、消息、读数据等形式来实现系统之间的信息交换。</li>
+        <li><strong>第五层：基础底层</strong>，在系统层之下就是基础底层。对于商家系统会需要有大量基础能力，为了避免重复建设，大厂在组织架构上会拆分出这些底层能力，一般有技术中台来提供标准化的能力接口，而商家系统作为其中的一个调用方。</li>
+      </ul>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">04</div>
+        <h2>总结</h2>
+      </div>
+      <p>让我们回到开头说的那三个问题：</p>
+      <ul>
+        <li>什么是商家系统，在电商中它的业务目标是什么？</li>
+        <li>商家系统需要遵循怎样的设计思路，才能实现业务目标？</li>
+        <li>商家系统是由什么组成的？</li>
+      </ul>
+      <p>其实无论是B端还是C端的产品设计，作为产品设计者在设计之初，最先要考虑的就是产品所需要达到的业务目标，【为什么做】比【怎么做】是更重要的问题。所以对于刚开始接触B端产品设计的同学，需要先明确商家系统在电商中所起到的作用，平台的作用就是拉动供给和需求，同时提高供给和需求侧之间的匹配效率。商家通过商家系统完成日常经营，商家系统承担着供给侧业务目标的系统表达。</p>
+      <p>由于电商的业务场景的复杂程度较高，所以要求商家系统具有足够可扩展性，因为商家系统的产品设计需要探索组件化的设计思路，使得商家系统中的每个模块或者细分到功能点，都能如同积木一样拆分和重组，使得系统能够快速复用和扩展，从而减少开发周期。</p>
+      <p>遵循这样的设计思路，以POP的商家系统为例，进行了产品架构的五级拆分：业务场景、终端、功能模块、系统层、基础底层。对于一个产品设计者而言，一定要对系统有整体的认知。在实际的项目推动中，业务可能会跟你描述一个业务场景，需要你在产品上支持这个业务场景，那么在实际的项目推动就可以遵循着五级顺序来识别问题，去逐层拆分，来明确需求的范围。</p>
+    </section>
+  </article>
+
+  <footer class="footnote">
+    <span>如何从0到1设计商家系统 · 产品设计方法 · 2023</span>
+    <a href="../index.html">← 返回作品集</a>
+  </footer>
+
+</div>
+
+</body>
+</html>

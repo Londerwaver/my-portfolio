@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>如何理解得物的交易模式 · 产品设计方法</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1f2430;--ink-soft:#5b6472;--muted:#8a93a3;
+  --paper:#f6f5f2;--surface:#ffffff;--line:#e7e4dd;
+  --accent:#3d4cc4;--accent-deep:#2c3a9e;--glow:#0ea5a3;
+  --warn:#d97706;--ok:#16a34a;
+  --radius:12px;--radius-lg:16px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+  --font-body:'Inter','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-head:'Noto Serif SC','Songti SC',serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-body);color:var(--ink);background:var(--paper);line-height:1.85;font-size:16px;-webkit-font-smoothing:antialiased}
+::selection{background:rgba(61,76,196,.14)}
+.topbar{position:sticky;top:0;z-index:50;height:56px;display:flex;align-items:center;gap:12px;padding:0 24px;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.topbar .logo{width:26px;height:26px;border-radius:8px;flex:none;background:linear-gradient(135deg,var(--accent),var(--glow));display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+.topbar a.brand{font-family:var(--font-head);font-weight:600;font-size:14.5px;color:var(--ink);text-decoration:none;letter-spacing:.3px}
+.topbar a.brand:hover{color:var(--accent)}
+.topbar .badge{margin-left:auto;font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:3px 12px;background:var(--surface)}
+.main{max-width:780px;margin:0 auto;padding:64px 28px 96px}
+.hero{padding:8px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px}
+.hero .kicker{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px}
+.hero .kicker::before{content:"";width:22px;height:2px;background:var(--glow);border-radius:2px}
+.hero h1{font-family:var(--font-head);font-size:36px;line-height:1.35;letter-spacing:.5px;font-weight:600}
+.hero .sub{margin-top:16px;font-size:15.5px;color:var(--ink-soft);max-width:660px}
+.hero .meta{margin-top:24px;display:flex;flex-wrap:wrap;gap:8px}
+.hero .meta span{font-size:12.5px;color:var(--ink-soft);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:4px 13px}
+.hero .meta b{color:var(--ink);font-weight:600}
+.hero .meta a{color:var(--accent);text-decoration:none}
+.hero .meta a:hover{text-decoration:underline}
+.chapter{margin-bottom:60px}
+.ch-head{display:flex;gap:14px;align-items:center;margin-bottom:26px}
+.ch-num{flex:none;width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--glow));color:#fff;display:grid;place-items:center;font-family:var(--mono);font-weight:700;font-size:15px;box-shadow:0 5px 14px rgba(61,76,196,.25)}
+.ch-head h2{font-size:24px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+.article p{margin-bottom:14px;text-align:justify}
+.article strong{color:var(--accent-deep);font-weight:600}
+.article .lead{color:var(--ink-soft)}
+.article ul,.article ol{margin:0 0 16px 24px}
+.article li{margin-bottom:8px}
+.article li::marker{color:var(--accent)}
+.quote{font-size:15px;color:var(--ink-soft);border-left:3px solid var(--accent);background:rgba(61,76,196,.05);padding:16px 20px;margin:20px 0;border-radius:0 var(--radius) var(--radius) 0}
+.quote p{margin-bottom:8px;text-align:justify}
+.quote p:last-child{margin-bottom:0}
+.quote .src{display:block;margin-top:6px;font-size:12.5px;color:var(--muted)}
+.quote a{color:var(--accent)}
+.footnote{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.footnote a{color:var(--accent);text-decoration:none}
+.footnote a:hover{text-decoration:underline}
+@media(max-width:640px){.main{padding:40px 18px 64px}.hero h1{font-size:27px}.ch-head h2{font-size:20px}.topbar .badge{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">设</div>
+  <a class="brand" href="../index.html">龙薇 · 个人作品集</a>
+  <span class="badge">产品设计方法</span>
+</div>
+
+<div class="main">
+
+  <header class="hero">
+    <div class="kicker">产品设计</div>
+    <h1>如何理解得物的交易模式</h1>
+    <p class="sub">从潮流电商市场环境到得物千亿GMV增长路径，拆解其独特的平台强管控交易模式。</p>
+    <div class="meta">
+      <span>✍️ 作者 <b>逗逗龙</b></span>
+      <span>📅 发布时间 <b>2023-12-06</b></span>
+      <span>📮 公众号 <b>逗逗龙的产品趣谈</b></span>
+      <span>🔗 <a href="https://mp.weixin.qq.com/s/31hLAbhLnGD5rUzv5qKO3w" target="_blank" rel="noopener">原文链接 ↗</a></span>
+    </div>
+  </header>
+
+  <article class="article">
+    <p class="lead">目前电商入局者众，除了传统电商的大厂之外，不同的公司也开始探索了特色电商的道路，比如抖音的【兴趣电商】，拼多多的【社交电商】。其中得物以Z世代的年轻人作为目标用户，以球鞋交易作为切入点，发展【潮流电商】，在当前激烈的电商竞争中占有一席之地。</p>
+    <p>本文还是以三个问题来理解得物：</p>
+    <ul>
+      <li>潮流电商的市场环境；</li>
+      <li>潮流电商平台有哪些，其中得物表现如何；</li>
+      <li>得物当前的交易模式总结；</li>
+    </ul>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">01</div>
+        <h2>潮流电商的市场环境</h2>
+      </div>
+      <p>潮流电商是基于电商逐渐成熟发展后的细分赛道，是基于潮流消费盛行之后，撮合买方卖方的潮流消费。要了解潮流电商，我们要了解几个方面的问题：①什么是潮流消费；②潮流电商的供需两侧是怎么样的；③潮流电商的交易规模有多大。</p>
+
+      <p><strong>1）什么是潮流消费</strong></p>
+      <p>首先，我们需要理解什么是潮流消费，潮流消费的定义并不统一，但是在定义潮流消费时也存在共性的部分。</p>
+
+      <div class="quote">
+        <p>潮流消费是指为拥有独特的概念以及风格，设计上兼具创意、时尚的审美功能以及沉浸式体验为特点的产品、内容或场景消费。</p>
+        <span class="src">—— 大君，消费界，<a href="https://mp.weixin.qq.com/s/Gb3nTYcTPERENk8CBI_rSg" target="_blank" rel="noopener">《潮流消费俘获Z世代!》</a></span>
+      </div>
+
+      <div class="quote">
+        <p>狭义的潮流消费主要指日式街头文化、美式嘻哈文化等为内核的服饰、鞋包消费，典型代表如Yeezy，Supreme等潮流品牌，广义的潮流消费泛指受年轻消费群体追捧的、强调品牌文化与审美价值的消费，如手办、汉服、潮流美妆等。</p>
+        <span class="src">—— IP财经，<a href="https://mp.weixin.qq.com/s/ogSrnN1aq7JDdwRfRipkcA" target="_blank" rel="noopener">《中信证券：2021年中国潮流消费行业专题研究报告》</a></span>
+      </div>
+
+      <p>参考上述的定义，可以理解潮流消费主要针对于年轻人这个消费群体，潮流消费主张强调品牌和审美价值消费，同时潮流消费场景并不仅仅只是球鞋、服饰、手办等实物商品，潮流消费的场景在不断扩展，还包括餐饮娱乐这种体验式的消费场景。</p>
+
+      <p><strong>2）潮流电商供需是什么</strong></p>
+      <p>潮流电商需求侧即用户侧，为年轻一代，主要指Z世代的年轻人（Z世代指的是1990年代中叶至2010年的年轻群体）。</p>
+
+      <div class="quote">
+        <p>得物App的用户数据显示，其中95后占58%，00后占27%，95后的Z世代人群占比达到85%，当仁不让地成为当代潮流消费主力。</p>
+        <span class="src">—— 浙江省创意设计协会，<a href="https://mp.weixin.qq.com/s/GkqqpIb1La1gXfQd-Q9uRQ" target="_blank" rel="noopener">《2020当代年轻人消费数据报告》</a></span>
+      </div>
+
+      <p>潮流消费呈现明确的年轻化特征，而这些年轻人关注的潮流品类呈现出多元化的分布，按照关注度从大到小排列为：服饰、球鞋、箱包、美妆、珠宝首饰、手办潮玩、3CE产品、其他。</p>
+
+      <div class="quote">
+        <p>新浪《当代年轻人潮流消费调查问卷》数据显示当今年轻人关注度最高的两人潮流品类是服饰和球鞋占比分别为21.68%和19.86%。</p>
+        <span class="src">—— 浙江省创意设计协会</span>
+      </div>
+
+      <p>需求决定供给，潮流文化兴起于上世纪美国的嬉皮文化，在日本得到发展后席卷全球。潮流文化在中国的发展也展现出本土化的趋势，除了一些耳熟能详的国际潮流品牌之外，中国国潮也在崛起。</p>
+
+      <div class="quote">
+        <p>从2019中国潮流消费发展白皮书披露的数据可知，国潮品牌的渗透率正在逐年攀升，2019年国潮品牌的渗透率38%，同年消费规模占15%，而2017年和2018年国潮品牌的消费规模分别为11%和12%。</p>
+        <span class="src">—— REP数据中心，<a href="https://mp.weixin.qq.com/s/MzRNORJJ55-1Ei7FedJIVg" target="_blank" rel="noopener">《2019中国潮流消费发展白皮书》</a></span>
+      </div>
+
+      <p><strong>3）潮流消费的市场规模有多大</strong></p>
+
+      <div class="quote">
+        <p>根据阿里所发布《潮流涌起下的追潮众生与消费洞察》，2019年阿里生态中潮流消费GMV增幅224%。对于GMV增幅原因进行拆解，潮流消费人群规模同比增加126%，商品消费件数同比增加210%，消费商品单件同比增加5%。</p>
+        <span class="src">—— 数据D江湖，<a href="https://mp.weixin.qq.com/s/_LvWE0KjYff4EQuBlMfu2Q" target="_blank" rel="noopener">《潮流涌起下的追潮众生与消费洞察》</a></span>
+      </div>
+
+      <div class="quote">
+        <p>将潮流消费划分为：潮流服务、新式茶饮、潮玩、线下实景娱乐、汉服，从大到小分别市场规模为：几千亿、500亿、200亿、200亿、百亿。</p>
+        <span class="src">—— IP财经，中信证券研究报告</span>
+      </div>
+
+      <p>目前行业预测，潮流消费市场规模达千亿元，而且呈现快速增长的趋势。对GMV增幅进行拆解，人群规模、消费商品数、商品价格都有所提高。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">02</div>
+        <h2>潮流电商平台有哪些</h2>
+      </div>
+      <p>目前头部潮流电商平台就是得物，在潮流电商这一赛道上，也有其他大厂进行过尝试。</p>
+      <p>抖音2021年正式上线【抖音盒子】，也是基于潮流电商推出的独立App。但是【抖音盒子】目前无法在iOS的应用市场被搜索到，在安卓市场中主流的小米和华为应用市场已经有两个月没更新了。</p>
+      <p>新浪也推出了潮流社区【Hobby】，但是社区的氛围更重，构建的是一个多元文化内容聚集地。截至当前，社区内潮品商城主要售卖的是数字藏品，而非实物潮流商品。</p>
+      <p>除此之外，还有一些传统交易平台，包括闲鱼也开辟了潮玩频道，但是潮流电商只是全平台交易的一部分，而并非专注于潮流电商这一个赛道。总体来说，得物是在潮流电商赛道中的头部平台。</p>
+      <p>得物没有对外公开披露GMV的相关数据，目前关于得物交易规模的数据全部来自于第三方收集的数据汇总。</p>
+
+      <div class="quote">
+        <p>据华夏时报报道，从2017年上线球鞋交易功能向球鞋交易平台转型的一年后，得物每月GMV成交总额已接近2亿元，更在该年创下了20亿~30亿元的成绩。到2019年，公司全年GMV达60亿~70亿元。</p>
+        <span class="src">—— 每日经济新闻</span>
+      </div>
+
+      <div class="quote">
+        <p>过去三年得物仍在高速发展之中，据多个数据显示，2019年得物GMV为60-70亿元，2020年达到500亿元，2021年已为1000亿左右（据品牌商测算出）。</p>
+        <span class="src">—— 合力建投</span>
+      </div>
+
+      <div class="quote">
+        <p>在这样的大趋势加持下，得物GMV从19年60-70亿元、20年500亿、21年1000亿、22年2000亿，营收大概能占到GMV的8.5-10%，可谓增速惊人！</p>
+        <span class="src">—— 韬哥talk</span>
+      </div>
+
+      <p>从上述数据来看，得物是从2017年转型为交易平台，GMV呈现增长趋势。按照上述的第三方数据来看，2017年GMV预计在20-30亿，2019年GMV60-70亿，2020年500亿，2021年1000亿（也有说800亿），2022年2000亿。得物在2020年GMV出现量级增长，同时当前GMV已达到千亿水平，可以说在潮流电商赛道上独占鳌头。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">03</div>
+        <h2>得物的交易模式总结</h2>
+      </div>
+      <p>得物的交易模式使得物成为了非典型电商，得物的交易履约是相对比较重的，平台进行强管控。由于得物经营的主要是客单价高的潮流商品，得物的特色打法就是由平台强监管商品质量，所以商家在履约过程中，需要先将商品交由得物平台进行商品质检，平台完成质检后，由得物再向消费者发货。</p>
+      <p>实际上，得物的交易模式要复杂得多。会根据卖家的主体、是否入仓、仓储情况、供应渠道、是否跨境等因素，分类为多种交易模式。下文将按照卖家主体分类，来总结个人和企业主体下得物的交易模式有哪些。</p>
+
+      <p><strong>1）企业主体</strong></p>
+      <p>得物为企业主体的商家总计有五种履约方式，包括：入仓模式、直发模式、现货模式、预售模式、跨境模式，每一种模式下又可以细分。对于消费者而言，一个sku的商品可能会存在不同的购买渠道，包含：闪电直发、品牌专供、极速发货、普通发货、预售、定金预售以及海外直邮。</p>
+      <p>对于几种模式而言，平台对于开通要求、仓储情况都有不同的要求。主要是谈谈入仓模式和现货模式：</p>
+      <ul>
+        <li><strong>现货模式</strong>为得物的基础模式，用户下单之后，先入仓检验，通过检验后，得物换成统一的包材再邮寄给用户。但是在这种模式下，由于这种模式流程较长，整体时效较慢，为了压缩时效会要求商家发货时效及时，同时邮费成本也较高。</li>
+        <li><strong>入仓模式</strong>是为了进一步解决发货时效问题。由商家提前入仓完成检验，用户下单之后直接由得物进行邮寄，可以减少商家发货的人力。但是这种方式可能会产生仓储费用（周转天数小于35的免费），邮寄的成本低于现货模式。</li>
+      </ul>
+
+      <p><strong>2）个人主体</strong></p>
+      <p>对于个人主体的商家一共有三种履约模式，包括：入仓模式、现货模式以及求购模式，对于买家而言，也包括三种购买模式，包括：闪电直发、普通发货、求购模式。</p>
+      <p>现货模式和入仓模式主流程和企业主体类似。这里的<strong>求购模式</strong>有点类似于闲鱼的CtoC模式，由买家先发起求购并支付保证金，由系统匹配，用户支付全款后，保证金退回，商家可邮件至得物检验，检验完毕，由得物将商品邮寄给买家。</p>
+      <p>行文至末，回到最开始的三个问题。伴随着潮流电商的兴起，面对于Z世代的年轻人，这是一个持续增长且预期能达到千亿规模的市场。而在现在的市场中，得物是其中头部的潮流电商平台，从2017年平台转型为交易平台开始，保持着积极的增长态势。其主要原因就是得物独特的交易模式，对于这些客单价较高的潮流商品，通过自建仓来完成检验和后续邮寄，平台强管理保证商品质量，得物的电商模式在现有的电商市场开创了一条先河，值得从业者关注和学习。</p>
+    </section>
+  </article>
+
+  <footer class="footnote">
+    <span>如何理解得物的交易模式 · 产品设计方法 · 2023</span>
+    <a href="../index.html">← 返回作品集</a>
+  </footer>
+
+</div>
+
+</body>
+</html>
