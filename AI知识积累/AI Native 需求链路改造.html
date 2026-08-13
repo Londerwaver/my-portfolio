@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI Native 需求链路改造思考</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f7f6f2;
+      --paper: #ffffff;
+      --ink: #1a1d24;
+      --muted: #8a8f9e;
+      --line: #dddbd4;
+      --accent: #2a5caa;
+      --accent-soft: #e8eef8;
+      --amber: #b57a22;
+      --amber-soft: #fff2db;
+      --red-soft: #fae8e3;
+      --red: #a94f3f;
+      --code: #f2f4f1;
+      --shadow: 0 18px 50px rgba(31, 39, 34, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      line-height: 1.68;
+    }
+
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 48px 24px 72px;
+    }
+
+    header {
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 44px;
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0;
+      margin: 0 0 12px;
+    }
+
+    h1 {
+      font-family: 'Noto Serif SC', serif;
+      font-size: clamp(32px, 5vw, 56px);
+      line-height: 1.08;
+      letter-spacing: 0;
+      margin: 0;
+      max-width: 860px;
+    }
+
+    .subtitle {
+      margin: 22px 0 0;
+      max-width: 840px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .thesis {
+      margin-top: 28px;
+      padding: 22px 24px;
+      background: var(--accent-soft);
+      border-left: 5px solid var(--accent);
+      border-radius: 8px;
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    section {
+      margin-top: 28px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(31, 39, 34, 0.05);
+    }
+
+    h2 {
+      font-family: 'Noto Serif SC', serif;
+      margin: 0 0 16px;
+      font-size: 26px;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      font-family: 'Noto Serif SC', serif;
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.35;
+      letter-spacing: 0;
+    }
+
+    p {
+      margin: 0 0 14px;
+    }
+
+    p:last-child {
+      margin-bottom: 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #faf9f5;
+      min-height: 148px;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(11, minmax(118px, 1fr));
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-top: 18px;
+    }
+
+    .step {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+      padding: 14px;
+      min-height: 118px;
+    }
+
+    .num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step-title {
+      display: block;
+      font-weight: 750;
+      line-height: 1.35;
+    }
+
+    .step small {
+      display: block;
+      color: var(--muted);
+      margin-top: 6px;
+      line-height: 1.45;
+    }
+
+    .phase-diagram {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .phase {
+      position: relative;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      background: #faf9f5;
+      min-height: 156px;
+    }
+
+    .phase::after {
+      content: "→";
+      position: absolute;
+      right: -14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent);
+      font-size: 24px;
+      font-weight: 800;
+    }
+
+    .phase:last-child::after {
+      content: "";
+    }
+
+    .phase-label {
+      display: inline-block;
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 750;
+      margin-bottom: 8px;
+    }
+
+    .phase h3 {
+      margin-bottom: 8px;
+    }
+
+    .phase p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .stage-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .stage {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 12px;
+      align-items: start;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #faf9f5;
+    }
+
+    .stage p {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 0;
+    }
+
+    .example {
+      margin-top: 24px;
+      border: 1px solid #c9d7ec;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      padding: 22px;
+    }
+
+    .example h3 {
+      margin-bottom: 12px;
+    }
+
+    .example-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .example-step {
+      border: 1px solid #c9d7ec;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 14px;
+      min-height: 118px;
+    }
+
+    .example-step strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .example-step span {
+      display: block;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .example-section {
+      margin-top: 16px;
+      border: 1px solid #c9d7ec;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.72);
+      padding: 18px;
+    }
+
+    .example-section h4 {
+      margin: 0 0 8px;
+      font-size: 17px;
+      line-height: 1.35;
+    }
+
+    .example-section p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .mini-flow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .mini-flow span {
+      display: inline-block;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 1px solid #c9d7ec;
+      font-size: 14px;
+      font-weight: 650;
+      color: var(--accent);
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .soft-box {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #ffffff;
+      padding: 14px;
+    }
+
+    .soft-box h5 {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .soft-box p,
+    .soft-box li {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .decision {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .decision .bad {
+      border-color: #e7c8bd;
+      background: var(--red-soft);
+    }
+
+    .decision .change {
+      border-color: #efd8ad;
+      background: var(--amber-soft);
+    }
+
+    .contract {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .panel {
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      background: #faf9f5;
+    }
+
+    .panel.green {
+      background: var(--accent-soft);
+      border-color: #c9d7ec;
+    }
+
+    .panel.amber {
+      background: var(--amber-soft);
+      border-color: #efd8ad;
+    }
+
+    .anchor-diagram {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+      align-items: stretch;
+    }
+
+    .hub {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding: 26px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      border: 2px solid #b9cdea;
+    }
+
+    .hub strong {
+      display: block;
+      font-size: 22px;
+      line-height: 1.25;
+      margin-bottom: 10px;
+    }
+
+    .hub span {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .spoke {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #faf9f5;
+      min-height: 126px;
+    }
+
+    .spoke p {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 0;
+    }
+
+    .stack {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .stack-item {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background: #faf9f5;
+      align-items: start;
+    }
+
+    .stack-item strong {
+      display: block;
+      color: var(--accent);
+    }
+
+    .stack-item p {
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 0;
+    }
+
+    .belongs {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: var(--amber-soft);
+      color: var(--amber);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    ul {
+      margin: 10px 0 0;
+      padding-left: 22px;
+    }
+
+    li {
+      margin: 6px 0;
+    }
+
+    code, pre {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", monospace;
+    }
+
+    pre {
+      margin: 16px 0 0;
+      padding: 18px;
+      background: var(--code);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow-x: auto;
+      line-height: 1.55;
+      font-size: 14px;
+    }
+
+    .levels {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .level {
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      background: #faf9f5;
+    }
+
+    .level strong {
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .level span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .infra {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .infra-item {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 18px;
+      background: #faf9f5;
+    }
+
+    .infra-item p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid #e7c8bd;
+      background: var(--red-soft);
+      color: var(--red);
+      font-weight: 650;
+    }
+
+    footer {
+      margin-top: 28px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      header,
+      section {
+        padding: 24px;
+      }
+
+      .grid,
+      .contract,
+      .levels,
+      .infra,
+      .phase-diagram,
+      .stage-list,
+      .anchor-diagram,
+      .example-grid,
+      .two-col,
+      .decision {
+        grid-template-columns: 1fr;
+      }
+
+      .phase::after {
+        content: "↓";
+        right: 50%;
+        top: auto;
+        bottom: -22px;
+        transform: translateX(50%);
+      }
+
+      .hub {
+        grid-column: auto;
+        grid-row: auto;
+      }
+
+      .stack-item {
+        grid-template-columns: 1fr;
+      }
+
+      main {
+        padding: 24px 14px 48px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">AI Native Requirement Operating System</p>
+      <h1>AI Native 需求链路改造思考</h1>
+      <p class="subtitle">
+        从“人写需求、AI 辅助”升级为“业务意图进入系统后，AI 自动完成上下文理解、影响分析、规格生成、开发执行、语义校验和记忆回写，人只在高价值决策点介入”。
+      </p>
+      <div class="thesis">
+        它不是把 PRD 写得更快，而是把需求变成可执行、可验证、可追溯的 Semantic Contract。
+      </div>
+    </header>
+
+    <section>
+      <h2>一、总体定位</h2>
+      <p>
+        新链路的目标不是再做一个“AI 写 PRD 工具”，而是建设一个 AI Native 需求操作系统。它以业务意图为入口，以企业记忆和代码图谱为上下文，以语义契约为中间锚点，最终把需求、开发、测试、评审、发布和记忆沉淀串成一个闭环。
+      </p>
+      <div class="grid">
+        <div class="card">
+          <span class="tag">输入</span>
+          <h3>一句话需求 / 文档 / 会议 / 用户反馈</h3>
+          <p>产品不再从空白 PRD 开始，而是从真实业务意图、用户问题或运营反馈开始。</p>
+        </div>
+        <div class="card">
+          <span class="tag">中间</span>
+          <h3>业务记忆 + 代码图谱 + Agent 协作 + 风险治理</h3>
+          <p>AI 先理解上下文，再进行影响分析和规格生成，关键语义由人确认。</p>
+        </div>
+        <div class="card">
+          <span class="tag">输出</span>
+          <h3>可读需求、可执行规格、可开发任务、可验证测试</h3>
+          <p>所有产物都围绕 Semantic Contract 展开，并在 merge 后回写企业记忆。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>二、总链路</h2>
+      <p>
+        这条链路可以理解为四段：先把需求说清楚，再判断影响和风险，然后进入开发执行，最后用结果反哺企业记忆。
+      </p>
+      <div class="phase-diagram" aria-label="AI Native requirement phases">
+        <div class="phase">
+          <span class="phase-label">Phase 1</span>
+          <h3>理解需求</h3>
+          <p>接收一句话、文档、会议或反馈，先补上下文，再生成产品能确认的需求理解卡。</p>
+        </div>
+        <div class="phase">
+          <span class="phase-label">Phase 2</span>
+          <h3>形成契约</h3>
+          <p>明确影响范围、业务规则、验收条件和风险等级，形成 Semantic Contract。</p>
+        </div>
+        <div class="phase">
+          <span class="phase-label">Phase 3</span>
+          <h3>执行开发</h3>
+          <p>把契约转成开发包，交给 Agent 或研发执行，并在 MR 阶段校验是否兑现。</p>
+        </div>
+        <div class="phase">
+          <span class="phase-label">Phase 4</span>
+          <h3>沉淀记忆</h3>
+          <p>发布后结合测试、日志、指标和反馈，把业务事实、决策和证据回写企业记忆。</p>
+        </div>
+      </div>
+
+      <div class="stage-list">
+        <div class="stage">
+          <span class="num">1</span>
+          <div>
+            <h3>需求入口</h3>
+            <p>产品不从空白 PRD 开始，而是从一句话、会议纪要、飞书文档、Jira、用户反馈或运营问题开始。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">2</span>
+          <div>
+            <h3>上下文组装</h3>
+            <p>AI 先查业务记忆、代码图谱、历史需求、历史 MR、接口文档、测试用例、线上指标和事故记录。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">3</span>
+          <div>
+            <h3>需求澄清</h3>
+            <p>AI 生成产品能看懂的需求理解卡：我理解的目标、当前假设、不确定问题、建议确认项。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">4</span>
+          <div>
+            <h3>影响分析</h3>
+            <p>产品确认大方向后，系统分析可能影响的业务流程、系统、代码区域、状态、数据和外部依赖。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">5</span>
+          <div>
+            <h3>语义契约生成</h3>
+            <p>把用户目标、业务规则、影响范围、非目标、验收条件、数据变化和风险统一成 Semantic Contract。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">6</span>
+          <div>
+            <h3>风险分级与审批</h3>
+            <p>按风险决定 human out / on / in the loop：低风险自动推进，高风险必须审批。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">7</span>
+          <div>
+            <h3>开发包生成</h3>
+            <p>生成 PRD 投影、OpenSpec、任务拆分、测试计划、代码影响清单、验收契约和风险说明。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">8</span>
+          <div>
+            <h3>Agent 开发</h3>
+            <p>开发 Agent 拿到完整上下文包，自动建分支、改代码、补测试、跑验证、生成 MR。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">9</span>
+          <div>
+            <h3>MR 语义校验</h3>
+            <p>MR 不只看 diff，还检查代码是否兑现语义契约，是否改了未声明的业务规则或影响额外范围。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">10</span>
+          <div>
+            <h3>发布验证</h3>
+            <p>发布后看 CI、关键日志、业务指标、异常率、消息堆积、订单/权益一致性和用户反馈。</p>
+          </div>
+        </div>
+        <div class="stage">
+          <span class="num">11</span>
+          <div>
+            <h3>企业记忆回写</h3>
+            <p>把需求、契约、代码变更、测试结果、决策记录、Agent trace 和发布观测沉淀为下一次可复用的证据。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="example">
+        <h3>例子：体验课用户转正式班时，自动处理原班级课程权益和赠课权益</h3>
+        <p>
+          这个例子不是在展示“查一次业务记忆、再查一次代码图谱、最后又写回一次”的重复动作，而是在展示一个飞轮：先读上下文，再对齐意图，然后精确分析，接着执行验证，最后写回记忆。
+        </p>
+        <div class="mini-flow">
+          <span>读上下文</span>
+          <span>对齐意图</span>
+          <span>精确分析</span>
+          <span>执行验证</span>
+          <span>写回记忆</span>
+        </div>
+
+        <div class="example-section">
+          <h4>1. 需求入口：先保存原始意图</h4>
+          <p>
+            产品输入一句话：“体验课用户转正式班时，需要自动处理原班级课程权益和赠课权益。”
+          </p>
+          <p>
+            系统不会立刻写 PRD 或派开发任务，而是先形成一条 RequirementEpisode：记录原始需求、来源、提出人、业务线、时间和上下文链接。这是后续所有判断的原始证据。
+          </p>
+        </div>
+
+        <div class="example-section">
+          <h4>2. 上下文召回：不是做影响分析，而是避免裸聊需求</h4>
+          <p>
+            产品的一句话通常是模糊的。AI 需要先查业务记忆、代码图谱、历史需求、历史 MR、测试、事故和指标，弄清楚企业内部到底怎么称呼、怎么实现、以前怎么改过。
+          </p>
+          <div class="two-col">
+            <div class="soft-box">
+              <h5>如果不查上下文，AI 不知道</h5>
+              <ul>
+                <li>企业里这个业务叫“转班”还是“升班”</li>
+                <li>已有流程是提交转班申请，还是直接执行转班</li>
+                <li>赠课权益在哪个服务里处理</li>
+                <li>历史上有没有类似需求或事故</li>
+                <li>已有测试覆盖了哪些规则</li>
+              </ul>
+            </div>
+            <div class="soft-box">
+              <h5>这一步产出什么</h5>
+              <ul>
+                <li>相关业务概念和历史上下文</li>
+                <li>可能相关的流程和系统</li>
+                <li>已有规则和疑似冲突点</li>
+                <li>初步问题清单</li>
+                <li>RequirementIntent v1 草稿</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-section">
+          <h4>3. 需求理解卡：让产品确认“是不是这个意思”</h4>
+          <p>
+            需求理解卡不是技术方案，也不是最终规格。它是 AI 对产品意图的复述、假设和待确认问题，目的是防止后面的自动化在错误理解上狂奔。
+          </p>
+          <div class="soft-box">
+            <h5>产品看到的内容示例</h5>
+            <p>我理解这个需求是：当体验课用户转入正式班时，系统需要自动处理原班级关系、正式班入班关系，以及赠课权益。</p>
+            <ul>
+              <li>已消耗的体验课课次是否要扣减？</li>
+              <li>原有赠课是迁移、清空，还是重新计算？</li>
+              <li>转班失败后是否允许重新提交？</li>
+              <li>这个规则只适用于体验课，还是所有转班类型？</li>
+            </ul>
+            <p>我猜测影响：转班申请、班级中心、订单/赠课权益。</p>
+          </div>
+          <p>
+            产品确认的不是代码锚点，而是：“是的，我要的就是这个业务行为。”确认后系统得到 ConfirmedBusinessGoal、Assumptions 和 OpenQuestions。
+          </p>
+        </div>
+
+        <div class="example-section">
+          <h4>4. 影响分析：确认目标后，才进入精确分析</h4>
+          <p>
+            上下文召回问的是“这个需求大概跟什么有关”；影响分析问的是“如果目标已经确认，那么它具体影响哪些业务流、代码入口、状态机、测试、跨服务调用和风险点”。
+          </p>
+          <div class="two-col">
+            <div class="soft-box">
+              <h5>需要检查</h5>
+              <ul>
+                <li>转班申请提交接口</li>
+                <li>转班执行流程</li>
+                <li>班级中心入班/出班逻辑</li>
+                <li>赠课权益服务</li>
+                <li>订单状态和转班状态机</li>
+                <li>相关回归测试</li>
+              </ul>
+            </div>
+            <div class="soft-box">
+              <h5>给人的展示</h5>
+              <p>这个需求可能影响转班申请服务、班级中心、赠课/订单服务。</p>
+              <p>风险等级：L2 或 L3。原因：跨服务、涉及权益处理、涉及状态变化。</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-section">
+          <h4>5. 语义契约：把需求变成可开发、可验证的承诺</h4>
+          <p>
+            系统把确认后的目标、业务规则、影响范围、非目标、验收条件、状态变化和风险等级整理成 Semantic Contract。它是后续开发包、测试计划、MR 校验和记忆回写的共同依据。
+          </p>
+          <div class="soft-box">
+            <h5>这个例子里的契约可能包含</h5>
+            <ul>
+              <li>体验课转正式班时，需要处理原班级关系和正式班入班关系</li>
+              <li>赠课权益不能默认迁移，必须根据产品确认规则处理</li>
+              <li>已消耗课次需要有明确扣减或保留规则</li>
+              <li>失败后是否允许重试必须明确</li>
+              <li>验收必须覆盖正常转班、权益处理、失败重试、跨服务异常</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="example-section">
+          <h4>6. 开发、MR 校验与需求变更判断</h4>
+          <p>
+            Agent 或研发根据 Semantic Contract 开发。MR 阶段不只检查代码 diff，而是检查“代码实际做的事情”是否兑现了契约。
+          </p>
+          <div class="decision">
+            <div class="soft-box bad">
+              <h5>代码错了</h5>
+              <p>契约说：体验课已消耗课次不能迁移。代码却把所有课次迁移到了正式班。</p>
+              <p>处理：MR 打回，要求修代码。</p>
+            </div>
+            <div class="soft-box change">
+              <h5>需求理解变了</h5>
+              <p>最初契约说：赠课权益迁移到正式班。开发时产品补充确认：赠课不能迁移，必须重新计算。</p>
+              <p>处理：生成 SemanticContractChange v2，重新审批，再继续开发。</p>
+            </div>
+          </div>
+          <p>
+            判断标准很简单：违反已批准契约，是代码错；契约本身被新的业务决策修改，是需求理解变了。
+          </p>
+        </div>
+
+        <div class="example-section">
+          <h4>7. Merge 后回写：不是把所有东西塞进图，而是分层沉淀</h4>
+          <p>
+            Merge 后系统把这次需求和代码变更一起进入企业记忆，但不是所有材料都变成业务图节点。原始证据和结构化事实要分层保存。
+          </p>
+          <div class="two-col">
+            <div class="soft-box">
+              <h5>原始证据进入 Evidence Store</h5>
+              <ul>
+                <li>原始需求、需求理解卡、产品确认记录</li>
+                <li>Semantic Contract、技术设计、任务拆分</li>
+                <li>MR 描述、commit diff、review 评论</li>
+                <li>测试结果、CI 结果、发布记录</li>
+                <li>线上指标、事故/回滚记录、Agent trace</li>
+              </ul>
+            </div>
+            <div class="soft-box">
+              <h5>结构化事实进入业务记忆</h5>
+              <ul>
+                <li>RequirementIntent</li>
+                <li>BusinessRule 变更</li>
+                <li>BusinessFlow 新增/修改/废弃</li>
+                <li>Acceptance 到 Test 的映射</li>
+                <li>Requirement 到 CodeAnchor 的映射</li>
+                <li>DecisionRecord / GovernanceRule</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="example-section">
+          <h4>8. 数据飞轮：下一次会更准</h4>
+          <p>
+            第一轮最难，因为企业记忆少，系统主要靠代码图谱、历史文档和人工确认。确认后，系统学到“这个接口属于转班申请”“这个状态机属于转班流程”“这个赠课调用是权益处理”“这个产品说法对应哪些代码锚点”。
+          </p>
+          <p>
+            第二次类似需求进入时，AI 可以更快召回已有流程，更少问产品低级问题，影响分析更准，开发包更完整，MR 校验也更严格。这不是训练一个通用模型，而是在训练企业自己的业务语义数据库。
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+    <section>
+      <h2>三、关键产物：Semantic Contract</h2>
+      <p>
+        “产品、研发、测试、Agent、CI 和企业记忆共同使用的语义锚点”意思是：大家不再各自理解一份需求，而是围绕同一份被确认的业务承诺工作。
+      </p>
+      <p>
+        产品用它确认“要什么”，研发用它判断“怎么做”，测试用它生成“怎么验”，Agent 用它执行任务，CI/MR 用它检查实现是否跑偏，企业记忆用它决定 merge 后应该沉淀什么。
+      </p>
+      <div class="anchor-diagram" aria-label="Semantic Contract shared anchor">
+        <div class="spoke">
+          <h3>产品</h3>
+          <p>确认业务目标、规则边界、非目标和待澄清问题。</p>
+        </div>
+        <div class="hub">
+          <strong>Semantic Contract</strong>
+          <span>一份业务承诺，多种角色投影</span>
+        </div>
+        <div class="spoke">
+          <h3>研发</h3>
+          <p>据此拆设计、拆任务、定位代码影响范围。</p>
+        </div>
+        <div class="spoke">
+          <h3>测试</h3>
+          <p>把验收条件转成测试计划、回归范围和质量门禁。</p>
+        </div>
+        <div class="spoke">
+          <h3>Agent</h3>
+          <p>拿它作为开发上下文，执行编码、测试和 MR 生成。</p>
+        </div>
+        <div class="spoke">
+          <h3>CI / MR</h3>
+          <p>校验代码是否兑现契约，是否引入未声明影响。</p>
+        </div>
+        <div class="spoke">
+          <h3>企业记忆</h3>
+          <p>merge 后用它组织需求、代码、测试和决策证据。</p>
+        </div>
+      </div>
+
+      <div class="contract">
+        <div class="panel green">
+          <h3>人看的版本</h3>
+          <p>自然语言说明：目标、规则、影响、非目标、风险、待确认问题。</p>
+        </div>
+        <div class="panel amber">
+          <h3>机器存的版本</h3>
+          <p>结构化记录：验收条件、数据/状态变化、外部契约、证据、版本和风险等级。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>四、落地基建：各能力层如何分工</h2>
+      <p>
+        这条链路不是单个 Agent 能完成的，它需要一组基础设施协同。可以把它们理解为从“原始材料”到“业务执行”的几层能力。你的 ht-cbm 和 Vein 就是其中两块关键底座。
+      </p>
+      <div class="stack">
+        <div class="stack-item">
+          <strong>1. 数据与证据层</strong>
+          <p>接入需求、文档、会议、MR、代码、测试、日志、指标、事故和用户反馈，保证所有判断都有来源。</p>
+        </div>
+        <div class="stack-item">
+          <strong>2. 代码结构事实层</strong>
+          <p>把多仓代码变成可查询、可版本化、可跨仓追踪的结构事实，如 Route、Method、调用关系、跨服务边、代码片段和结构 diff。<span class="belongs">ht-cbm 属于这一层</span></p>
+        </div>
+        <div class="stack-item">
+          <strong>3. 工具与上下文层</strong>
+          <p>通过 MCP / Tool Gateway 让 Agent 能访问代码图谱、业务记忆、GitLab、测试平台、文档系统和观测系统。<span class="belongs">ht-cbm / Vein 都应作为工具暴露</span></p>
+        </div>
+        <div class="stack-item">
+          <strong>4. 业务语义与记忆层</strong>
+          <p>维护业务流程、业务实体、业务规则、影响范围、决策记录和长期业务记忆。<span class="belongs">Vein 属于这一层</span></p>
+        </div>
+        <div class="stack-item">
+          <strong>5. Semantic Contract Registry</strong>
+          <p>保存语义契约的版本、diff、审批状态、关联需求、关联 MR、验收条件和验证结果，成为链路的中间锚点。</p>
+        </div>
+        <div class="stack-item">
+          <strong>6. Agent Runtime</strong>
+          <p>负责 Agent 编排、任务分解、handoff、工具调用、权限控制、运行状态、失败恢复和 trace 记录。</p>
+        </div>
+        <div class="stack-item">
+          <strong>7. 开发流水线集成</strong>
+          <p>打通 OpenSpec、GitLab、CI、测试生成、MR bot、代码 review 和发布流程，让开发包能进入真实研发环节。</p>
+        </div>
+        <div class="stack-item">
+          <strong>8. 治理与审计层</strong>
+          <p>负责风险分级、审批流、权限控制、证据留存、决策记录、版本回放和发布后反馈闭环。</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h2>五、人机协作分级</h2>
+      <p>
+        Human in / on / out of the loop 不应该按流程节点机械划分，而应该按风险和决策性质划分。
+      </p>
+      <div class="levels">
+        <div class="level">
+          <strong>L0：低风险</strong>
+          <span>文案、展示、低风险查询。AI 可直接进入开发。</span>
+        </div>
+        <div class="level">
+          <strong>L1：中低风险</strong>
+          <span>单服务、无资金、无权限、无状态机。AI 自动推进，人看 MR 摘要。</span>
+        </div>
+        <div class="level">
+          <strong>L2：中高风险</strong>
+          <span>跨服务、状态变化、关键业务规则。产品或技术 owner 审语义契约。</span>
+        </div>
+        <div class="level">
+          <strong>L3：高风险</strong>
+          <span>资金、权限、合规、数据迁移、删除流程。必须多人审批。</span>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Generated for internal architecture discussion · 2026-07-01
+    </footer>
+  </main>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent 思考架构全景</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #1a1d24;
+    --ink-soft:  #4a4f5c;
+    --ink-mute:  #8a8f9e;
+    --bg:        #f7f6f2;
+    --bg-card:   #ffffff;
+    --bg-code:   #eceae3;
+    --accent:    #2a5caa;
+    --accent-lt: #e8eef8;
+    --accent-md: #b8cde8;
+    --rule:      #dddbd4;
+    --rule-soft: #eceae3;
+    --radius:    6px;
+    --dark:      #1a1d24;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+    line-height: 1.7;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(247, 246, 242, 0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--rule);
+    padding: 0 2rem;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 56px;
+  }
+  .nav-logo {
+    font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: 1rem;
+    color: var(--ink); text-decoration: none; letter-spacing: 0.04em;
+  }
+  .nav-links { display: flex; gap: 1.75rem; list-style: none; }
+  .nav-links a {
+    position: relative;
+    text-decoration: none; color: var(--ink-soft); font-size: 0.875rem;
+    font-weight: 400; transition: color 0.2s;
+    padding-bottom: 4px;
+  }
+  .nav-links a:hover { color: var(--accent); }
+  .nav-links a.active { color: var(--accent); font-weight: 500; }
+  .nav-links a.active::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    bottom: -19px;
+    height: 2px;
+    background: var(--accent);
+  }
+
+  /* ── TAB PANEL ── */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── HERO ── */
+  .hero {
+    max-width: 820px; margin: 0 auto;
+    padding: 72px 2rem 56px;
+  }
+  .hero-eyebrow {
+    font-size: 0.75rem; font-weight: 500; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
+  }
+  .hero-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(1.75rem, 4vw, 2.5rem); font-weight: 600;
+    line-height: 1.25; color: var(--ink); margin-bottom: 1rem;
+  }
+  .hero-subtitle {
+    font-size: 1rem; color: var(--ink-soft); line-height: 1.8;
+    max-width: 600px; margin-bottom: 1.5rem;
+  }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .tag {
+    background: var(--accent-lt); color: var(--accent);
+    font-size: 0.8rem; font-weight: 500;
+    padding: 0.3em 0.9em; border-radius: 20px;
+  }
+  .tag-outline {
+    background: transparent; border: 1px solid var(--rule);
+    color: var(--ink-soft);
+  }
+
+  /* ── SECTION ── */
+  .section {
+    max-width: 820px; margin: 0 auto; padding: 56px 2rem;
+  }
+  .section-header {
+    display: flex; align-items: baseline; gap: 0.875rem; margin-bottom: 0.5rem;
+  }
+  .section-num {
+    font-family: 'Noto Serif SC', serif; font-size: 0.8rem; font-weight: 400;
+    color: var(--accent); letter-spacing: 0.1em;
+  }
+  .section-title {
+    font-family: 'Noto Serif SC', serif; font-size: 1.5rem; font-weight: 600;
+    color: var(--ink);
+  }
+  .section-desc {
+    font-size: 0.9rem; color: var(--ink-mute); margin-bottom: 2rem;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  h3 {
+    font-family: 'Noto Serif SC', serif; font-size: 1.15rem; font-weight: 600;
+    margin-top: 2.5rem; margin-bottom: 1rem; color: var(--ink);
+  }
+  h4 {
+    font-size: 0.95rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem;
+    color: var(--ink-soft);
+  }
+  p { margin-bottom: 14px; }
+  ul, ol { margin-bottom: 14px; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  strong { font-weight: 600; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+    background: var(--bg-code); padding: 2px 6px; border-radius: 4px;
+    font-size: 0.85em; color: var(--ink);
+  }
+  pre {
+    background: var(--dark); color: #d4d4d4;
+    padding: 18px 22px; border-radius: var(--radius);
+    overflow-x: auto; margin-bottom: 18px; font-size: 13px; line-height: 1.6;
+  }
+  pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg-card); border: 1px solid var(--rule);
+    border-radius: var(--radius); padding: 1.5rem; margin-bottom: 18px;
+  }
+  .card-label {
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 0.75rem;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: var(--accent-lt); border-left: 3px solid var(--accent);
+    padding: 16px 20px; border-radius: 0 var(--radius) var(--radius) 0;
+    margin-bottom: 18px; font-size: 14px; line-height: 1.7;
+  }
+  .callout-warm {
+    background: #fdf6ec; border-left-color: #c8893a;
+  }
+  .callout-warm strong { color: #8a6420; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; margin-bottom: 18px; font-size: 14px; }
+  th {
+    background: var(--rule-soft); padding: 10px 14px; text-align: left;
+    font-weight: 600; border-bottom: 1px solid var(--rule);
+    font-size: 0.85rem; color: var(--ink-soft);
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(232, 238, 248, 0.4); }
+
+  /* ── FLOW ── */
+  .flow {
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 14px 0;
+  }
+  .flow-box {
+    padding: 8px 14px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    white-space: nowrap; background: var(--accent-lt); color: var(--accent);
+    border: 1px solid var(--accent-md);
+  }
+  .flow-box.muted {
+    background: var(--rule-soft); color: var(--ink-soft); border-color: var(--rule);
+  }
+  .flow-arrow { color: var(--ink-mute); font-size: 16px; }
+  .flow-loop { color: var(--accent); font-size: 12px; font-weight: 500; }
+
+  /* ── GRID ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 18px; }
+  .mini-card {
+    background: var(--bg-card); border: 1px solid var(--rule);
+    border-radius: var(--radius); padding: 1.25rem;
+  }
+  .mini-card h4 { margin-top: 0; }
+  .mini-card p { font-size: 13px; color: var(--ink-soft); margin-bottom: 0; }
+  .mini-card p + p { margin-top: 8px; }
+
+  /* ── MISC ── */
+  .hr { height: 1px; background: var(--rule); margin: 32px 0; border: none; }
+  .highlight { background: #fff3cd; padding: 1px 4px; border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    nav { padding: 0 1rem; }
+    .nav-links { display: none; }
+    .hero, .section { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#">Agent 思考架构全景</a>
+  <ul class="nav-links">
+    <li><a href="#" data-target="intro" class="active">导读</a></li>
+    <li><a href="#" data-target="layer1">范式</a></li>
+    <li><a href="#" data-target="layer2">模块</a></li>
+    <li><a href="#" data-target="layer3">拆解</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero tab-panel active" id="intro">
+  <p class="hero-eyebrow">AI Agent · 设计笔记</p>
+  <h1 class="hero-title">Agent 思考架构全景</h1>
+  <p class="hero-subtitle">从设计范式 → 功能模块 → 工程化任务拆解的三层拆析。范式是"怎么组装"的顶层决策，功能模块是"组装什么"的零件选择，工程拆解是"具体怎么做"的落地方法——三者层层递进，合在一起才完整定义了一个 Agent。</p>
+  <div class="hero-tags">
+    <span class="tag">ReAct</span>
+    <span class="tag">Plan-and-Execute</span>
+    <span class="tag">Reflection</span>
+    <span class="tag">CoT / ToT / GoT</span>
+    <span class="tag">Self-Refine</span>
+    <span class="tag">任务拆解</span>
+  </div>
+
+  <hr class="hr" style="margin-top: 48px;">
+
+  <div class="section-header" style="margin-top: 0;">
+    <span class="section-num">SUMMARY</span>
+    <h2 class="section-title">全景总结</h2>
+  </div>
+  <p class="section-desc">三层关系一览，选型决策速查。</p>
+
+  <div class="card">
+    <div class="card-label">三层定位</div>
+    <table>
+      <tr><th>层次</th><th>回答的问题</th><th>抽象级别</th><th>对应内容</th></tr>
+      <tr><td><strong>设计范式</strong></td><td>这个 Agent 整体怎么运作？</td><td>最高 — 架构决策</td><td>ReAct / Plan-and-Execute / Reflection</td></tr>
+      <tr><td><strong>功能模块</strong></td><td>用什么零件？零件内部怎么实现？</td><td>中间 — 模块选择</td><td>规划层（CoT/ToT/GoT）/ 反思机制（Self-Refine/Reflexion）</td></tr>
+      <tr><td><strong>工程拆解</strong></td><td>具体怎么把任务落地执行？</td><td>最底 — 实现方法</td><td>静态/动态拆分 / 并行优化 / 自适应拆分 / Replan / 验证标准</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-label">一句话记住每层</div>
+    <ul>
+      <li><strong>范式</strong> = 你选的"户型图"（是走一步看一步，还是先规划再执行，要不要加检查环节）</li>
+      <li><strong>功能模块</strong> = "厨房"和"烟雾报警器"这样的功能间（规划层面向<strong>未来</strong>——接下来做什么；反思机制面向<strong>过去</strong>——刚才做得怎么样）</li>
+      <li><strong>工程拆解</strong> = "施工说明书"（每面墙怎么砌、哪些能同时开工、做不好怎么返工）</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-label">选型决策树</div>
+    <pre><code>任务复杂吗？
+├─ 否 → ReAct（够用就好）
+└─ 是 → 任务流程长吗？
+   ├─ 否 → ReAct + Reflection（加质量检查）
+   └─ 是 → Plan-and-Execute
+      ├─ 执行中常遇意外？ → + 动态 Replan
+      ├─ 输出质量要求高？ → + Reflection（最多 2~3 轮）
+      ├─ 需跨任务积累经验？ → + Reflexion
+      └─ 步骤间有独立部分？ → 并行优化（DAG 依赖分析）
+
+始终记住：先跑起来再优化，别为了炫技搞过度工程化。</code></pre>
+  </div>
+</section>
+
+<!-- ==================== 第一层 ==================== -->
+<section class="section tab-panel" id="layer1">
+  <div class="section-header">
+    <span class="section-num">LAYER 01</span>
+    <h2 class="section-title">设计范式</h2>
+  </div>
+  <p class="section-desc">Agent 的顶层做事流程框架——决定整个系统从头到尾按什么大逻辑跑。</p>
+
+  <div class="callout">
+    <strong>核心洞察：</strong>ReAct 解决"单步灵活性"，Plan-and-Execute 解决"长任务跑偏"，Reflection 解决"输出质量不够"。三者解决的问题层次不同，选型要看任务复杂度、流程确定性、输出质量要求三个维度。
+  </div>
+
+  <h3>一、ReAct：单步迭代范式</h3>
+  <div class="card">
+    <div class="card-label">本质</div>
+    <p>思考 → 行动 → 观察 → 再思考的循环，走一步看一步，每步行动完全基于上一步结果实时调整，没有提前定死的完整计划。</p>
+    <div class="flow">
+      <div class="flow-box">思考</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">行动</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">观察</div>
+      <span class="flow-arrow">↻</span>
+      <span class="flow-loop">循环</span>
+    </div>
+    <p><strong>生活类比：</strong>外卖骑手——接单后不会提前把每步定死，而是实时根据情况做决策。路封了立刻改路线，不死守原计划。</p>
+    <table>
+      <tr><th style="width:28%">维度</th><th>说明</th></tr>
+      <tr><td><strong>优势</strong></td><td>实现简单、灵活度高、逻辑透明、出了问题好排查，新手入门零门槛</td></tr>
+      <tr><td><strong>短板</strong></td><td>长流程多步骤任务容易跑偏、忘了最初目标、某步陷入无效循环</td></tr>
+      <tr><td><strong>适用场景</strong></td><td>流程不固定、复杂度适中的任务：信息搜索、简单问答、客服机器人</td></tr>
+    </table>
+  </div>
+
+  <h3>二、Plan-and-Execute：规划执行范式</h3>
+  <div class="card">
+    <div class="card-label">本质</div>
+    <p>先把完整计划定好，再按计划一步步干。将"规划推理"和"执行推理"完全解耦，各管各的。</p>
+    <div class="flow">
+      <div class="flow-box">规划器 Planner</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">执行器 Executor</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">重规划 Re-planner</div>
+      <span class="flow-arrow">↻</span>
+      <span class="flow-loop">动态调整</span>
+    </div>
+    <p><strong>生活类比：</strong>项目经理——接了大目标后先做完整项目规划（需求调研→原型设计→开发→测试→上线），再把每步分给对应模块执行。</p>
+
+    <h4>三阶段流程</h4>
+    <ol>
+      <li><strong>规划阶段：</strong>Planner 接收任务，生成有序步骤清单。只做规划，不做实际执行。</li>
+      <li><strong>执行阶段：</strong>Executor 按清单逐步执行，每步把前面结果作为 context 传入，不会"失忆"。</li>
+      <li><strong>重规划阶段：</strong>每步执行完后，Re-planner 回顾进展，判断原计划是否仍适用，必要时动态调整后续步骤。</li>
+    </ol>
+
+    <h4>隐藏优势：混合模型策略</h4>
+    <p>规划和执行是独立模块，可以用不同模型。规划阶段用强模型（GPT-4）保证方向正确，执行阶段用便宜的小模型（GPT-4o-mini / 7B 开源模型）。实际项目可降低总成本 <strong>70%~90%</strong>，质量几乎不受影响。</p>
+
+    <table>
+      <tr><th style="width:28%">维度</th><th>说明</th></tr>
+      <tr><td><strong>优势</strong></td><td>整体结构清晰、执行链路可控、不易跑偏、支持并行优化</td></tr>
+      <tr><td><strong>短板</strong></td><td>灵活度不如 ReAct、实现更复杂、token 消耗增加</td></tr>
+      <tr><td><strong>适用场景</strong></td><td>流程长、复杂度高的任务：竞品分析报告、项目开发、行业调研</td></tr>
+    </table>
+  </div>
+
+  <h3>三、Reflection：质量增强范式</h3>
+  <div class="callout callout-warm">
+    <strong>关键定位：</strong>Reflection <strong>不是独立的完整流程</strong>，而是给 ReAct 或 Plan-and-Execute 加的"质量增强 buff"。它不改变原本的做事流程，只加一层"自我检查、自我修正"环节。前两者的核心是"把事做完"，Reflection 的核心是"把事做好"。
+  </div>
+
+  <div class="card">
+    <p><strong>生活类比：</strong>考试时做完一道题（或整张卷子），回头检查一遍——有没有算错数、看错题，发现错了马上改。</p>
+    <div class="flow">
+      <div class="flow-box">生成</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">评估</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">改进</div>
+      <span class="flow-arrow">↻</span>
+      <span class="flow-loop">直到 PASS</span>
+    </div>
+    <table>
+      <tr><th style="width:28%">维度</th><th>说明</th></tr>
+      <tr><td><strong>优势</strong></td><td>输出质量明显提升，幻觉、逻辑错误、细节遗漏减少</td></tr>
+      <tr><td><strong>代价</strong></td><td>至少多一次 LLM 调用，token 和延迟线性增加；无上限会死循环</td></tr>
+      <tr><td><strong>适用场景</strong></td><td>输出质量要求极高、不能出错：生产代码、商业报告、法律文书</td></tr>
+    </table>
+  </div>
+
+  <h3>进阶机制</h3>
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>动态 Replan</h4>
+      <p>解决 Plan-and-Execute"计划定死、中途遇到意外怎么办"的痛点。每步执行后，把当前结果和剩余计划交给规划模块判断是否需要调整。</p>
+      <p><strong>代价：</strong>每步多一次"评估计划"的 LLM 调用。实践折中：设触发条件（输出与预期差异大 / 步骤失败时才触发），不是每步都 Replan。</p>
+    </div>
+    <div class="mini-card">
+      <h4>Reflexion</h4>
+      <p>把 Reflection 推到更深：不仅检查输出对不对，还把每次失败原因总结成"经验教训"存进记忆，下次遇到类似任务直接参考。</p>
+      <p><strong>效果数据：</strong>在 HumanEval 代码生成基准上，把 GPT-4 的 pass@1 从 80% 提升到 <strong>91%</strong>，提升超 10 个百分点。</p>
+    </div>
+  </div>
+
+  <h3>选型指南</h3>
+  <table>
+    <tr><th>任务特征</th><th>推荐范式</th><th>理由</th></tr>
+    <tr><td>不复杂、流程不固定、需实时调整</td><td><span class="tag">ReAct</span></td><td>够用就好，别搞复杂</td></tr>
+    <tr><td>任务长、容易跑偏、需整体结构清晰</td><td><span class="tag">Plan-and-Execute</span></td><td>先定计划再执行</td></tr>
+    <tr><td>执行中常遇意外需调整计划</td><td><span class="tag">P&E</span> + <span class="tag tag-outline">Replan</span></td><td>保留结构优势，增加动态调整</td></tr>
+    <tr><td>输出要求高、不能出错</td><td>上述 + <span class="tag tag-outline">Reflection</span></td><td>加自我检查环节</td></tr>
+    <tr><td>需跨任务积累经验、避免重复犯错</td><td>上述 + <span class="tag tag-outline">Reflexion</span></td><td>沉淀失败教训</td></tr>
+  </table>
+
+  <div class="callout callout-warm">
+    <strong>生产级常见架构：</strong>规划阶段用 Plan-and-Execute 定全局计划 → 每步执行用 ReAct 循环处理（单步可能也需多轮工具调用）→ 最后对整体输出做一次 Reflection 检查质量。三层嵌套，在 LangGraph 等框架里实现很自然。
+  </div>
+
+  <div class="callout">
+    <strong>避坑提醒：</strong>别把所有范式全堆在一起。又规划、又反思、又 Replan、又积累经验——系统又复杂又慢还容易出 bug。工程开发永远是"够用就好"，先把 ReAct 玩明白，再根据需求往上加。
+  </div>
+
+  <h3>Token 消耗对比</h3>
+  <p>以一个需要 5 步工具调用、每步平均 2000 token 的任务为例：</p>
+  <table>
+    <tr><th>范式</th><th>计算方式</th><th>总 token（约）</th><th>说明</th></tr>
+    <tr><td><strong>ReAct</strong></td><td>每步带完整历史：2000+4000+6000+8000+10000</td><td>~30,000</td><td>线性增长，步骤越多越贵</td></tr>
+    <tr><td><strong>Plan-and-Execute</strong></td><td>规划 3000 + 执行 5×1500 + 汇总 4000</td><td>~14,500</td><td>比 ReAct 低一半多；混用便宜模型再降 70%+</td></tr>
+    <tr><td><strong>+ Reflection</strong></td><td>在基础上每反思节点 +1 次调用</td><td>+30%~100%</td><td>取决于轮次和严格程度，2 轮反思 = 该步消耗翻 3 倍</td></tr>
+  </table>
+</section>
+
+<!-- ==================== 第二层 ==================== -->
+<section class="section tab-panel" id="layer2">
+  <div class="section-header">
+    <span class="section-num">LAYER 02</span>
+    <h2 class="section-title">功能模块</h2>
+  </div>
+  <p class="section-desc">范式决定了"怎么组装"，功能模块则是具体"组装什么"。每个范式内部都会用到若干功能模块，其中最重要的是规划层和反思机制。</p>
+
+  <h3>规划层：让 LLM 把推理过程显式化</h3>
+  <p>LLM 默认"一口气"生成答案，没有显式推理过程。Transformer 的 next-token 预测机制导致推理链越长、隐式跳步越多，误差越容易累积。规划能力的本质是<strong>把隐式推理过程显式化</strong>，让每步有迹可循。</p>
+
+  <h4>CoT → ToT → GoT：层层递进的三种方案</h4>
+
+  <div class="card">
+    <div class="card-label">① CoT（Chain of Thought）思维链</div>
+    <p><span class="tag">零成本</span> <span class="tag tag-outline">生产标配</span></p>
+    <p>在 prompt 里加一句"请一步步思考"，LLM 就会把推理过程逐步写出来。本质是"写下来的推理过程"成为后续生成的依据，帮助 LLM 不跳步。</p>
+    <ul>
+      <li><strong>Zero-shot CoT：</strong>直接加"让我们一步步思考"，不需要额外例子</li>
+      <li><strong>Few-shot CoT：</strong>给几个带完整推理过程的例子，效果更稳定</li>
+    </ul>
+    <p><strong>局限：</strong>只有一条推理路径，一旦开头走错，整条链全错，<strong>没有任何纠偏机制</strong>。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">② ToT（Tree of Thoughts）思维树</div>
+    <p><span class="tag">成本 3~5x</span> <span class="tag tag-outline">高准确率</span></p>
+    <p>针对 CoT"一旦走错就全错"的问题。把"一条链"变成"一棵树"：同时探索多条路径，边探索边评估边剪枝，最终选最优路径。</p>
+    <div class="flow">
+      <div class="flow-box">生成多个候选思路</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">评估可行性打分</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box muted">剪枝保留高分</div>
+      <span class="flow-arrow">↻</span>
+      <span class="flow-loop">循环</span>
+    </div>
+    <p><strong>代价：</strong>典型设置（3 条路径 × 2-3 层）成本是 CoT 的 3~5 倍；极端场景可能 10 倍以上。</p>
+  </div>
+
+  <div class="card">
+    <div class="card-label">③ GoT（Graph of Thoughts）思维图</div>
+    <p><span class="tag tag-outline">学术阶段</span> <span class="tag tag-outline">生产未落地</span></p>
+    <p>针对 ToT"不同分支中间结论无法复用"的问题。把推理结构从树换成图，允许不同路径的中间结果合并、复用——一个节点可以接收多个前置节点的输出。</p>
+    <p><strong>典型场景：</strong>"分别研究竞品 A 和 B，再做综合对比"——树结构里"综合分析"节点只有一个父节点，无法自然汇聚两条路径的结论；图结构里这是原生支持。</p>
+  </div>
+
+  <h4>三者演进关系</h4>
+  <table>
+    <tr><th>方案</th><th>解决的问题</th><th>结构</th><th>工程成本</th></tr>
+    <tr><td><strong>CoT</strong></td><td>要不要把推理显式化</td><td>线性链</td><td>几乎零成本，加一句 prompt</td></tr>
+    <tr><td><strong>ToT</strong></td><td>走错方向怎么纠偏</td><td>树（多路径+剪枝）</td><td>3~5 倍 CoT 调用量</td></tr>
+    <tr><td><strong>GoT</strong></td><td>中间结论能不能复用</td><td>图（节点合并复用）</td><td>学术阶段，生产未落地</td></tr>
+  </table>
+
+  <h4>工程实战：Plan-and-Execute 规划模式</h4>
+  <p>CoT/ToT/GoT 讲的是"LLM 内部怎么把问题想清楚"，Plan-and-Execute 讲的是"Agent 怎么把大任务切成多个独立执行的步骤"。后者更贴近工程实践，与 ReAct 的关系是：ReAct 负责每步怎么执行，Plan-and-Execute 负责步骤的整体编排和动态调整，两者经常搭配使用。</p>
+
+  <hr class="hr">
+
+  <h3>反思机制：生成 → 评估 → 改进的闭环</h3>
+  <p>来自 Self-Refine 论文（Madaan 等，2023）。核心思路是让 Agent 完成步骤或任务后，自我评估输出质量，不达标就重试或调整策略。用"草稿 → 批阅 → 修改"来类比：学生交草稿，老师批阅指出问题，学生拿着批注修改，直到通过。</p>
+
+  <h4>两个核心 Prompt</h4>
+  <div class="grid-2">
+    <div>
+      <h4>评估 Prompt</h4>
+      <pre><code>任务：{task}
+当前输出：{current_output}
+
+请评估以上输出：
+1. 有没有事实错误或逻辑问题？
+2. 有没有遗漏重要内容？
+3. 表达是否清晰准确？
+
+如果输出已经足够好，回复"PASS"；
+否则指出具体问题并给出改进建议。</code></pre>
+    </div>
+    <div>
+      <h4>改进 Prompt</h4>
+      <pre><code>原始任务：{task}
+当前输出：{current_output}
+评估意见：{reflection}
+
+请根据评估意见改进输出：</code></pre>
+    </div>
+  </div>
+
+  <div class="callout callout-warm">
+    <strong>两个关键设计：</strong><br>
+    ① <strong>明确检查维度</strong>（事实、逻辑、完整性、表达）——没有方向的评估流于表面，LLM 只会说"看起来不错"。<br>
+    ② <strong>PASS 机制</strong>——给 LLM"够好了就停"的出口，否则会无限挑毛病，把对的东西改错。
+  </div>
+
+  <div class="callout">
+    <strong>改进 Prompt 的关键：</strong>必须同时传入<strong>原始任务 + 原始输出 + 评估意见</strong>三者。缺任何一个都会让改进变得盲目——只有任务不知道在什么基础上改，只有输出不知道改哪里，只有评估意见可能偏离原始目标。
+  </div>
+
+  <h4>两个粒度：步骤级 vs 任务级</h4>
+  <table>
+    <tr><th style="width:14%">维度</th><th>步骤级反思</th><th>任务级反思</th></tr>
+    <tr><td><strong>触发时机</strong></td><td>每个工具调用/推理步骤后立即检查</td><td>整个任务执行完后整体评估</td></tr>
+    <tr><td><strong>优势</strong></td><td>错误早发现早纠正，不会层层放大</td><td>开销小（只多 1 次调用）；能发现整体性问题</td></tr>
+    <tr><td><strong>代价</strong></td><td>10 步任务可能要调 20 次 LLM</td><td>中途出错则前期工作全浪费</td></tr>
+    <tr><td><strong>适用场景</strong></td><td>步骤强依赖、前一步错了后面全错</td><td>步骤相对独立、整体质量更重要（如报告）</td></tr>
+  </table>
+
+  <h4>多 Agent 互评：为什么"他人审视"比"自我检查"更好</h4>
+  <p>单 Agent 自我反思时，评估者和生成者是同一个模型，生成时形成的"内部逻辑"在评估时也会沿用，容易陷入"自洽"。独立的 Critic Agent 没有这种包袱，唯一职责就是"找问题"，视角更客观。</p>
+  <p><strong>适用场景：</strong>质量要求非常高的场景——生成代码后让独立测试 Agent 验证、生成报告后让事实核查 Agent 交叉验证。代价是多一个 Agent 的调用成本和系统复杂度。</p>
+
+  <h4>进阶反思方案</h4>
+  <div class="grid-2">
+    <div class="mini-card">
+      <h4>Reflexion</h4>
+      <p>不仅反思当前输出，还把"失败经验"存进记忆，下次遇到类似任务直接参考。Self-Refine 是"当场改"，Reflexion 是"记错题本，下次先翻笔记"。</p>
+    </div>
+    <div class="mini-card">
+      <h4>LATS</h4>
+      <p>把 MCTS（蒙特卡洛树搜索）和反思结合：多路径探索 + 每条路径执行后反思 + 反思结果反馈给后续探索。既有规划的多路径又有反思的学习能力，代价极大，学术阶段。</p>
+    </div>
+  </div>
+  <div class="mini-card" style="margin-top:14px;">
+    <h4>辩论式反思</h4>
+    <p>多个 Agent 互相辩论。正方提出方案，反方专门挑毛病、提反对意见，正方再针对反对意见优化。对抗式反思比单方面审查更能暴露深层问题。适用于商业决策分析、法律文本审查等高质量场景。</p>
+  </div>
+
+  <h4>工程权衡</h4>
+  <div class="callout callout-warm">
+    <strong>防死循环：</strong>必须硬性设置最大轮次（通常 2~3 轮），<strong>绝对不能</strong>依赖 LLM 自己判断停止。LLM 会陷入"为了改而改"的循环，每轮改动很小但无实质进步。3 轮反思 = 额外 6 次 LLM 调用，延迟和成本大幅增加。
+  </div>
+</section>
+
+<!-- ==================== 第三层 ==================== -->
+<section class="section tab-panel" id="layer3">
+  <div class="section-header">
+    <span class="section-num">LAYER 03</span>
+    <h2 class="section-title">工程化任务拆解</h2>
+  </div>
+  <p class="section-desc">把规划/反思能力落地到具体执行——怎么切大任务、怎么并行跑、怎么动态调整。</p>
+
+  <h3>为什么任务要拆分？</h3>
+  <div class="callout callout-warm">
+    <strong>根本原因：Context Window 有限。</strong>任务越大，中间状态越多，"桌面越乱"——搜索结果、分析意见、写了一半的段落堆在一起，LLM 很难持续追踪"我现在在做哪个子目标"。
+  </div>
+  <p><strong>拆分的好处：</strong></p>
+  <ol>
+    <li>每步聚焦一件事，LLM 全部注意力集中，桌面保持干净，质量自然高</li>
+    <li>每步是独立输出，可以被单独检查和验证，某步出错只需重试那一步</li>
+  </ol>
+
+  <h3>两种拆分思路</h3>
+  <table>
+    <tr><th style="width:14%">维度</th><th>静态拆分</th><th>动态拆分</th></tr>
+    <tr><td><strong>谁来做</strong></td><td>人提前写死步骤流程</td><td>LLM 根据目标自己规划</td></tr>
+    <tr><td><strong>类比</strong></td><td>固定流水线</td><td>项目经理做计划</td></tr>
+    <tr><td><strong>优势</strong></td><td>行为完全可预测，出了问题好定位</td><td>灵活性强，适应不同任务特点</td></tr>
+    <tr><td><strong>劣势</strong></td><td>灵活性低，遇到没设计的流程就卡住</td><td>规划质量不稳定，错了全错</td></tr>
+    <tr><td><strong>本质</strong></td><td>固定 Workflow</td><td>Plan-and-Execute 模式</td></tr>
+  </table>
+
+  <div class="callout">
+    <strong>注意区分：</strong>CoT/ToT 是"LLM 内部怎么把一个问题想清楚"的推理方法（一次生成里的内部拆分），静态/动态拆分是"Agent 怎么把一个大任务切成多个独立执行的步骤"（涉及多步工具调用）。两者粒度和目标不同，不要混为一谈。
+  </div>
+
+  <h4>Plan-and-Execute 的三阶段落地</h4>
+  <ol>
+    <li><strong>规划阶段（项目启动会）：</strong>把目标告诉 LLM，输出有序步骤列表。只做规划不执行，全部注意力集中在"想清楚要做什么"。</li>
+    <li><strong>执行阶段（各部门干活）：</strong>逐步执行，每步把前面结果作为 context 传入，LLM 始终知道进度，不会"失忆"。</li>
+    <li><strong>汇总阶段（项目验收）：</strong>所有步骤跑完后整合产出，解决各步骤衔接问题，确保最终输出连贯而非生硬拼接。</li>
+  </ol>
+
+  <h3>并行优化：依赖分析与 DAG</h3>
+  <p>拆好步骤后，分析步骤间的依赖关系——有些必须等前一步完成，有些可以同时进行。识别可并行的步骤是降低总耗时的关键。</p>
+  <p><strong>厨师类比：</strong>烧水、切菜、腌肉三件事，傻傻串行 = 三件事时间之和。有经验的厨师先烧水，同时切菜腌肉，总时间由最长路径决定。</p>
+  <pre><code># 依赖图：步骤 1 和 2 独立可并行，步骤 3 依赖 1，步骤 4 依赖 2 和 3
+#
+# 步骤1 ──────────────┐
+#                      ├──> 步骤3 ──┐
+# 步骤2 ──────────────┘             ├──> 步骤4（最终输出）
+#          └──────────────────────  ┘
+#
+# 串行：4步 × 3秒 = 12秒
+# 并行：max(步骤1,步骤2) + 步骤3 + 步骤4 = 3+3+3 = 9秒
+
+import asyncio
+
+async def execute_parallel_steps(independent_steps: list):
+    tasks = [execute_step_async(step) for step in independent_steps]
+    results = await asyncio.gather(*tasks)
+    return results</code></pre>
+
+  <div class="callout">
+    <strong>实际收益：</strong>前提是依赖关系稀疏、工具 I/O 占主要耗时。如果所有步骤都强依赖上一步，并行空间为零。实践中降低 <strong>40%~60%</strong> 端到端延迟很常见。
+  </div>
+
+  <h4>拆分粒度的把握</h4>
+  <table>
+    <tr><th style="width:18%">粒度</th><th>代价</th></tr>
+    <tr><td><strong>太细</strong></td><td>调用次数多、token 上升；步骤太碎，LLM 看不到全局，衔接生硬</td></tr>
+    <tr><td><strong>太粗</strong></td><td>每步负责的事太多，出错概率上升，出问题无法定位</td></tr>
+    <tr><td><strong>原子操作</strong></td><td>只做一件独立的事，边界清晰，做完有明确输出，不依赖其他步骤</td></tr>
+  </table>
+  <p><strong>判断方法：</strong>能给它写一个清晰的函数签名吗？能 = 大概是原子的。如果函数里还要分好几个阶段 = 需要再拆。</p>
+
+  <h3>自适应拆分：做不好就继续拆</h3>
+  <p>不要在开始时就把所有步骤粒度定死，而是在执行过程中根据实际难度动态调整：</p>
+  <ol>
+    <li>先让执行器尝试完成当前任务</li>
+    <li>做得好 → 继续往下走，不做多余拆分</li>
+    <li>做不好（超过最大步数 / 质量不达标）→ 交给规划器进一步拆成更小子任务</li>
+    <li>对每个子任务重复同样的流程</li>
+  </ol>
+  <p><strong>特性：</strong>任务越复杂，递归拆分层数越深；任务越简单，可能一层都不拆。计算开销与任务实际难度成正比，而非一刀切。</p>
+
+  <h3>执行中的 Replan 机制</h3>
+  <p>每步执行完后，把当前结果和剩余计划交给规划模块，判断"基于新信息，后面的计划还合理吗"。合理则继续，不合理则生成新的剩余步骤。</p>
+  <div class="callout callout-warm">
+    <strong>折中做法：</strong>不是每步都触发 Replan，而是设触发条件——当某步输出与预期差异很大时、或步骤执行失败时才启动。既能应对意外，又不会无谓增加消耗。
+  </div>
+
+  <h3>拆分结果的验证标准</h3>
+  <table>
+    <tr><th style="width:14%">标准</th><th>含义</th><th>检查方法</th></tr>
+    <tr><td><strong>完备性</strong></td><td>所有步骤加在一起能覆盖原始任务的全部要求</td><td>把步骤描述拼在一起，和原始任务逐项对照，看有没有遗漏</td></tr>
+    <tr><td><strong>独立性</strong></td><td>每个步骤职责边界清晰，没有两个步骤做同一件事</td><td>检查是否有输出重叠；如"搜索功能"和"分析能力"边界模糊需合并</td></tr>
+    <tr><td><strong>可验证性</strong></td><td>每步执行完能用简单标准判断做对了没</td><td>拆分时同时写好"验收标准"，像写单元测试断言一样</td></tr>
+  </table>
+  <div class="callout">
+    <strong>最佳实践：</strong>步骤定义和验收标准成对出现。例如步骤"搜索竞品 A 的定价信息"，验收标准 = "输出中必须包含价格数字和计费模式（按量/包月/免费增值）"。执行完自动检查，缺了就触发重试。
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.nav-links a').forEach(link => {
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const target = link.dataset.target;
+      document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      link.classList.add('active');
+      document.getElementById(target).classList.add('active');
+      window.scrollTo({ top: 0 });
+    });
+  });
+</script>
+
+</body>
+</html>

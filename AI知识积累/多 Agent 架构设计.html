@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>多 Agent 结构设计 · 体系化笔记</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!--
+  ============================================================
+  设计令牌（Design Tokens）— 本项目所有作品统一 UI 规范
+  ------------------------------------------------------------
+  色板:
+    --ink         主文字色        #1a1d24
+    --ink-soft    次级文字色      #4a4f5c
+    --muted       弱化文字色      #8a8f9e
+    --paper       页面底色        #f7f6f2
+    --surface     卡片底色        #ffffff
+    --line        分隔线          #dddbd4
+    --accent      主强调色(蓝)    #2a5caa
+    --accent-deep 强调深色        #1a3d7a
+    --glow        强调亮色(浅蓝)  #4a7bc9
+    --warn        警示色         #d97706
+    --ok          通过色         #16a34a
+  字体:
+    --font-body   正文  Inter / PingFang SC
+    --font-head   标题  Noto Serif SC
+  版式:
+    --radius 圆角  6px
+    --shadow 卡片阴影
+  ============================================================
+-->
+<style>
+:root{
+  --ink:#1a1d24;
+  --ink-soft:#4a4f5c;
+  --muted:#8a8f9e;
+  --paper:#f7f6f2;
+  --surface:#ffffff;
+  --line:#dddbd4;
+  --accent:#2a5caa;
+  --accent-deep:#1a3d7a;
+  --glow:#4a7bc9;
+  --warn:#d97706;
+  --ok:#16a34a;
+  --radius:6px;
+  --radius-lg:6px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+  --shadow-hover:0 2px 4px rgba(31,36,48,.07),0 14px 34px rgba(31,36,48,.10);
+  --font-body:'Inter','PingFang SC','Hiragino Sans GB','Microsoft YaHei','Segoe UI',sans-serif;
+  --font-head:'Noto Serif SC','PingFang SC','Hiragino Sans GB','Microsoft YaHei',serif;
+  --mono:"SF Mono",SFMono-Regular,ui-monospace,Menlo,Consolas,"PingFang SC",monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:88px}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.75;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(42,92,170,.14)}
+
+/* ---------- 顶栏 ---------- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:50;
+  height:56px;display:flex;align-items:center;gap:12px;
+  padding:0 24px;background:rgba(255,255,255,.86);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .logo{
+  width:26px;height:26px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;
+}
+.topbar .title{font-weight:650;font-size:15px;letter-spacing:.2px}
+.topbar .badge{
+  margin-left:auto;font-size:12px;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:3px 12px;
+  background:var(--surface);
+}
+
+/* ---------- 侧边导航 ---------- */
+.sidebar{
+  position:fixed;top:56px;left:0;bottom:0;width:252px;
+  padding:24px 16px 32px;overflow-y:auto;
+  border-right:1px solid var(--line);
+  background:var(--surface);
+}
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-thumb{background:#d8d4cb;border-radius:3px}
+.nav-label{
+  font-size:11px;letter-spacing:1.5px;color:var(--muted);
+  text-transform:uppercase;margin:18px 8px 8px;font-weight:600;
+}
+.nav-label:first-child{margin-top:4px}
+.nav-item{
+  display:flex;gap:10px;align-items:flex-start;
+  padding:8px 10px;margin:2px 0;border-radius:10px;
+  color:var(--ink-soft);font-size:13.5px;text-decoration:none;
+  transition:background .15s,color .15s;
+}
+.nav-item .num{
+  font-family:var(--mono);font-size:11px;color:var(--muted);
+  margin-top:4px;min-width:20px;
+}
+.nav-item:hover{background:rgba(42,92,170,.06);color:var(--accent)}
+.nav-item.active{background:rgba(42,92,170,.10);color:var(--accent-deep);font-weight:600}
+.nav-item.active .num{color:var(--accent)}
+.nav-sub{
+  display:block;margin-left:36px;padding:4px 10px;font-size:12.5px;
+  color:var(--muted);text-decoration:none;border-radius:8px;
+}
+.nav-sub:hover{color:var(--accent);background:rgba(42,92,170,.05)}
+
+/* ---------- 主内容 ---------- */
+.main{max-width:920px;margin:0 auto;padding:56px 56px 120px}
+@media(max-width:1024px){.sidebar{display:none}.main{padding:56px 24px 96px}}
+
+/* ---------- Hero ---------- */
+.hero{
+  padding:56px 8px 44px;border-bottom:1px solid var(--line);margin-bottom:52px;
+}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:18px;
+}
+.hero .kicker::before{content:"";width:22px;height:2px;background:var(--glow);border-radius:2px}
+.hero h1{
+  font-family:var(--font-head);font-size:44px;line-height:1.2;letter-spacing:-.5px;font-weight:750;
+}
+.hero h1 .grad{
+  background:linear-gradient(100deg,var(--accent) 10%,var(--glow) 90%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.hero .sub{
+  margin-top:18px;font-size:17px;color:var(--ink-soft);max-width:640px;
+}
+.hero .meta{
+  margin-top:26px;display:flex;flex-wrap:wrap;gap:10px;
+}
+.hero .meta span{
+  font-size:12.5px;color:var(--muted);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:5px 14px;
+}
+.hero .meta b{color:var(--ink-soft);font-weight:600}
+
+/* ---------- 章节 ---------- */
+.chapter{margin-bottom:72px}
+.ch-head{
+  display:flex;gap:18px;align-items:center;margin-bottom:30px;padding-top:8px;
+}
+.ch-num{
+  flex:none;width:52px;height:52px;border-radius:14px;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  color:#fff;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:18px;
+  box-shadow:0 6px 16px rgba(42,92,170,.28);
+}
+.ch-head h2{font-family:var(--font-head);font-size:26px;letter-spacing:-.3px;font-weight:750}
+.ch-head .en{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:2px;letter-spacing:.5px}
+
+section.block{margin-bottom:34px}
+.block h3{
+  font-family:var(--font-head);font-size:19.5px;font-weight:700;margin-bottom:14px;
+  display:flex;align-items:center;gap:10px;
+}
+.block h3::before{content:"";width:5px;height:20px;border-radius:3px;background:linear-gradient(var(--accent),var(--glow))}
+.block h4{font-family:var(--font-head);font-size:16.5px;font-weight:650;margin:20px 0 10px;color:var(--accent-deep)}
+.block p{margin-bottom:12px;color:var(--ink);}
+.block p .hl{background:linear-gradient(transparent 62%,rgba(42,92,170,.22) 62%);padding:0 2px;font-weight:500}
+.block strong{color:var(--accent-deep);font-weight:650}
+.block ul,.block ol{margin:0 0 14px 22px}
+.block li{margin-bottom:8px}
+.block li::marker{color:var(--accent)}
+
+/* ---------- 卡片 ---------- */
+.card{
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:var(--radius-lg);padding:22px 24px;margin:16px 0;
+  box-shadow:var(--shadow);
+}
+.card.tint{background:linear-gradient(180deg,#fff, rgba(42,92,170,.03))}
+.card .card-title{font-weight:650;font-size:15.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.card .card-title .dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+
+/* ---------- 关键点 / 引述 ---------- */
+.keypoint{
+  border-left:3px solid var(--accent);
+  background:rgba(42,92,170,.05);
+  padding:14px 18px;border-radius:0 var(--radius) var(--radius) 0;
+  margin:16px 0;font-size:15px;
+}
+.keypoint .kp-label{font-size:12px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.keypoint.warn{border-left-color:var(--warn);background:rgba(217,119,6,.06)}
+.keypoint.warn .kp-label{color:var(--warn)}
+.keypoint.ok{border-left-color:var(--ok);background:rgba(22,163,74,.06)}
+.keypoint.ok .kp-label{color:var(--ok)}
+
+.quote{
+  font-size:15px;color:var(--ink-soft);border-left:2px solid var(--glow);
+  padding:8px 16px;margin:14px 0;background:rgba(42,92,170,.05);border-radius:0 10px 10px 0;
+}
+.quote b{color:var(--glow);font-weight:650}
+
+/* ---------- 代码块 ---------- */
+.codeblock{
+  background:#171b26;border-radius:var(--radius);margin:16px 0;overflow:hidden;
+  box-shadow:var(--shadow);font-size:13.5px;
+}
+.codeblock .cb-head{
+  display:flex;align-items:center;gap:8px;padding:10px 16px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.codeblock .cb-head .traffic{display:flex;gap:6px}
+.codeblock .cb-head .traffic i{width:10px;height:10px;border-radius:50%}
+.codeblock .cb-head .traffic i:nth-child(1){background:#ff5f57}
+.codeblock .cb-head .traffic i:nth-child(2){background:#febc2e}
+.codeblock .cb-head .traffic i:nth-child(3){background:#28c840}
+.codeblock .cb-head .fn{color:#8a93a3;font-family:var(--mono);font-size:12px;margin-left:6px}
+.codeblock pre{padding:16px 20px;overflow-x:auto;color:#e6e9f0;line-height:1.65;font-family:var(--mono)}
+.codeblock .kw{color:#7dd3fc}.codeblock .fn2{color:#c4b5fd}
+.codeblock .st{color:#86efac}.codeblock .cm{color:#8a93a3;font-style:italic}
+.codeblock .nm{color:#fbbf24}
+
+/* ---------- 表格 ---------- */
+.table-wrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:14px;min-width:560px}
+th{
+  background:linear-gradient(180deg,#fafaf7,#f2f1ec);
+  font-weight:650;text-align:left;padding:12px 16px;
+  border-bottom:1px solid var(--line);color:var(--ink);
+  white-space:nowrap;
+}
+td{padding:11px 16px;border-bottom:1px solid var(--line);color:var(--ink-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(42,92,170,.03)}
+td.hi{color:var(--accent-deep);font-weight:600}
+
+/* ---------- 三种协作模式图 ---------- */
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:20px 0}
+@media(max-width:820px){.mode-grid{grid-template-columns:1fr}}
+.mode-card{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:20px 18px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s;
+}
+.mode-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-hover)}
+.mode-card .m-tag{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:.5px;
+  padding:3px 10px;border-radius:999px;margin-bottom:12px;
+}
+.mode-card .m-title{font-weight:650;font-size:15.5px;margin-bottom:4px}
+.mode-card .m-en{font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:10px}
+.mode-card p{font-size:13.5px;color:var(--ink-soft);margin:0}
+.flow{display:flex;align-items:center;justify-content:center;margin:14px 0;flex-wrap:wrap;gap:4px}
+.flow .node{
+  padding:7px 12px;border-radius:9px;font-size:12.5px;font-weight:600;color:#fff;
+  background:linear-gradient(135deg,var(--accent),#5b6bd8);
+}
+.flow .node.w{background:linear-gradient(135deg,var(--glow),var(--accent))}
+.flow .node.j{background:linear-gradient(135deg,var(--accent),var(--accent-deep))}
+.flow .arr{color:var(--muted);font-size:13px;font-weight:700}
+.flow .arr.v{display:flex;flex-direction:column;align-items:center;font-size:10px;gap:0}
+
+/* ---------- Orchestrator 架构图 ---------- */
+.orch{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:26px;box-shadow:var(--shadow);margin:20px 0;
+}
+.orch .user{
+  margin:0 auto 16px;width:max-content;padding:9px 22px;border-radius:999px;
+  background:#fff;border:1.5px dashed var(--accent);color:var(--accent-deep);
+  font-size:14px;font-weight:650;
+}
+.orch .center{
+  display:grid;grid-template-columns:1fr 1.6fr 1fr;gap:12px;align-items:center;
+  background:rgba(42,92,170,.045);border-radius:var(--radius-lg);padding:18px;
+  border:1px solid rgba(42,92,170,.14);
+}
+.orch .mid{display:flex;align-items:center;justify-content:center;gap:8px;color:var(--muted)}
+.orch .orch-box{
+  text-align:center;background:linear-gradient(135deg,var(--accent),var(--accent-deep));
+  color:#fff;border-radius:var(--radius);padding:18px 16px;
+}
+.orch .orch-box .o-name{font-weight:750;font-size:16px}
+.orch .orch-box .o-en{font-family:var(--mono);font-size:11px;opacity:.75;margin-top:2px}
+.orch .orch-box .o-jobs{font-size:12px;opacity:.9;margin-top:8px;line-height:1.6;text-align:left;padding:0 6px}
+.orch .workers{display:flex;flex-direction:column;gap:8px}
+.orch .worker{
+  display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:9px 12px;font-size:13px;
+}
+.orch .worker .w-ic{
+  width:30px;height:30px;border-radius:8px;flex:none;display:grid;place-items:center;
+  background:rgba(42,92,170,.12);color:var(--glow);font-size:14px;
+}
+.orch .worker .w-nm{font-weight:650}
+.orch .worker .w-ds{font-size:11.5px;color:var(--muted)}
+.orch .out{
+  margin:14px auto 0;width:max-content;padding:9px 20px;border-radius:999px;
+  background:linear-gradient(135deg,var(--glow),var(--accent-deep));color:#fff;
+  font-size:13px;font-weight:650;
+}
+.steps{margin:18px 0 6px;padding:0;list-style:none;counter-reset:st}
+.steps li{
+  counter-increment:st;position:relative;padding:10px 0 10px 46px;
+  border-bottom:1px dashed var(--line);font-size:14.5px;
+}
+.steps li:last-child{border-bottom:none}
+.steps li::before{
+  content:counter(st);position:absolute;left:0;top:10px;
+  width:30px;height:30px;border-radius:50%;
+  background:rgba(42,92,170,.10);color:var(--accent);
+  display:grid;place-items:center;font-weight:700;font-size:13px;font-family:var(--mono);
+}
+
+/* ---------- 消息传递 vs 共享状态 ---------- */
+.comm{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+@media(max-width:820px){.comm{grid-template-columns:1fr}}
+.comm .side{
+  border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;
+  background:var(--surface);box-shadow:var(--shadow);
+}
+.comm .side .s-head{padding:14px 18px;font-weight:700;font-size:15px;border-bottom:1px solid var(--line)}
+.comm .side:nth-child(1) .s-head{background:rgba(42,92,170,.08);color:#1a3d7a}
+.comm .side:nth-child(2) .s-head{background:rgba(42,92,170,.07);color:var(--accent-deep)}
+.comm .side .s-body{padding:16px 18px;font-size:13.5px;color:var(--ink-soft)}
+.comm .side .s-body p{margin-bottom:8px;color:var(--ink-soft)}
+.comm .mail-flow{margin-top:12px}
+.comm .mail-flow .m-row{display:flex;align-items:center;gap:8px;margin:8px 0;font-size:12.5px}
+.comm .mail-flow .m-box{
+  border:1px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;font-weight:600;
+}
+.comm .mail-flow .m-box.snd{border-color:rgba(42,92,170,.4);color:#1a3d7a}
+.comm .mail-flow .m-box.rcv{border-color:rgba(42,92,170,.35);color:var(--accent-deep)}
+.comm .mail-flow .m-sys{font-size:11px;color:var(--muted);text-align:center;margin:6px 0}
+.comm .board{
+  margin-top:12px;border:1.5px solid rgba(42,92,170,.3);border-radius:12px;background:#fff;overflow:hidden;
+}
+.comm .board .b-head{background:rgba(42,92,170,.08);padding:8px 12px;font-size:12px;font-weight:700;color:var(--accent-deep)}
+.comm .board .b-row{padding:8px 12px;font-size:12.5px;border-top:1px dashed var(--line)}
+.comm .board .b-row .b-tag{display:inline-block;font-size:10.5px;font-weight:700;border-radius:6px;padding:1px 8px;margin-right:8px;color:#fff}
+.b-tag.t1{background:var(--glow)}.b-tag.t2{background:var(--accent)}.b-tag.t3{background:var(--accent-deep)}
+
+/* ---------- 路由对比 ---------- */
+.route-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+@media(max-width:820px){.route-wrap{grid-template-columns:1fr}}
+.route-card{border:1px solid var(--line);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface);box-shadow:var(--shadow)}
+.route-card .r-head{padding:12px 18px;font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line)}
+.route-card.static .r-head{background:rgba(42,92,170,.07);color:var(--accent-deep)}
+.route-card.dynamic .r-head{background:rgba(217,119,6,.08);color:#a05c07}
+.route-card .r-body{padding:16px 18px}
+.route-card .pros,.route-card .cons{margin:6px 0 12px;font-size:13.5px}
+.route-card .pros li,.route-card .cons li{margin-bottom:5px}
+.route-card .cons li{color:var(--ink-soft)}
+.route-card .score{display:flex;gap:8px;flex-wrap:wrap}
+.route-card .score .chip{font-size:11.5px;border-radius:999px;padding:3px 12px;font-weight:600}
+.chip.good{background:rgba(22,163,74,.10);color:var(--ok)}
+.chip.bad{background:rgba(217,119,6,.12);color:#a05c07}
+.chip.mid{background:rgba(42,92,170,.08);color:var(--accent)}
+
+/* ---------- Handoff 接力 ---------- */
+.relay{display:flex;align-items:center;justify-content:center;gap:6px;margin:18px 0;flex-wrap:wrap}
+.relay .r-node{width:76px;text-align:center}
+.relay .r-node .r-circle{
+  width:52px;height:52px;margin:0 auto 6px;border-radius:50%;
+  display:grid;place-items:center;font-size:20px;
+  background:rgba(42,92,170,.09);color:var(--accent);border:1.5px solid rgba(42,92,170,.25);
+}
+.relay .r-node .r-nm{font-size:12px;font-weight:650;color:var(--ink-soft)}
+.relay .r-node .r-what{font-size:10.5px;color:var(--muted)}
+.relay .r-stick{width:34px;height:2px;background:var(--glow);position:relative}
+.relay .r-stick::after{content:"→";position:absolute;right:-2px;top:-11px;color:var(--glow);font-size:14px;font-weight:700}
+.relay .r-stick.mode{background:var(--warn)}
+.relay .r-stick.mode::after{content:"?";right:-6px;top:-11px;color:var(--warn);font-size:13px}
+
+/* ---------- 高亮框 / 面试速记 ---------- */
+.cheatsheet{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg);
+  padding:26px 28px;box-shadow:var(--shadow);margin:22px 0;
+}
+.cheatsheet h3{display:flex;align-items:center;gap:10px;font-size:19px;margin-bottom:16px}
+.cheatsheet h3 .ic{font-size:22px}
+.cheatsheet .cs-item{display:flex;gap:16px;padding:14px 0;border-bottom:1px dashed var(--line)}
+.cheatsheet .cs-item:last-child{border-bottom:none}
+.cheatsheet .cs-no{
+  flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-size:13px;font-family:var(--mono);margin-top:2px;
+}
+.cheatsheet .cs-no.trap{background:#d97706}
+.cheatsheet .cs-body p{font-size:14.5px;color:var(--ink)}
+.cheatsheet .cs-body .fix{margin-top:6px;font-size:13.5px;color:var(--ink-soft)}
+.cheatsheet .cs-body .fix b{color:var(--ok)}
+
+/* ---------- 章节脚注 ---------- */
+.footnote{
+  font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);
+  margin-top:56px;padding-top:20px;display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;
+}
+.footnote a{color:var(--accent);text-decoration:none}
+.footnote a:hover{text-decoration:underline}
+
+/* ---------- 回到顶部 ---------- */
+.to-top{
+  position:fixed;right:26px;bottom:26px;width:44px;height:44px;border-radius:12px;
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow-hover);
+  display:grid;place-items:center;color:var(--accent);font-size:18px;cursor:pointer;
+  text-decoration:none;z-index:40;transition:transform .15s;
+}
+.to-top:hover{transform:translateY(-2px)}
+</style>
+</head>
+<body>
+
+<!-- 顶栏 -->
+<header class="topbar">
+  <div class="logo">M</div>
+  <div class="title">多 Agent 结构设计</div>
+  <div class="badge">AI Agent · 架构笔记</div>
+</header>
+
+<!-- 侧边导航 -->
+<nav class="sidebar" id="sidebar">
+  <div class="nav-label">主题</div>
+  <a class="nav-item" href="#overview">
+    <span class="num">00</span><span>总览</span>
+  </a>
+  <a class="nav-item" href="#ch1">
+    <span class="num">01</span><span>为什么需要 Multi-Agent</span>
+  </a>
+  <a class="nav-sub" href="#s1-1">1.1 单 Agent 的两大硬限制</a>
+  <a class="nav-sub" href="#s1-2">1.2 三种协作模式</a>
+  <a class="nav-sub" href="#s1-3">1.3 单打独斗 vs 团队作战</a>
+  <a class="nav-sub" href="#s1-4">1.4 框架生态</a>
+  <a class="nav-item" href="#ch2">
+    <span class="num">02</span><span>架构选型设计</span>
+  </a>
+  <a class="nav-sub" href="#s2-1">2.1 Single-Agent 的边界</a>
+  <a class="nav-sub" href="#s2-2">2.2 中心化 Orchestrator 模式</a>
+  <a class="nav-sub" href="#s2-3">2.3 去中心化为何不可用</a>
+  <a class="nav-sub" href="#s2-4">2.4 选型决策框架</a>
+  <a class="nav-sub" href="#s2-5">2.5 三方案对比</a>
+  <a class="nav-item" href="#ch3">
+    <span class="num">03</span><span>协作与动态切换</span>
+  </a>
+  <a class="nav-sub" href="#s3-1">3.1 通信：消息传递 vs 共享状态</a>
+  <a class="nav-sub" href="#s3-2">3.2 共享状态设计要点</a>
+  <a class="nav-sub" href="#s3-3">3.3 路由：静态 vs 动态</a>
+  <a class="nav-sub" href="#s3-4">3.4 Handoff 接力模式</a>
+  <a class="nav-sub" href="#s3-5">3.5 工程实践组合拳</a>
+  <div class="nav-label">附录</div>
+  <a class="nav-item" href="#summary">
+    <span class="num">★</span><span>面试要点速记</span>
+  </a>
+</nav>
+
+<!-- 主内容 -->
+<main class="main">
+
+  <!-- Hero -->
+  <section class="hero" id="overview">
+    <div class="kicker">Architecture Note</div>
+    <h1>多 Agent 结构设计<br><span class="grad">从「为什么」到「怎么搭」</span></h1>
+    <p class="sub">
+      从「为什么需要」到「怎么选型」再到「怎么协作与切换」，三个维度串起 Multi-Agent
+      系统的完整知识体系：<b>Multi-Agent 是什么</b>、<b>Single-Agent 与 Multi-Agent 的设计方案</b>、
+      <b>协作与动态切换机制</b>。一份可直接用于面试与工程实践的系统笔记。
+    </p>
+    <div class="meta">
+      <span>主题 · <b>Multi-Agent Architecture</b></span>
+      <span>形式 · <b>体系化知识笔记</b></span>
+    </div>
+  </section>
+
+  <!-- ============ 第一章 ============ -->
+  <div class="chapter" id="ch1">
+    <div class="ch-head">
+      <div class="ch-num">01</div>
+      <div>
+        <h2>为什么需要 Multi-Agent</h2>
+        <div class="en">WHY MULTI-AGENT — 两个结构性硬限制驱动</div>
+      </div>
+    </div>
+
+    <!-- 1.1 -->
+    <section class="block" id="s1-1">
+      <h3>单 Agent 的两大硬限制</h3>
+      <p>
+        Multi-Agent 的价值不是「多几个 AI 而已」，而是被两个很具体的工程问题逼出来的。
+        面试时能说出这两个<b>结构性</b>限制，就赢了大多数只会说「任务太复杂」的人。
+      </p>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>限制一 · Context Window 的硬上限</div>
+        <p style="margin-bottom:8px">
+          LLM 处理任务，等于把「你的指令 + 它的推理过程 + 工具返回结果 + 历史对话」全部摆在
+          <b>一张工作台</b>上一起处理。这张工作台叫 <b>context window</b>，常见上限从 12.8 万到 100 万 token 不等。
+        </p>
+        <p style="margin-bottom:8px">
+          桌子放满了，新的放进来，旧的就得被推到地上——早期确认的方案、第一批搜集的资料悄悄「掉落」，
+          Agent 开始<b>遗忘</b>。这是结构性的上限，不是靠优化提示词能绕过去的。
+        </p>
+        <div class="keypoint ok">
+          <div class="kp-label">核心结论</div>
+          context 溢出导致「遗忘」是第一个硬限制：复杂任务的信息量一旦超出窗口，单 Agent 无解。
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>限制二 · 专业度：单点泛才问题</div>
+        <p style="margin-bottom:8px">
+          让一个 Agent 既搜信息、又写代码、又做测试、又写文档——它每件事都得兼顾，精力分散。
+          就像一个人同时担任产品经理、程序员、测试工程师和文档工程师，<b>每个角色都做得不够专注</b>。
+        </p>
+        <p style="margin-bottom:8px">
+          而且一旦某个环节出问题，<b>整条链路就卡住，没有隔离性</b>，排查起来很痛苦。
+          分工之后，每个 Agent 的 context 是干净的，只装自己那块信息，专业能力也更强。
+        </p>
+      </div>
+    </section>
+
+    <!-- 1.2 -->
+    <section class="block" id="s1-2">
+      <h3>三种协作模式</h3>
+      <p>Multi-Agent 的核心思路是「团队作战代替单打独斗」：按职能拆任务，每个 Agent 专心做好自己那块，做完传给下一个。协作方式主要有三种。</p>
+
+      <div class="mode-grid">
+        <div class="mode-card">
+          <span class="m-tag" style="background:rgba(42,92,170,.10);color:var(--accent)">模式 A</span>
+          <div class="m-title">顺序流水线</div>
+          <div class="m-en">Sequential Pipeline</div>
+          <div class="flow">
+            <div class="node">A</div><span class="arr">→</span>
+            <div class="node">B</div><span class="arr">→</span>
+            <div class="node">C</div>
+          </div>
+          <p>Agent A 做完交给 B，B 做完交给 C，像工厂流水线，每个环节依次处理。</p>
+        </div>
+        <div class="mode-card">
+          <span class="m-tag" style="background:rgba(42,92,170,.10);color:#1a3d7a">模式 B</span>
+          <div class="m-title">并行扇出</div>
+          <div class="m-en">Fan-out</div>
+          <div class="flow">
+            <div class="node">调度者</div>
+            <span class="arr v">↓<span>↑</span></span>
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div class="node w">W1</div>
+              <div class="node w">W2</div>
+              <div class="node w">W3</div>
+            </div>
+          </div>
+          <p>调度者把独立子任务同时分发给多个 Worker，各自并行执行，最后收集汇总。</p>
+        </div>
+        <div class="mode-card">
+          <span class="m-tag" style="background:rgba(124,95,211,.10);color:#6a4fc4">模式 C</span>
+          <div class="m-title">辩论 / 评审</div>
+          <div class="m-en">Debate / Review</div>
+          <div class="flow">
+            <div class="node j">A 方案</div><div class="node j">B 方案</div><div class="node j">C 方案</div>
+          </div>
+          <div class="flow"><span class="arr" style="font-size:12px">↓ 裁判 / 互评筛选 ↓</span></div>
+          <p>多个 Agent 对同一问题各自给方案，由裁判 Agent 或互相评审筛选最优解。适合代码评审、方案选型等高质量决策场景。</p>
+        </div>
+      </div>
+
+      <div class="quote">
+        类比公司部门协作：<b>产品经理</b>梳理需求、<b>开发</b>写代码、<b>测试</b>验收——各司其职、信息传递清晰、出问题好定位责任。Multi-Agent 就是把这套分工思想搬进 AI。
+      </div>
+    </section>
+
+    <!-- 1.3 -->
+    <section class="block" id="s1-3">
+      <h3>单打独斗 vs 团队作战：以「爬虫工具」为例</h3>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>不用 Multi-Agent</div>
+        <p style="margin-bottom:0">
+          一个 Agent 同时在想需求文档、代码结构、测试策略，context 塞满各种信息，<b>思路乱成一锅粥</b>，
+          写出来的东西哪块都不够好，而且任何一步失误都得从头来。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>用了 Multi-Agent</div>
+        <ul style="margin-bottom:0">
+          <li><b>需求分析师</b>：只做一件事，把用户需求转成清晰的功能列表，输出后即退出，工作台干净；</li>
+          <li><b>程序员</b>：拿到功能列表专注写代码，不需要知道需求怎么来的，context 里只有代码信息；</li>
+          <li><b>测试工程师</b>：拿到代码专注写测试用例……每个 Agent 的工作台都干净，专业度更高。</li>
+        </ul>
+        <div class="keypoint ok" style="margin-top:14px">
+          <div class="kp-label">隐藏收益</div>
+          需求分析结束后，程序员与测试其实可以<b>并行开工</b>（测试框架搭建不需要等代码写完）——
+          这就是「并行扇出」：Orchestrator 识别无依赖的子任务同时派出，等全部结果回来再整合。
+          并行不只提速，还让每个 Worker 的 context 完全隔离，输出质量更高。
+        </div>
+      </div>
+    </section>
+
+    <!-- 1.4 -->
+    <section class="block" id="s1-4">
+      <h3>组织方式与框架生态</h3>
+      <p>Multi-Agent 系统的组织方式主要有两种：</p>
+      <ul>
+        <li><b>中心化</b>：由一个统一调度者分配任务、收集结果；工程上更常用——调度逻辑清晰、责任归属明确、容易排查。</li>
+        <li><b>去中心化</b>：Agent 之间自行协商、直接通信；听起来灵活，但工程问题很多（第二章详述）。</li>
+      </ul>
+      <p style="margin-top:6px">业界成熟框架可直接复用其通信协议、任务调度、结果汇总等基础设施：</p>
+      <table>
+        <thead>
+          <tr><th>框架</th><th>定位</th><th>适用建议</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="hi">CrewAI</td><td>上层封装、上手易</td><td>多数业务场景的快速落地</td></tr>
+          <tr><td class="hi">LangGraph</td><td>底层灵活、基于图的状态编排</td><td>需要精细控制流程与状态的场景</td></tr>
+          <tr><td class="hi">Microsoft Agent Framework（MAF）</td><td>微软统一 SDK（2025 合并 Semantic Kernel + AutoGen）</td><td>微软技术栈的生产场景优先考虑；原 AutoGen 仓库转研究/原型，社区 fork 出 AG2 保持兼容</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </div>
+
+  <!-- ============ 第二章 ============ -->
+  <div class="chapter" id="ch2">
+    <div class="ch-head">
+      <div class="ch-num">02</div>
+      <div>
+        <h2>架构选型设计</h2>
+        <div class="en">SINGLE VS MULTI — 什么时候上，怎么组织</div>
+      </div>
+    </div>
+
+    <!-- 2.1 -->
+    <section class="block" id="s2-1">
+      <h3>Single-Agent 的本质与边界</h3>
+      <p>
+        Single-Agent = 一个 LLM + 一套工具，跑一个<b>决策循环</b>：LLM 判断下一步做什么 → 调用工具执行 → 拿结果再判断 → 直到任务完成。
+      </p>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>它的优势不只是「架构简单」</div>
+        <p style="margin-bottom:0">
+          更核心的是<b>整条任务链路完全在你掌控之内</b>：任务怎么走、用什么工具、何时结束，所有逻辑在一个地方写清楚，
+          出问题链路短、好排查。类比一个人独立写一篇博客，自己查资料、想大纲、写下来，沟通成本为零，反而更高效。
+        </p>
+      </div>
+      <div class="keypoint warn">
+        <div class="kp-label">三类信号：必须上 Multi-Agent</div>
+        <ol style="margin:0 0 0 20px">
+          <li><b>任务太长、信息量太大</b>：context 撑爆，Agent 开始遗忘；</li>
+          <li><b>需要多种专业能力</b>：什么都塞进一个 Agent，每件事都做得不够专注；</li>
+          <li><b>存在可并行的独立子任务</b>：单 Agent 只能一个个来，理论上可并行却无法并行。</li>
+        </ol>
+      </div>
+      <div class="quote">
+        反过来也成立：<b>不在这三类里，Single-Agent 就够了</b>。不要为了「用新技术」强行上 Multi-Agent——系统变复杂、难维护，却带不来对应收益。
+      </div>
+    </section>
+
+    <!-- 2.2 -->
+    <section class="block" id="s2-2">
+      <h3>中心化方案：Orchestrator 模式</h3>
+      <p>
+        「Orchestrator」直译是交响乐指挥，在系统里相当于<b>总调度员 / 项目经理</b>。
+        它是整个系统里最特殊的 Agent——<b>不做任何具体工作</b>，只负责三件事：
+      </p>
+      <ol class="steps" style="margin-bottom:6px">
+        <li>读懂用户的大目标，把它拆成一个个子任务；</li>
+        <li>判断每个子任务该交给哪个 Worker Agent 去做；</li>
+        <li>收集每个 Worker 的产出，拼成最终答案。</li>
+      </ol>
+
+      <h4>Orchestrator 的三种变体（按复杂度递进）</h4>
+      <table>
+        <thead>
+          <tr><th>变体</th><th>机制</th><th>适用场景</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="hi">静态路由<br><span style="font-family:var(--mono);font-size:12px">Static Router</span></td>
+            <td>任务拆分与分配规则<b>预先写死</b>：「代码任务交给 Coder，搜索任务交给 Researcher」</td>
+            <td>逻辑简单、可预测的固定流程</td>
+          </tr>
+          <tr>
+            <td class="hi">动态规划<br><span style="font-family:var(--mono);font-size:12px">Dynamic Planner</span></td>
+            <td>Orchestrator 本身是 LLM，根据用户输入<b>动态生成任务计划</b>，决定步骤数与交接对象，计划可中途调整</td>
+            <td><b>大多数实际项目用这个就够</b></td>
+          </tr>
+          <tr>
+            <td class="hi">自适应编排<br><span style="font-family:var(--mono);font-size:12px">Adaptive Orchestration</span></td>
+            <td>不只动态规划，还根据 Worker 执行结果<b>实时调整后续计划</b>（如搜索不够就追加一轮）</td>
+            <td>更强大，但调试复杂度高很多</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h4>Worker Agent：纯粹的「执行者」</h4>
+      <p>
+        每个 Worker 只关注自己那块，<b>不需要知道整体任务</b>、不需要知道其他 Worker 在做什么；
+        拿到属于自己那部分指令，做完返回结果就退出。它的 context 干净，只装与自身职责相关的信息。
+      </p>
+
+      <h4>完整流程走查：写一份「AI 行业竞品分析」</h4>
+      <div class="orch">
+        <div class="user">🙋 「帮我写一份 AI 行业竞品分析」</div>
+        <div class="center">
+          <div class="mid">↗ 拆分<br>派发</div>
+          <div class="orch-box">
+            <div class="o-name">Orchestrator</div>
+            <div class="o-en">总调度员 · 不做具体活</div>
+            <div class="o-jobs">① 拆大目标为子任务<br>② 决定交给谁<br>③ 汇总成最终答案</div>
+          </div>
+          <div class="mid">↖ 收集<br>汇总</div>
+        </div>
+        <div style="display:flex;justify-content:space-around;gap:12px;margin-top:14px">
+          <div class="workers" style="width:32%">
+            <div class="worker"><div class="w-ic">🔎</div><div><div class="w-nm">Researcher</div><div class="w-ds">搜集十几家竞品资料</div></div></div>
+          </div>
+          <div class="workers" style="width:32%">
+            <div class="worker"><div class="w-ic">📊</div><div><div class="w-nm">Analyst</div><div class="w-ds">梳理核心差异与对比数据</div></div></div>
+          </div>
+          <div class="workers" style="width:32%">
+            <div class="worker"><div class="w-ic">✍️</div><div><div class="w-nm">Writer</div><div class="w-ds">撰写最终报告</div></div></div>
+          </div>
+        </div>
+        <div class="out">📄 最终竞品分析报告</div>
+      </div>
+
+      <div class="keypoint ok">
+        <div class="kp-label">为什么好排查</div>
+        每个环节出问题都能精准定位：报告不准确 → Researcher 信息不够好；分析逻辑有问题 → Analyst 对比维度不对；
+        格式不符合要求 → Writer 输出问题。顺着 Orchestrator 的调度记录一步步追下去就能找到根源，不需要猜。
+      </div>
+    </section>
+
+    <!-- 2.3 -->
+    <section class="block" id="s2-3">
+      <h3>去中心化方案：为什么「听起来灵活」却几乎没人用</h3>
+      <p>
+        去中心化的思路是没有总调度，多个 Agent 通过共享的消息队列或状态空间自行协商、直接通信。
+        听起来像一个能自我组织的团队，不需要领导，还更灵活——<b>但工程上几乎不用</b>。
+      </p>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>用具体场景暴露问题：A 搜信息、B 搜类似信息、C 汇总，没人统筹</div>
+        <ul style="margin-bottom:0">
+          <li><b>任务分配没有协调</b>：没人告诉 A 和 B「各搜什么范围」，很可能大量搜索内容重叠，做重复工作；</li>
+          <li><b>执行顺序没有保证</b>：C 需要等 A、B 都搜完才能汇总，但没人告诉它「什么时候算搜完了」，该等多久、有没有漏掉谁都不知道；</li>
+          <li><b>失败没有感知</b>：A 中途出错，没有中央调度者收到通知，B、C 照常运行，最后汇总出的是不完整结果，系统甚至不知道出了问题。</li>
+        </ul>
+        <div class="keypoint warn" style="margin-top:14px;margin-bottom:0">
+          <div class="kp-label">本质问题</div>
+          任务分配没协调、执行顺序没保证、失败没感知、没人确认「整体完成了」。
+          类比没有项目经理的团队：每个人都很能干，但没人协调时间节点和接口，交出来的可能是互不兼容的结果。
+        </div>
+      </div>
+      <p style="margin-top:10px">
+        所以去中心化更多停留在<b>学术研究</b>（研究「AI 能否实现自主协调」这个更宏观的问题）；
+        生产环境里<b>几乎所有正经项目都选 Orchestrator 模式</b>——可控、可追踪、能排查，这才是工程真正需要的。
+      </p>
+    </section>
+
+    <!-- 2.4 -->
+    <section class="block" id="s2-4">
+      <h3>选型决策框架</h3>
+      <div class="card tint">
+        <div class="card-title"><span class="dot"></span>两个问题搞定选型</div>
+        <ol class="steps" style="margin:0">
+          <li>
+            <b>你的任务，Single-Agent 能搞定吗？</b><br>
+            流程明确、不太长、不需要多种专业分工 → 就用 Single-Agent。架构简单、维护成本低、链路透明，别为了「显得高级」而复杂化。
+          </li>
+          <li>
+            <b>你能接受系统行为不可控的风险吗？</b><br>
+            生产环境答案几乎一定是「不能」→ 用 Orchestrator 中心化模式。
+          </li>
+        </ol>
+      </div>
+      <div class="keypoint ok">
+        <div class="kp-label">渐进式演进（最实用的工程策略）</div>
+        先用 Single-Agent 把系统跑起来，等发现某个环节<b>确实成为瓶颈</b>（context 常撑满、某类子任务质量不行），
+        再把那个环节拆出来交给专门的 Worker。<b>不要一上来就设计五六个 Agent 的系统</b>——你可能连真正的瓶颈在哪儿都还没搞清楚。
+        Single → Multi 是一个自然演进，而不是一开始就做的架构决策。
+      </div>
+      <h4>行业趋势：A2A 协议（Agent-to-Agent）</h4>
+      <p>
+        Google 于 2025 年 4 月提出的开放标准，解决<b>不同团队、不同框架开发的 Agent 之间如何互相通信协作</b>的问题。
+        思路很像微服务：定义一套标准化通信协议，让不同来源的 Agent 在协议层面互相发现与调用。
+        2025 年 6 月已捐给 Linux 基金会维护，IBM 的 ACP 协议也已并入。
+        目前仍在早期阶段，「跨框架即插即用」尚未成熟，多为社区实现与示范项目——但长远看会深刻改变 Multi-Agent 的构建方式。
+      </p>
+    </section>
+
+    <!-- 2.5 -->
+    <section class="block" id="s2-5">
+      <h3>三方案一表对比</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>维度</th>
+              <th>Single-Agent</th>
+              <th>Multi-Agent（中心化）</th>
+              <th>Multi-Agent（去中心化）</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>架构复杂度</td><td>低</td><td>中</td><td>中高</td></tr>
+            <tr><td>Context 压力</td><td>全部压在一个 Agent</td><td>各 Agent 独立管理，Orchestrator 只维护高层状态</td><td>各 Agent 独立管理，但需额外共享协调状态</td></tr>
+            <tr><td>专业能力</td><td>泛才，什么都做</td><td>专才分工，各有专责</td><td>专才分工，各有专责</td></tr>
+            <tr><td>并行能力</td><td>不支持</td><td>支持子任务并行</td><td>支持并行</td></tr>
+            <tr><td>可控性</td><td>高</td><td class="hi">高，Orchestrator 统管</td><td>低，难以统一调度</td></tr>
+            <tr><td>调试难度</td><td>容易</td><td>中，按调度链路追踪</td><td>难，行为不可预测</td></tr>
+            <tr><td>工程实用性</td><td>高</td><td class="hi">高</td><td>低，主要用于学术研究</td></tr>
+            <tr><td>适用场景</td><td>任务清晰、复杂度适中</td><td>需要分工或并行的复杂任务</td><td>学术探索场景</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ 第三章 ============ -->
+  <div class="chapter" id="ch3">
+    <div class="ch-head">
+      <div class="ch-num">03</div>
+      <div>
+        <h2>协作与动态切换机制</h2>
+        <div class="en">COLLABORATION &amp; ROUTING — 信息怎么传、下一步叫谁</div>
+      </div>
+    </div>
+
+    <section class="block">
+      <h3>三种协作模式总览</h3>
+      <ul>
+        <li><b>流水线模式</b>：Agent 按固定顺序依次执行，前一个完成后交给下一个，像工厂装配线；</li>
+        <li><b>层级模式</b>：Orchestrator 负责分配任务、收集结果，其他 Agent 各自执行子任务；</li>
+        <li><b>协商模式</b>：多个 Agent 之间没有严格上下级，通过互相沟通、辩论达成一致。</li>
+      </ul>
+      <div class="quote">三种模式<b>不是互斥的</b>，复杂系统里经常混合使用。</div>
+    </section>
+
+    <!-- 3.1 -->
+    <section class="block" id="s3-1">
+      <h3>通信方式：消息传递 vs 共享状态</h3>
+      <p>把多 Agent 系统想象成公司的多个部门：研究部、开发部、测试部各司其职。部门之间传信息，有两种方式。</p>
+      <div class="comm">
+        <div class="side">
+          <div class="s-head">📧 消息传递 · 像发邮件</div>
+          <div class="s-body">
+            <p>Agent 完成工作后把结果发送到<b>消息队列</b>，下游 Agent 订阅感兴趣的消息，取到了再开始处理。</p>
+            <div class="mail-flow">
+              <div class="m-row">
+                <div class="m-box snd">研究部</div><span class="arr">→</span>
+                <div class="m-box rcv">开发部</div>
+              </div>
+              <div class="m-sys">🖥 消息中间件（邮件服务器）</div>
+              <div class="m-row">
+                <div class="m-box snd">开发部</div><span class="arr">→</span>
+                <div class="m-box rcv">测试部</div>
+              </div>
+            </div>
+            <p style="margin-top:12px"><b>优点</b>：解耦——发送方不需要知道谁在接收，只管发；接收方也不需要知道消息是谁发的，只管处理。</p>
+            <p><b>缺点</b>：需要「邮件服务器」（消息中间件）维护这套机制，部署成本稍高。</p>
+          </div>
+        </div>
+        <div class="side">
+          <div class="s-head">📋 共享状态 · 像共享白板</div>
+          <div class="s-body">
+            <p>所有 Agent 都读写<b>同一个状态对象</b>，上面记录「当前任务、进展到哪、各部门完成了什么」。</p>
+            <div class="board">
+              <div class="b-head">Shared State（LangGraph 的 State）</div>
+              <div class="b-row"><span class="b-tag t1">研究部</span>资料整理完成 ✓</div>
+              <div class="b-row"><span class="b-tag t2">开发部</span>代码开发中…</div>
+              <div class="b-row"><span class="b-tag t3">测试部</span>等待中</div>
+            </div>
+            <p style="margin-top:12px">研究部写上「资料整理完成」，开发部一看知道可以开始了，接手写「代码开发中」。</p>
+            <p><b>代表</b>：LangGraph 就按这个思路设计——贯穿所有 Agent 的 State，执行完写入结果，下一个直接读取。</p>
+          </div>
+        </div>
+      </div>
+      <div class="keypoint">
+        <div class="kp-label">怎么选</div>
+        Agent 之间<b>依赖关系强</b>（前一步结果直接传给后一步）→ 用<b>共享状态</b>，直接；想让 Agent 尽量<b>解耦</b>、互不知道对方存在 → 用<b>消息传递</b>。
+      </div>
+    </section>
+
+    <!-- 3.2 -->
+    <section class="block" id="s3-2">
+      <h3>共享状态设计要点</h3>
+      <p>多个 Agent 同时读写一个状态对象，是系统里<b>最容易出 bug 的地方</b>——写的结果被意外覆盖、读到一半更新的脏数据，都会出问题。工程上有三个关键点。</p>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>① 状态分层</div>
+        <ul style="margin-bottom:0">
+          <li><b>全局状态</b>：所有 Agent 都要读的信息——用户原始请求、任务进展、最终输出，共享；</li>
+          <li><b>局部状态</b>：每个 Agent 自己的中间结果——搜索候选列表、代码草稿，只在内部使用，不暴露给其他 Agent，<b>避免信息污染</b>。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>② 只追加，不覆盖</div>
+        <p style="margin-bottom:0">
+          每个 Agent 完成后把结果<b>追加</b>到状态里，而不是修改已有字段。LangGraph 的 State 更新就是这个思路：
+          定义好 schema，每个节点返回「增量更新」，框架帮你合并进全局状态，就不会互相覆盖。
+        </p>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>③ 错误也要写入状态</div>
+        <p style="margin-bottom:0">
+          Agent 执行失败，错误信息也应写入状态，<b>不能悄悄吞掉</b>。后续 Agent 或 Orchestrator 读到错误状态，
+          才能正确决策：跳过这一步、换 Agent 重试、或直接终止任务。
+        </p>
+      </div>
+    </section>
+
+    <!-- 3.3 -->
+    <section class="block" id="s3-3">
+      <h3>路由策略：静态路由 vs 动态路由</h3>
+      <p>「切换」= 决定下一步把任务交给哪个 Agent，这个决策动作叫<b>路由</b>，由 Orchestrator 负责。</p>
+      <div class="route-wrap">
+        <div class="route-card static">
+          <div class="r-head">📐 静态路由 <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">Static</span></div>
+          <div class="r-body">
+            <p style="font-size:13.5px">把规则<b>提前写死</b>：任务描述含「搜索」→ Researcher；当前步骤「代码写完了」→ Reviewer；匹配不到 → 回 Orchestrator 兜底。</p>
+            <div class="pros">✅ 优点</div>
+            <ul style="margin:0 0 8px 18px;font-size:13.5px"><li>效率高、可预测、好调试</li><li>像工厂流水线，每道工序后去哪个工位是固定的</li></ul>
+            <div class="cons">⚠️ 缺点</div>
+            <ul style="margin:0 0 12px 18px;font-size:13.5px"><li>覆盖不了没预料到的情况——任务走了没定义规则的路径，系统就不知怎么办</li></ul>
+            <div class="score"><span class="chip good">稳定</span><span class="chip bad">欠灵活</span></div>
+          </div>
+        </div>
+        <div class="route-card dynamic">
+          <div class="r-head">🧠 动态路由 <span style="font-family:var(--mono);font-size:11px;color:var(--muted)">Dynamic</span></div>
+          <div class="r-body">
+            <p style="font-size:13.5px">把「下一步找谁」交给 <b>LLM 决策</b>：Orchestrator 把当前任务描述、已完成进度、可用 Agent 列表全部喂给 LLM，让它判断该叫谁。</p>
+            <div class="pros">✅ 优点</div>
+            <ul style="margin:0 0 8px 18px;font-size:13.5px"><li>能处理任何没预先设计的路径，边缘情况也能合理判断</li></ul>
+            <div class="cons">⚠️ 缺点</div>
+            <ul style="margin:0 0 12px 18px;font-size:13.5px"><li>每次路由多一次 LLM 调用：延迟 + 成本</li><li>LLM 偶尔路由错，行为可预测性降低</li></ul>
+            <div class="score"><span class="chip mid">灵活</span><span class="chip bad">延迟/不可控</span></div>
+          </div>
+        </div>
+      </div>
+
+      <h4>动态路由的代码实现（简化示例）</h4>
+      <div class="codeblock">
+        <div class="cb-head">
+          <span class="traffic"><i></i><i></i><i></i></span>
+          <span class="fn">dynamic_route.py</span>
+        </div>
+        <pre><span class="kw">def</span> <span class="fn2">dynamic_route</span>(task_context: <span class="nm">str</span>, available_agents: <span class="nm">list</span>[<span class="nm">str</span>]) -> <span class="nm">str</span>:
+    <span class="cm">"""让 LLM 根据当前上下文决定下一步调用哪个 Agent"""</span>
+    prompt = <span class="st">f"""当前任务状态：
+{task_context}
+
+可用的 Agent：
+{chr(10).join(<span class="st">f'- {agent}'</span> <span class="kw">for</span> agent <span class="kw">in</span> available_agents)}
+
+请根据当前进展，判断下一步应该交给哪个 Agent 来执行。
+只返回 Agent 名称，不需要解释。"""</span>
+
+    response = client.chat.completions.create(
+        model=<span class="st">"gpt-4"</span>,
+        messages=[{<span class="st">"role"</span>: <span class="st">"user"</span>, <span class="st">"content"</span>: prompt}]
+    )
+    selected = response.choices[<span class="nm">0</span>].message.content.strip()
+    <span class="kw">return</span> selected  <span class="cm"># 返回选中的 Agent 名称</span></pre>
+      </div>
+      <div class="quote">
+        生产环境通常还会加保护措施：<b>校验返回的 Agent 名是否在可用列表中</b>、设置默认 fallback Agent、记录路由决策日志供后续分析。
+      </div>
+    </section>
+
+    <!-- 3.4 -->
+    <section class="block" id="s3-4">
+      <h3>Handoff 模式：Agent 之间的「接力棒」</h3>
+      <p>
+        比中央 Orchestrator 更去中心化的一种切换方式，由 OpenAI 的 Swarm 框架演示推广
+        （Swarm 是教育性/实验性框架，官方明确非生产级，但对概念展示非常直观）。
+      </p>
+      <p>
+        Handoff 的思路：<b>不需要中央调度，当前正在执行的 Agent 自己决定「我做完了，接下来交给谁」</b>。
+        像接力赛跑，每个运动员跑完自己那棒，直接把接力棒递给下一个人，不需要裁判喊「下一个是谁」。
+      </p>
+      <div class="relay">
+        <div class="r-node">
+          <div class="r-circle">👤</div>
+          <div class="r-nm">Agent A</div>
+          <div class="r-what">用户意图分析</div>
+        </div>
+        <div class="r-stick"></div>
+        <div class="r-node">
+          <div class="r-circle">🔧</div>
+          <div class="r-nm">Agent B</div>
+          <div class="r-what">任务执行</div>
+        </div>
+        <div class="r-stick"></div>
+        <div class="r-node">
+          <div class="r-circle">✅</div>
+          <div class="r-nm">Agent C</div>
+          <div class="r-what">质检输出</div>
+        </div>
+        <div class="r-stick mode"></div>
+        <div class="r-node">
+          <div class="r-circle" style="border-color:rgba(217,119,6,.4);color:var(--warn);background:rgba(217,119,6,.08)">↩️</div>
+          <div class="r-nm" style="color:var(--warn)">回到 A？</div>
+          <div class="r-what">死循环风险</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>优缺点对比</div>
+        <ul style="margin-bottom:10px">
+          <li><b>优点</b>：每个 Agent 对自己的任务边界最清楚，由它决定下一步找谁，往往比外部 Orchestrator 判断更准确；没有中央节点瓶颈，扩展性好。</li>
+          <li><b>缺点</b>：没有全局视角——A 交给 B，B 觉得不是自己的活又交给 C，C 又交回给 A，就形成<b>死循环</b>。</li>
+        </ul>
+        <div class="keypoint warn" style="margin:0">
+          <div class="kp-label">使用前提</div>
+          必须设计好每个 Agent 的职责边界，并加<b>防循环机制</b>：记录任务经过哪些 Agent，发现重复经过同一 Agent 就强制终止。
+        </div>
+      </div>
+    </section>
+
+    <!-- 3.5 -->
+    <section class="block" id="s3-5">
+      <h3>工程实践：组合拳</h3>
+      <div class="card tint">
+        <div class="card-title"><span class="dot"></span>最稳健的做法</div>
+        <ul style="margin-bottom:0">
+          <li><b>主流程用静态路由</b>：把确定性的节点切换写成规则，保证绝大多数情况下系统行为稳定可预测；</li>
+          <li><b>边缘情况交给 LLM 动态决策</b>：遇到没有匹配规则的路径，才让 LLM 判断；</li>
+          <li>一句话：<b>静态路由负责「保底」，动态路由负责「兜住异常」，两者互补。</b></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="dot"></span>Handoff 与通信方式怎么选</div>
+        <ul style="margin-bottom:0">
+          <li><b>Handoff</b>：适合 Agent 数量不多、职责边界清晰、任务流向相对确定的场景，比中央 Orchestrator 更简洁；Agent 多、流向复杂，还是建议 Orchestrator 统一调度，避免交接变成一团乱麻。</li>
+          <li><b>通信方式</b>：流程是相对清晰的流水线、各步骤有明确前后依赖 → 共享状态（简单直接）；需要多个 Agent 独立并行、互相不感知 → 消息传递（解耦清晰）。</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+
+  <!-- ============ 附录：面试速记 ============ -->
+  <div class="chapter" id="summary">
+    <div class="ch-head">
+      <div class="ch-num">★</div>
+      <div>
+        <h2>面试要点速记</h2>
+        <div class="en">INTERVIEW CHEATSHEET — 三个最容易踩的雷</div>
+      </div>
+    </div>
+
+    <div class="cheatsheet">
+      <h3><span class="ic">🧭</span>答题要讲设计取舍，不要停在表面</h3>
+
+      <div class="cs-item">
+        <div class="cs-no trap">1</div>
+        <div class="cs-body">
+          <p>选型标准不能说「任务复杂就用 Multi-Agent」，要说具体场景。</p>
+          <div class="fix">✅ 正确答法：<b>context 要撑爆、需要不同专业分工、有子任务可并行</b>，三类信号都不占就用 Single-Agent；盲目引入只会增加复杂度，带不来收益。</div>
+        </div>
+      </div>
+
+      <div class="cs-item">
+        <div class="cs-no">2</div>
+        <div class="cs-body">
+          <p>回答 Multi-Agent 架构，要主动提中心化 + 去中心化两种，并给出明确取舍。</p>
+          <div class="fix">✅ 正确答法：工程里<b>几乎都选 Orchestrator 中心化模式</b>，因为可控、可追踪、能顺着调度链路排查；去中心化「听起来灵活」但有实际问题。</div>
+        </div>
+      </div>
+
+      <div class="cs-item">
+        <div class="cs-no trap">3</div>
+        <div class="cs-body">
+          <p>去中心化要说清楚它<b>为什么在工程上不可用</b>，而不是「更灵活」。三个具体问题：</p>
+          <div class="fix">✅ <b>任务分配没协调、执行顺序没保证、失败没有感知</b>——这才是它停留在学术研究的根本原因。</div>
+        </div>
+      </div>
+
+      <div class="cs-item">
+        <div class="cs-no">4</div>
+        <div class="cs-body">
+          <p>协作机制要说出两种通信方式的本质区别。</p>
+          <div class="fix">✅ <b>消息传递的核心是解耦</b>（发送方不知道谁在接收，适合独立并行）；<b>共享状态的核心是直接</b>（所有 Agent 读写同一对象，LangGraph 就是这个思路，适合依赖明确的流水线）。选哪个看<b>依赖强度</b>。</div>
+        </div>
+      </div>
+
+      <div class="cs-item">
+        <div class="cs-no">5</div>
+        <div class="cs-body">
+          <p>动态切换要说出静态 / 动态路由各自的优缺点，<b>以及最体现工程经验的那句混用策略</b>。</p>
+          <div class="fix">✅ 「<b>主流程静态路由保底，边缘情况才交给 LLM 动态决策</b>」——面试官一听就知道你真的做过多 Agent 系统。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footnote">
+    <span>多 Agent 结构设计 · 体系化知识笔记</span>
+    <span>2026</span>
+  </footer>
+
+</main>
+
+<a href="#" class="to-top" title="回到顶部">↑</a>
+
+<script>
+// 侧边栏滚动高亮
+(function(){
+  var sections = document.querySelectorAll('section.block, .hero');
+  var navItems = document.querySelectorAll('.nav-item, .nav-sub');
+  function onScroll(){
+    var pos = window.scrollY + 120;
+    var current = null;
+    sections.forEach(function(s){
+      if(s.offsetTop <= pos) current = s;
+    });
+    navItems.forEach(function(a){
+      a.classList.remove('active');
+      if(current && a.getAttribute('href') === '#' + current.id){
+        a.classList.add('active');
+      }
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+</script>
+
+</body>
+</html>

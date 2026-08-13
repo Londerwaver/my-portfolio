@@ -1,0 +1,2035 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent 记忆系统 — 系统学习笔记</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f7f6f2;
+    --bg2: #ffffff;
+    --bg3: #eeecea;
+    --accent: #2a5caa;
+    --accent2: #1a3d7a;
+    --text: #1a1d24;
+    --text2: #4a4f5c;
+    --text3: #8a8f9e;
+    --border: #dddbd4;
+    --highlight: rgba(42, 92, 170, 0.07);
+    --green: #4ADE80;
+    --green-bg: rgba(34,197,94,0.04);
+    --green-border: rgba(34,197,94,0.25);
+    --gray-bg: rgba(148,163,184,0.04);
+    --gray-border: rgba(148,163,184,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Top nav bar ── */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: rgba(247, 246, 242, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    gap: 0;
+  }
+
+  .topbar-logo {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    color: var(--text);
+    margin-right: 48px;
+    white-space: nowrap;
+  }
+
+  .topbar-logo span {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    margin-left: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    height: 56px;
+    align-items: stretch;
+  }
+
+  .tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 22px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    border: none;
+    background: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.18s;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    position: relative;
+  }
+
+  .tab-btn:hover {
+    color: var(--text);
+    background: var(--highlight);
+  }
+
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+
+  .tab-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+  }
+
+  .tab-btn.active .tab-num { color: var(--accent2); }
+
+  /* ── Content area ── */
+  .content {
+    margin-top: 56px;
+    min-height: calc(100vh - 56px);
+  }
+
+  .tab-panel {
+    display: none;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Hero inside tab ── */
+  .panel-hero {
+    position: relative;
+    padding: 64px 72px 56px;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .panel-hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 50% 60% at 90% 40%, rgba(42,92,170,0.10) 0%, transparent 70%),
+      radial-gradient(ellipse 30% 50% at 5% 100%, rgba(42,92,170,0.04) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .panel-hero-bg::after {
+    content: '';
+    position: absolute;
+    top: 20px; right: 60px;
+    width: 220px; height: 220px;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 22px 22px;
+    opacity: 0.35;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 10%, transparent 80%);
+  }
+
+  .panel-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .panel-eyebrow::before {
+    content: '';
+    display: block;
+    width: 24px; height: 1px;
+    background: var(--accent);
+  }
+
+  .panel-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(28px, 3vw, 44px);
+    font-weight: 700;
+    line-height: 1.2;
+    max-width: 640px;
+    margin-bottom: 20px;
+  }
+
+  .panel-title em { font-style: italic; color: var(--accent); }
+
+  .panel-lead {
+    font-size: 15px;
+    color: var(--text2);
+    max-width: 580px;
+    line-height: 1.85;
+  }
+
+  /* ── Body content ── */
+  .panel-body {
+    padding: 56px 72px;
+  }
+
+  /* ── Section within panel ── */
+  .subsection {
+    margin-bottom: 56px;
+  }
+
+  .subsection-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .subsection-sub {
+    font-size: 13px;
+    color: var(--text3);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    margin-bottom: 24px;
+  }
+
+  /* ── Analogy box ── */
+  .analogy-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    padding: 24px 28px;
+    margin-bottom: 28px;
+  }
+
+  .analogy-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--accent);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .analogy-text {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.8;
+  }
+
+  /* ── Card grid ── */
+  .ppac-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .ppac-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 26px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .ppac-card:hover { border-color: var(--accent2); }
+
+  .ppac-letter {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 52px;
+    font-weight: 700;
+    color: var(--border);
+    position: absolute;
+    top: 8px; right: 16px;
+    line-height: 1;
+    transition: color 0.2s;
+  }
+
+  .ppac-card:hover .ppac-letter { color: rgba(42,92,170,0.12); }
+
+  .ppac-abbr {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .ppac-name {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .ppac-def {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.75;
+    margin-bottom: 12px;
+  }
+
+  .ppac-case {
+    font-size: 12px;
+    color: var(--text3);
+    line-height: 1.7;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  .ppac-case strong { color: var(--text2); }
+
+  /* ── Conflict row ── */
+  .conflict-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .conflict-item {
+    display: grid;
+    grid-template-columns: 1fr 32px 1fr;
+    align-items: center;
+    gap: 0;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .conflict-side {
+    padding: 16px 20px;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .conflict-side.left { color: var(--text2); border-right: 1px solid var(--border); }
+  .conflict-side.right { color: var(--text2); border-left: 1px solid var(--border); }
+
+  .conflict-side .label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text3);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .conflict-mid {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* ── Tool limits ── */
+  .tool-limit-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .tool-limit-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+  }
+
+  .tool-limit-icon { font-size: 22px; margin-bottom: 12px; }
+
+  .tool-limit-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .tool-limit-body {
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.75;
+  }
+
+  .tool-limit-body strong { color: var(--text); }
+
+  /* ── Barrier cards ── */
+  .barrier-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .barrier-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .barrier-icon {
+    font-size: 28px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .barrier-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .barrier-body {
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.75;
+  }
+
+  .barrier-body strong { color: var(--text); }
+
+  /* ── Stat highlight ── */
+  .stat-highlight {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+
+  .stat-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 28px;
+    min-width: 160px;
+  }
+
+  .stat-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 32px;
+    font-weight: 500;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+    color: var(--text3);
+    line-height: 1.5;
+  }
+
+  /* ── Insight quote ── */
+  .insight-box {
+    border-left: 2px solid var(--accent);
+    padding: 20px 28px;
+    background: var(--highlight);
+    border-radius: 0 10px 10px 0;
+    margin: 32px 0;
+  }
+
+  .insight-box p {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 16px;
+    font-style: italic;
+    color: var(--text);
+    line-height: 1.8;
+  }
+
+  .insight-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    margin-top: 10px;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── Code block ── */
+  .code-block {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    border-radius: 12px;
+    padding: 20px 24px;
+    overflow-x: auto;
+    margin: 24px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+
+  .code-block .ck { color: #cba6f7; }
+  .code-block .cs { color: #a6e3a1; }
+  .code-block .cm { color: #6c7086; }
+  .code-block .cf { color: #89b4fa; }
+  .code-block .ct { color: #f9e2af; }
+
+  /* ── Hierarchy layers ── */
+  .hierarchy {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-bottom: 32px;
+  }
+
+  .hierarchy-layer {
+    padding: 18px 24px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+  }
+
+  .hierarchy-layer .layer-label {
+    font-weight: 600;
+    font-size: 14px;
+    min-width: 90px;
+    flex-shrink: 0;
+    font-family: 'Noto Serif SC', serif;
+  }
+
+  .hierarchy-layer .layer-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.75;
+  }
+
+  .hierarchy-layer .layer-desc strong { color: var(--text); }
+
+  .hierarchy-arrow {
+    text-align: center;
+    color: var(--text3);
+    font-size: 14px;
+    padding: 4px 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 40px 0;
+  }
+
+  /* ── Table ── */
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 28px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  th {
+    background: var(--bg3);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 12px;
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 2px solid var(--border);
+    font-family: 'Inter', sans-serif;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    line-height: 1.6;
+  }
+
+  td strong { color: var(--text); }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--highlight); }
+
+  /* ── Flow steps ── */
+  .flow-row {
+    display: flex;
+    gap: 0;
+    margin-bottom: 32px;
+    align-items: stretch;
+  }
+
+  .flow-step {
+    flex: 1;
+    padding: 24px;
+    border-radius: 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .flow-step-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 8px;
+  }
+
+  .flow-step h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .flow-step p {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.75;
+    margin-bottom: 0;
+  }
+
+  .flow-step p strong { color: var(--text); }
+
+  .flow-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 12px;
+    font-size: 18px;
+    color: var(--text3);
+  }
+
+  /* ── Clickable knowledge module cards ── */
+  .km-grid .ppac-card {
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  }
+  .km-grid .ppac-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(42,92,170,0.10);
+  }
+  .km-grid .ppac-card:hover .ppac-letter { color: rgba(42,92,170,0.15); }
+  .km-grid .ppac-card .ppac-go {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    margin-top: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .km-grid .ppac-card:hover .ppac-go { opacity: 1; }
+
+  /* ── Section anchor offset (fixed topbar) ── */
+  .subsection[id] {
+    scroll-margin-top: 72px;
+  }
+
+  /* ── Source ref ── */
+  .source-ref {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    margin-top: -16px;
+    margin-bottom: 32px;
+  }
+
+  /* ── Inline code ── */
+  :not(pre) > code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg3);
+    color: var(--accent);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.88em;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 800px) {
+    .topbar { padding: 0 16px; overflow-x: auto; }
+    .panel-hero, .panel-body { padding: 40px 24px; }
+    .ppac-grid { grid-template-columns: 1fr; }
+    .tool-limit-row { grid-template-columns: 1fr; }
+    .barrier-row { grid-template-columns: 1fr; }
+    .conflict-item { grid-template-columns: 1fr; }
+    .conflict-mid { display: none; }
+    .flow-row { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); padding: 8px 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Tab Bar -->
+<header class="topbar">
+  <a href="index.html" style="font-size:13px;color:var(--text3);text-decoration:none;margin-right:24px;white-space:nowrap;">← 返回首页</a>
+  <div class="topbar-logo">Agent 记忆系统 <span>STUDY NOTE</span></div>
+  <nav class="tabs">
+    <button class="tab-btn active" onclick="switchTab('tab-overview')">
+      <span class="tab-num">01</span> 记忆全景
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-short')">
+      <span class="tab-num">02</span> 短期记忆
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-long')">
+      <span class="tab-num">03</span> 长期记忆
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-compress')">
+      <span class="tab-num">04</span> 记忆压缩
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-engineering')">
+      <span class="tab-num">05</span> 工程实践
+    </button>
+  </nav>
+</header>
+
+<div class="content">
+
+  <!-- ══════════════ TAB 01: 记忆全景 ══════════════ -->
+  <div id="tab-overview" class="tab-panel active">
+    <div class="panel-hero">
+      <div class="panel-hero-bg"></div>
+      <div class="panel-eyebrow">记忆全景</div>
+      <h1 class="panel-title">为什么 Agent<br>需要<em>记忆</em>？</h1>
+      <p class="panel-lead">一个没有记忆的 Agent，每次对话都是全新的开始——昨天确认的偏好、达成的约定、执行到一半的任务状态，全部消失。记忆系统解决两件事：一次任务内保持状态，跨任务积累知识。</p>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Part 1: 没有记忆的惨状 -->
+      <div class="subsection">
+        <div class="subsection-title">一、没有记忆的 Agent 有多惨</div>
+        <div class="subsection-sub">两个核心能力直接缺失</div>
+
+        <div class="barrier-row">
+          <div class="barrier-card">
+            <div class="barrier-icon">🧠</div>
+            <div>
+              <div class="barrier-title">无法跨任务积累知识</div>
+              <div class="barrier-body">你今天说「代码风格简洁、变量用英文命名」，明天它就给你输出中文变量名、啰嗦注释的代码。每次都从零开始，永远无法「越来越了解你」。<br><br><strong>类比：</strong>每次看病的医生都不记得你的病史，每次都要重新问一遍。</div>
+            </div>
+          </div>
+          <div class="barrier-card">
+            <div class="barrier-icon">📋</div>
+            <div>
+              <div class="barrier-title">无法在多步任务中保持连贯</div>
+              <div class="barrier-body">多步任务中，它不知道自己做到哪了、前面收集了什么信息。「先查资料再整理报告」这种任务根本无法执行——第二步忘了第一步的结果。<br><br><strong>类比：</strong>厨师做菜做到一半失忆，不记得自己放了什么调料、菜炒到几成熟。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <p>「记忆系统解决两件事——一次任务内保持状态（知道做到哪了），跨任务积累知识（越来越了解用户）。这两件事分别由短期记忆和长期记忆承担。」</p>
+          <div class="insight-source">— 记忆系统核心定义</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 2: 四种记忆类型 -->
+      <div class="subsection" id="sec-classification">
+        <div class="subsection-title">二、四种记忆类型：从最短暂到最持久</div>
+        <div class="subsection-sub">借用人脑的记忆层次模型</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">人脑类比</div>
+          <div class="analogy-text">
+            人脑有「感觉记忆」（几秒）→「短期记忆」（几分钟到几小时）→「长期记忆」（数年到终身）。Agent 的记忆层次与此对应，但多了一层「实体记忆」——从对话中提炼出的结构化事实，信息密度最高、查询最快，相当于医生的病历卡。
+          </div>
+        </div>
+
+        <div class="hierarchy">
+          <div class="hierarchy-layer" style="border-left: 3px solid #e74c3c;">
+            <div class="layer-label" style="color: #e74c3c;">感知记忆</div>
+            <div class="layer-desc">当前这次调用的<strong>原始输入</strong>——用户消息、上传截图、传入文档。处理完就消失，生命周期只有一次调用。相当于人「刚听到还没记住」的那几秒。</div>
+          </div>
+          <div class="hierarchy-arrow">↓</div>
+          <div class="hierarchy-layer" style="border-left: 3px solid #e67e22;">
+            <div class="layer-label" style="color: #e67e22;">短期记忆</div>
+            <div class="layer-desc">context window 里的 <strong>messages 列表</strong>，维持当前任务的完整状态。任务结束就清空。相当于「工作台」，桌面摆着正在处理的东西，有大小限制。</div>
+          </div>
+          <div class="hierarchy-arrow">↓</div>
+          <div class="hierarchy-layer" style="border-left: 3px solid var(--accent);">
+            <div class="layer-label" style="color: var(--accent);">长期记忆</div>
+            <div class="layer-desc">存在<strong>外部数据库</strong>（向量/关系/KV），跨任务持久化。需要时主动检索拿回来。相当于「档案室」，东西不会丢，但要用得主动去翻。</div>
+          </div>
+          <div class="hierarchy-arrow">↓</div>
+          <div class="hierarchy-layer" style="border-left: 3px solid var(--green);">
+            <div class="layer-label" style="color: #22c55e;">实体记忆</div>
+            <div class="layer-desc">从对话中提炼出的<strong>结构化事实</strong>——「用户偏好 Python」「预算 5 万」「截止日 3 月底」。信息密度最高，查询最快。相当于医生的病历卡。</div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>类型</th>
+              <th>载体</th>
+              <th>容量</th>
+              <th>生命周期</th>
+              <th>访问方式</th>
+            </tr>
+            <tr>
+              <td><strong>感知记忆</strong></td>
+              <td>当次输入</td>
+              <td>极小</td>
+              <td>单次调用</td>
+              <td>即时访问</td>
+            </tr>
+            <tr>
+              <td><strong>短期记忆</strong></td>
+              <td>context window</td>
+              <td>受 token 限制</td>
+              <td>一次任务</td>
+              <td>直接读取</td>
+            </tr>
+            <tr>
+              <td><strong>长期记忆</strong></td>
+              <td>向量 / 关系数据库</td>
+              <td>无限</td>
+              <td>持久</td>
+              <td>语义检索</td>
+            </tr>
+            <tr>
+              <td><strong>实体记忆</strong></td>
+              <td>结构化存储</td>
+              <td>无限</td>
+              <td>持久</td>
+              <td>精确查询</td>
+            </tr>
+          </table>
+        </div>
+        <div class="source-ref">来源：第 8 篇</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 3: 记忆系统全貌速查 -->
+      <div class="subsection">
+        <div class="subsection-title">三、全貌速查：知识模块一览</div>
+        <div class="subsection-sub">本笔记覆盖的 12 个知识模块</div>
+
+        <div class="ppac-grid km-grid">
+          <div class="ppac-card" onclick="goToSection('tab-overview','sec-classification')">
+            <div class="ppac-abbr">模块 01</div>
+            <div class="ppac-name">记忆分类</div>
+            <div class="ppac-def">四层：感知 → 短期 → 长期 → 实体，从最短暂到最持久，载体和访问方式各不同。</div>
+            <div class="ppac-case"><strong>核心：</strong>不是所有记忆都一样，不同层次解决不同问题。</div>
+            <div class="ppac-go">→ 跳转至「记忆全景 · 四种记忆类型」</div>
+          </div>
+          <div class="ppac-card" onclick="goToSection('tab-short',null)">
+            <div class="ppac-abbr">模块 02</div>
+            <div class="ppac-name">短期记忆</div>
+            <div class="ppac-def">messages 列表 + 结构化工作记忆，任务结束清空。</div>
+            <div class="ppac-case"><strong>核心：</strong>工作台概念，有大小限制，需要压缩策略。</div>
+            <div class="ppac-go">→ 跳转至「短期记忆」</div>
+          </div>
+          <div class="ppac-card" onclick="goToSection('tab-long',null)">
+            <div class="ppac-abbr">模块 03</div>
+            <div class="ppac-name">长期记忆</div>
+            <div class="ppac-def">Embedding + 向量数据库，语义检索。三子类型：情节、语义、程序。</div>
+            <div class="ppac-case"><strong>核心：</strong>不是关键词搜索，是语义相似度检索。</div>
+            <div class="ppac-go">→ 跳转至「长期记忆」</div>
+          </div>
+          <div class="ppac-card" onclick="goToSection('tab-long','sec-granularity')">
+            <div class="ppac-abbr">模块 04</div>
+            <div class="ppac-name">记忆粒度</div>
+            <div class="ppac-def">「一次完整交互」或「一个独立知识点」为单位。太细碎片化，太粗噪音大。</div>
+            <div class="ppac-case"><strong>核心：</strong>粒度直接决定检索质量。</div>
+            <div class="ppac-go">→ 跳转至「长期记忆 · 记忆粒度」</div>
+          </div>
+          <div class="ppac-card" onclick="goToSection('tab-long','sec-decay')">
+            <div class="ppac-abbr">模块 05</div>
+            <div class="ppac-name">衰减与整合</div>
+            <div class="ppac-def">新鲜度权重 + 定期审查；去重、冲突消解、抽象提炼。</div>
+            <div class="ppac-case"><strong>核心：</strong>记忆不是只增不减，需要主动维护。</div>
+            <div class="ppac-go">→ 跳转至「长期记忆 · 衰减与整合」</div>
+          </div>
+          <div class="ppac-card" onclick="goToSection('tab-compress',null)">
+            <div class="ppac-abbr">模块 06</div>
+            <div class="ppac-name">记忆压缩</div>
+            <div class="ppac-def">滑动窗口 / 摘要 / 重要性过滤 / 结构化抽取，四法可组合。</div>
+            <div class="ppac-case"><strong>核心：</strong>解决 context window 空间有限的问题。</div>
+            <div class="ppac-go">→ 跳转至「记忆压缩」</div>
+          </div>
+          <div class="ppac-card" onclick="goToSection('tab-engineering','sec-kg')">
+            <div class="ppac-abbr">模块 07</div>
+            <div class="ppac-name">知识图谱</div>
+            <div class="ppac-def">三元组存储，多跳推理，与向量数据库互补。</div>
+            <div class="ppac-case"><strong>核心：</strong>解决信息之间的关联问题。</div>
+            <div class="ppac-go">→ 跳转至「工程实践 · 知识图谱」</div>
+          </div>
+          <div class="ppac-card" onclick="goToSection('tab-engineering','sec-eng3q')">
+            <div class="ppac-abbr">模块 08</div>
+            <div class="ppac-name">工程实践</div>
+            <div class="ppac-def">三问（存什么/怎么存/什么时候取）+ 开源框架 + 读→用→写闭环。</div>
+            <div class="ppac-case"><strong>核心：</strong>从理论到落地的完整路径。</div>
+            <div class="ppac-go">→ 跳转至「工程实践 · 工程三问」</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /panel-body -->
+  </div><!-- /tab-overview -->
+
+
+  <!-- ══════════════ TAB 02: 短期记忆 ══════════════ -->
+  <div id="tab-short" class="tab-panel">
+    <div class="panel-hero">
+      <div class="panel-hero-bg"></div>
+      <div class="panel-eyebrow">短期记忆</div>
+      <h1 class="panel-title">Agent 的<br><em>工作台</em></h1>
+      <p class="panel-lead">短期记忆就是每次调 LLM 时传入的 messages 列表，维持当前任务的完整状态。每一步产生的内容都追加进去，任务结束清空。它的核心瓶颈是 context window 有大小限制。</p>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Part 1: 基本实现 -->
+      <div class="subsection">
+        <div class="subsection-title">一、基本实现：messages 列表</div>
+        <div class="subsection-sub">每条消息有 role 和 content</div>
+
+        <p style="font-size:14px;color:var(--text2);line-height:1.85;margin-bottom:24px;">
+          每条消息有 <code>role</code>（user / assistant / tool）和 <code>content</code>。每一步产生的内容都追加进去，每次调 LLM 传完整历史，任务结束清空。
+        </p>
+
+        <div class="code-block"><span class="ck">class</span> <span class="ct">ShortTermMemory</span>:
+    <span class="ck">def</span> <span class="cf">__init__</span>(<span class="cs">self</span>):
+        <span class="cs">self</span>.messages = []
+
+    <span class="ck">def</span> <span class="cf">add</span>(<span class="cs">self</span>, role: <span class="ct">str</span>, content: <span class="ct">str</span>):
+        <span class="cs">self</span>.messages.append({<span class="cm">"role"</span>: role, <span class="cm">"content"</span>: content})
+
+    <span class="ck">def</span> <span class="cf">get_context</span>(<span class="cs">self</span>):
+        <span class="ck">return</span> <span class="cs">self</span>.messages  <span class="cm"># 每次调 LLM 传完整历史</span>
+
+    <span class="ck">def</span> <span class="cf">clear</span>(<span class="cs">self</span>):
+        <span class="cs">self</span>.messages = []  <span class="cm"># 任务结束清空</span></div>
+
+        <div class="insight-box">
+          <p>「每次调用都传完整历史 → messages 越来越长 → context window 装满 → 早期内容被截断 → Agent 开始『遗忘』。这是短期记忆的天然瓶颈，也是记忆压缩策略存在的根本原因。」</p>
+          <div class="insight-source">— 短期记忆核心代价</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 2: 结构化工作记忆 -->
+      <div class="subsection">
+        <div class="subsection-title">二、进阶：结构化工作记忆</div>
+        <div class="subsection-sub">给「工作台」划分固定区域</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">为什么需要结构化</div>
+          <div class="analogy-text">
+            纯粹的 messages 列表什么都往里塞，比较粗放。结构化工作记忆的思路是给「工作台」划分固定区域：当前任务目标、已确认的中间结论、待验证的假设分别存放，主动更新而非简单追加。即使对话很长，工作台始终结构清晰，LLM 每次读到的都是当前最准确的任务状态。
+          </div>
+        </div>
+
+        <div class="ppac-grid">
+          <div class="ppac-card">
+            <div class="ppac-letter">①</div>
+            <div class="ppac-abbr">区域 01</div>
+            <div class="ppac-name">当前任务目标</div>
+            <div class="ppac-def">正在做什么、目标是什么。任务执行过程中可能动态调整——用户追加了新需求，或者发现原目标需要修正。</div>
+            <div class="ppac-case"><strong>关键：</strong>不是追加新目标，而是更新目标区，确保 LLM 始终看到最新目标。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">②</div>
+            <div class="ppac-abbr">区域 02</div>
+            <div class="ppac-name">已确认的中间结论</div>
+            <div class="ppac-def">已经确定的事实和决策。比如「用户确认用 Flask 框架」「数据库选 PostgreSQL」。这些是后续推理的已知条件。</div>
+            <div class="ppac-case"><strong>关键：</strong>结论确认后从「假设区」移到「结论区」，状态更新而非堆积。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">③</div>
+            <div class="ppac-abbr">区域 03</div>
+            <div class="ppac-name">待验证的假设</div>
+            <div class="ppac-def">还没确认的猜测，需进一步验证。比如「猜测用户需要 SSR 支持，但还没确认」。验证后移入结论区或删除。</div>
+            <div class="ppac-case"><strong>关键：</strong>区分确定和不确定的信息，避免 LLM 把假设当事实用。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">④</div>
+            <div class="ppac-abbr">区域 04</div>
+            <div class="ppac-name">动态更新机制</div>
+            <div class="ppac-def">核心区别：不是只追加，而是主动替换过时内容。新结论覆盖旧假设，任务目标更新时旧目标被替换。</div>
+            <div class="ppac-case"><strong>关键：</strong>工作台保持精简，只反映当前最新状态，不是历史堆积。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 3: 短期记忆 vs 长期记忆 -->
+      <div class="subsection">
+        <div class="subsection-title">三、短期记忆 vs 长期记忆：作用时机</div>
+        <div class="subsection-sub">面试最常考的对比</div>
+
+        <div class="conflict-row">
+          <div class="conflict-item">
+            <div class="conflict-side left">
+              <div class="label">短期记忆</div>
+              <strong style="color:var(--text);display:block;margin-bottom:4px;">执行中的工作台</strong>
+              任务执行过程中全程工作。每一步结果追加进 messages，LLM 每次调用读取完整历史来保持上下文连贯。任务结束即清空。
+            </div>
+            <div class="conflict-mid">vs</div>
+            <div class="conflict-side right">
+              <div class="label">长期记忆</div>
+              <strong style="color:var(--text);display:block;margin-bottom:4px;">任务前检索 + 任务后写入</strong>
+              任务开始前：用任务描述检索相关记忆，注入 system prompt。任务结束后：把重要结论写入长期记忆沉淀。执行中不直接参与，除非主动检索。
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <p>「短期记忆是执行中的工作台，长期记忆是任务前的背景知识和任务后的知识沉淀。搞混这两者的作用时机，是面试中最常见的错误。」</p>
+          <div class="insight-source">— 两层记忆作用时机（面试雷区）</div>
+        </div>
+        <div class="source-ref">来源：第 9 篇</div>
+      </div>
+
+    </div><!-- /panel-body -->
+  </div><!-- /tab-short -->
+
+
+  <!-- ══════════════ TAB 03: 长期记忆 ══════════════ -->
+  <div id="tab-long" class="tab-panel">
+    <div class="panel-hero">
+      <div class="panel-hero-bg"></div>
+      <div class="panel-eyebrow">长期记忆</div>
+      <h1 class="panel-title"><em>Embedding</em> + 向量数据库，<br>语义检索的档案室</h1>
+      <p class="panel-lead">长期记忆的核心是 Embedding + 向量数据库，靠语义相似度而非关键词匹配来召回记忆。它还细分为情节、语义、程序三种子类型，各有不同价值。记忆粒度和衰减机制是工程设计中最关键的决策。</p>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Part 1: 两个核心概念 -->
+      <div class="subsection">
+        <div class="subsection-title">一、两个核心概念</div>
+        <div class="subsection-sub">Embedding 和向量数据库</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">RGB 颜色类比</div>
+          <div class="analogy-text">
+            Embedding 把文字转成几百到几千维的浮点数向量，捕捉文字的「语义」。语义相近的文字，向量在空间里距离也近。类比 RGB 颜色编码——红色 (255,0,0) 和橙色 (255,165,0) 数值近，因为颜色相近；红色和蓝色 (0,0,255) 数值远，因为颜色不相近。Embedding 做的就是把「语义」编码成数值，让相似性可计算。
+          </div>
+        </div>
+
+        <div class="tool-limit-row">
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">🔢</div>
+            <div class="tool-limit-title">Embedding：文字 → 数字向量</div>
+            <div class="tool-limit-body">
+              把文字输入 Embedding 模型（如 OpenAI 的 text-embedding-3-small），输出一个固定维度的浮点数向量。这个向量编码了文字的语义信息。<br><br>
+              <strong>关键：</strong>不是关键词匹配，而是语义理解。「如何部署网站」和「怎么上线网页」用词不同但语义相近，向量距离也近。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">🗄️</div>
+            <div class="tool-limit-title">向量数据库：相似度检索引擎</div>
+            <div class="tool-limit-body">
+              专门存向量的数据库（如 ChromaDB、Pinecone、Weaviate），核心能力是「相似度检索」：给一个查询向量，找库里距离最近的几条记录。<br><br>
+              <strong>关键：</strong>用 HNSW / IVF 等 ANN 索引加速，不用逐条比对。类比图书馆索引卡，不用逐本翻就能定位。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">🔄</div>
+            <div class="tool-limit-title">存取流程</div>
+            <div class="tool-limit-body">
+              <strong>存入：</strong>内容 → Embedding 向量 + 原文 + metadata → 写入向量数据库。<br><br>
+              <strong>检索：</strong>查询 → Embedding 向量 → 找向量距离最近的 N 条 → 返回原文。<br><br>
+              <strong>关键：</strong>存的不只是向量，还有原文和元信息（时间、类型、重要程度）。
+            </div>
+          </div>
+        </div>
+
+        <div class="code-block"><span class="ck">from</span> openai <span class="ck">import</span> OpenAI
+<span class="ck">import</span> chromadb
+
+client = OpenAI()
+db = chromadb.Client()
+collection = db.get_or_create_collection(<span class="cm">"agent_memory"</span>)
+
+<span class="ck">def</span> <span class="cf">save_to_long_term</span>(content: <span class="ct">str</span>, metadata: <span class="ct">dict</span>):
+    <span class="cm"># 1. 文字 → 向量</span>
+    embedding = client.embeddings.create(
+        input=content, model=<span class="cm">"text-embedding-3-small"</span>
+    ).data[<span class="cf">0</span>].embedding
+    <span class="cm"># 2. 向量 + 原文 + 元信息 一起存</span>
+    collection.add(
+        embeddings=[embedding],
+        documents=[content],
+        metadatas=[metadata],
+        ids=[<span class="cm">f"mem_{hash(content)}"</span>]
+    )
+
+<span class="ck">def</span> <span class="cf">retrieve_memory</span>(query: <span class="ct">str</span>, top_k=<span class="cf">3</span>):
+    <span class="cm"># 1. 查询 → 向量</span>
+    q_emb = client.embeddings.create(
+        input=query, model=<span class="cm">"text-embedding-3-small"</span>
+    ).data[<span class="cf">0</span>].embedding
+    <span class="cm"># 2. 找向量距离最近的几条</span>
+    results = collection.query(query_embeddings=[q_emb], n_results=top_k)
+    <span class="ck">return</span> results[<span class="cm">"documents"</span>][<span class="cf">0</span>]</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 2: 三种子类型 -->
+      <div class="subsection">
+        <div class="subsection-title">二、长期记忆的三种子类型</div>
+        <div class="subsection-sub">情节、语义、程序——三者混合使用效果最好</div>
+
+        <div class="ppac-grid">
+          <div class="ppac-card">
+            <div class="ppac-letter">情</div>
+            <div class="ppac-abbr">Episodic · 情节记忆</div>
+            <div class="ppac-name">具体事件经历</div>
+            <div class="ppac-def">存「发生了什么」。记录具体的交互事件和解决过程。例：「上周二写爬虫遇到反爬，用 Selenium 解决了」。</div>
+            <div class="ppac-case"><strong>价值：</strong>遇到类似任务时参考上次怎么解决的，不需要从零摸索。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">语</div>
+            <div class="ppac-abbr">Semantic · 语义记忆</div>
+            <div class="ppac-name">从经历提炼的通用知识</div>
+            <div class="ppac-def">存「总结出什么」。从多次经历中抽象出的一般规律。例：「目标网站有 JS 动态渲染时，requests 抓不到，用 Selenium/Playwright」。</div>
+            <div class="ppac-case"><strong>价值：</strong>信息密度高，更容易命中。是情节记忆「蒸馏」后的产物。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">程</div>
+            <div class="ppac-abbr">Procedural · 程序记忆</div>
+            <div class="ppac-name">操作流程 / SOP</div>
+            <div class="ppac-def">存「怎么做」。标准化的操作步骤。例：「部署 Flask：虚拟环境 → 装依赖 → gunicorn → nginx」。</div>
+            <div class="ppac-case"><strong>价值：</strong>重复性任务直接复用流程，不需要重新推理，响应最快。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">合</div>
+            <div class="ppac-abbr">三者配合</div>
+            <div class="ppac-name">混合使用效果最好</div>
+            <div class="ppac-def">情节记忆提供参考案例 → 语义记忆提供抽象规律 → 程序记忆提供可复用流程。三者形成从具体到抽象的完整知识体系。</div>
+            <div class="ppac-case"><strong>关键：</strong>记忆整合的核心工作就是把情节记忆「蒸馏」成语义记忆。</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 3: 记忆粒度 -->
+      <div class="subsection" id="sec-granularity">
+        <div class="subsection-title">三、记忆粒度：存多细才合适</div>
+        <div class="subsection-sub">最容易踩坑的设计决策</div>
+
+        <div class="conflict-row">
+          <div class="conflict-item" style="border-color: rgba(220,38,38,0.25);">
+            <div class="conflict-side left" style="border-right-color: rgba(220,38,38,0.2);">
+              <div class="label" style="color: #dc2626;">粒度太细 ❌</div>
+              <strong style="color:var(--text);display:block;margin-bottom:6px;">每句话存一条</strong>
+              <div style="font-size:12.5px;color:var(--text2);line-height:1.7;">
+                把「用户偏好 Python，不喜欢全局变量，风格追求简洁，注释用英文」拆成四条存。<br><br>
+                <strong style="color:#dc2626;">结果：</strong>检索时可能只命中其中两条，记忆碎片化，LLM 拿到不完整的偏好信息。
+              </div>
+            </div>
+            <div class="conflict-mid">vs</div>
+            <div class="conflict-side right" style="border-left-color: rgba(220,38,38,0.2);">
+              <div class="label" style="color: #dc2626;">粒度太粗 ❌</div>
+              <strong style="color:var(--text);display:block;margin-bottom:6px;">整次对话存一条</strong>
+              <div style="font-size:12.5px;color:var(--text2);line-height:1.7;">
+                把一整次 2000 token 的完整对话存成一条。<br><br>
+                <strong style="color:#dc2626;">结果：</strong>检索命中了，但 2000 token 里真正相关的可能只有 100 个，LLM 被无关内容干扰。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <p>「合理粒度——以『一次完整交互』或『一个独立知识点/事件』为单位存储。前者保证信息完整性（用户请求 + 处理结果），后者把偏好打包成一条结构化记录，检索时一次拿到完整信息。过程中的细小中间结果不需要存长期记忆，短期记忆够用。」</p>
+          <div class="insight-source">— 记忆粒度设计原则</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 4: 衰减与整合 -->
+      <div class="subsection" id="sec-decay">
+        <div class="subsection-title">四、记忆衰减与记忆整合</div>
+        <div class="subsection-sub">记忆不是只增不减，需要主动维护</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">为什么需要衰减</div>
+          <div class="analogy-text">
+            人的记忆会随时间淡化，Agent 的长期记忆也应该有类似机制。用户半年前说「我在学 Go」，但最近三个月都在聊 Python，如果不做衰减，Agent 还按「用户在学 Go」处理就很违和。记忆用久了还会积累大量碎片——同一主题存了十几条，重复、过时、矛盾。记忆整合就是定期做「清理和升华」。
+          </div>
+        </div>
+
+        <div class="tool-limit-row">
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">⏳</div>
+            <div class="tool-limit-title">记忆衰减</div>
+            <div class="tool-limit-body">
+              <strong>新鲜度权重：</strong>给每条记忆加时间权重，检索排序时同时考虑语义相似度 + 时间新鲜度，越久远权重越低。<br><br>
+              <strong>定期审查：</strong>让 LLM 定期审查长期记忆库，标记过时/矛盾的记忆为失效或合并更新。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">🔀</div>
+            <div class="tool-limit-title">去重</div>
+            <div class="tool-limit-body">
+              语义相近的多条合并成一条更完整的版本。「喜欢简洁代码」+「代码要精简」+「不要冗余代码」→ 合成一条。<br><br>
+              <strong>关键：</strong>不是文本相同才去重，是语义相近就去重，需要 LLM 辅助判断。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">⚖️</div>
+            <div class="tool-limit-title">冲突消解</div>
+            <div class="tool-limit-body">
+              两条矛盾时（「偏好 Python」vs「最近转用 Go」），保留时间更新的，标记旧的为过期。<br><br>
+              <strong>关键：</strong>时间戳是冲突消解的核心依据。没有时间戳就无法判断哪条更新。
+            </div>
+          </div>
+        </div>
+
+        <div class="tool-limit-row" style="margin-top:0;">
+          <div class="tool-limit-card" style="border-color: var(--accent);">
+            <div class="tool-limit-icon">💎</div>
+            <div class="tool-limit-title">抽象提炼（最有价值）</div>
+            <div class="tool-limit-body">
+              把多条情节记忆「蒸馏」成一条语义记忆。三次爬虫经历 → 「动态渲染网站用浏览器自动化工具」。用 LLM 自动完成。<br><br>
+              <strong>价值最大：</strong>这是记忆系统真正变「聪明」的关键——从具体经验中提炼通用规律。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">📅</div>
+            <div class="tool-limit-title">整合节奏</div>
+            <div class="tool-limit-body">
+              <strong>轻量更新：</strong>每次任务后做去重和冲突检查。<br><br>
+              <strong>深度整理：</strong>每天/每周做一次抽象提炼。Mem0 等框架已内置异步整合能力。
+            </div>
+          </div>
+          <div class="tool-limit-card" style="opacity:0.5;">
+            <div class="tool-limit-icon">　</div>
+            <div class="tool-limit-title">　</div>
+            <div class="tool-limit-body">　</div>
+          </div>
+        </div>
+        <div class="source-ref">来源：第 8 篇、第 9 篇</div>
+      </div>
+
+    </div><!-- /panel-body -->
+  </div><!-- /tab-long -->
+
+
+  <!-- ══════════════ TAB 04: 记忆压缩 ══════════════ -->
+  <div id="tab-compress" class="tab-panel">
+    <div class="panel-hero">
+      <div class="panel-hero-bg"></div>
+      <div class="panel-eyebrow">记忆压缩</div>
+      <h1 class="panel-title">context window 快满了，<br><em>怎么办</em>？</h1>
+      <p class="panel-lead">短期记忆有 context window 硬上限，压缩是刚需；长期记忆虽无硬上限，但记忆膨胀会导致检索质量退化，同样需要整合与衰减。四种压缩方法解决短期「装不下」，粒度选择/去重/冲突消解/抽象提炼/衰减解决长期「检索变差」。两层压缩不是割裂的，而是连通的管道。</p>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Part 1: 四种方法 -->
+      <div class="subsection">
+        <div class="subsection-title">一、四种压缩方法</div>
+        <div class="subsection-sub">从不同维度解决空间问题</div>
+
+        <div class="ppac-grid">
+          <div class="ppac-card">
+            <div class="ppac-letter">①</div>
+            <div class="ppac-abbr">时间维度 · 直接截</div>
+            <div class="ppac-name">滑动窗口</div>
+            <div class="ppac-def">只保留最近 N 轮对话，更早的直接丢弃。最简单的方法，但「硬截断」——关键决策和闲聊被同等对待。</div>
+            <div class="ppac-case"><strong>优点：</strong>零开销，实现极简<br><strong>缺点：</strong>重要信息可能被丢掉</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">②</div>
+            <div class="ppac-abbr">时间维度 · 截前提炼</div>
+            <div class="ppac-name">摘要压缩</div>
+            <div class="ppac-def">丢弃前先让 LLM 把历史总结成摘要，用摘要替换原文。进阶：层级式摘要——近期保持原文，中期做摘要，远期做更精炼摘要。</div>
+            <div class="ppac-case"><strong>优点：</strong>保留关键信息脉络<br><strong>缺点：</strong>摘要丢失细节，有额外 LLM 调用开销</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">③</div>
+            <div class="ppac-abbr">价值维度</div>
+            <div class="ppac-name">重要性过滤</div>
+            <div class="ppac-def">不按时间，按价值筛选。给每条记录打重要性分数（规则打分或 LLM 打分），低于阈值淘汰。进阶：观察遮蔽——不删，按任务阶段选择性隐藏。</div>
+            <div class="ppac-case"><strong>优点：</strong>打破时间顺序，保留高价值内容<br><strong>缺点：</strong>打分有成本，规则打分不够精准</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">④</div>
+            <div class="ppac-abbr">载体维度</div>
+            <div class="ppac-name">结构化抽取</div>
+            <div class="ppac-def">换载体——不存对话文本，把关键事实提取成结构化字段。「偏好 Python」「预算 5 万」「已确认方案 B」，直接存字段。</div>
+            <div class="ppac-case"><strong>优点：</strong>信息损失最小，密度最高<br><strong>缺点：</strong>开发成本最高，需预定义字段，通用性低</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <p>「四种方法不互斥，可以组合使用。最常见的工程组合是滑动窗口 + 摘要压缩——近期保持原文，中期用摘要替代，远期直接截断。」</p>
+          <div class="insight-source">— 压缩方法组合策略</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 2: 四种方法对比 -->
+      <div class="subsection">
+        <div class="subsection-title">二、四种方法对比</div>
+        <div class="subsection-sub">解决的问题维度不同</div>
+
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>维度</th>
+              <th>方法</th>
+              <th>解决的问题</th>
+              <th>信息损失</th>
+              <th>实现成本</th>
+            </tr>
+            <tr>
+              <td><strong>时间 · 直接截</strong></td>
+              <td>滑动窗口</td>
+              <td>历史太长，直接截断</td>
+              <td>高（硬截断）</td>
+              <td>最低</td>
+            </tr>
+            <tr>
+              <td><strong>时间 · 截前提炼</strong></td>
+              <td>摘要压缩</td>
+              <td>截之前先保留关键信息</td>
+              <td>中（摘要丢细节）</td>
+              <td>中</td>
+            </tr>
+            <tr>
+              <td><strong>价值维度</strong></td>
+              <td>重要性过滤</td>
+              <td>内容不等价，按价值筛选</td>
+              <td>低（保留高价值）</td>
+              <td>中高</td>
+            </tr>
+            <tr>
+              <td><strong>载体维度</strong></td>
+              <td>结构化抽取</td>
+              <td>对话文本不是最佳载体，换高密度形式</td>
+              <td>最低</td>
+              <td>最高</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 3: 主动压缩 -->
+      <div class="subsection">
+        <div class="subsection-title">三、主动压缩 (Proactive Compression)</div>
+        <div class="subsection-sub">不等快满才压缩</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">核心思路</div>
+          <div class="analogy-text">
+            不等 context 快满才压缩，而是每步执行后主动判断哪些中间过程可以压缩。比如工具返回 2000 token 的搜索结果，Agent 读完立刻压缩成 200 token 要点替换原始内容。适合工具调用频繁的 Agent——每次工具返回都可能是大块文本，不主动压缩很快就会爆 context。
+          </div>
+        </div>
+
+        <div class="conflict-row">
+          <div class="conflict-item">
+            <div class="conflict-side left">
+              <div class="label">被动压缩</div>
+              <strong style="color:var(--text);display:block;margin-bottom:4px;">等快满了再压</strong>
+              一次性对大段历史做摘要或截断。压力大、信息损失集中、可能来不及。
+            </div>
+            <div class="conflict-mid">vs</div>
+            <div class="conflict-side right">
+              <div class="label">主动压缩</div>
+              <strong style="color:var(--text);display:block;margin-bottom:4px;">每步即时压缩</strong>
+              工具返回后立刻提炼要点替换原文。压力分散、信息损失分散、context 始终保持精简。
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 4: Prompt Caching -->
+      <div class="subsection">
+        <div class="subsection-title">四、Prompt Caching：计算层优化</div>
+        <div class="subsection-sub">与记忆压缩互补，不是替代</div>
+
+        <div class="confogy-box" style="background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0 12px 12px 0;padding:24px 28px;margin-bottom:28px;">
+          <div class="analogy-label">信息层 vs 计算层</div>
+          <div class="analogy-text">
+            记忆压缩决定「哪些内容值得保留」（信息层）；Prompt Caching 对已决定保留的内容减少重复计算（计算层）。如果 prompt 前缀在多次请求间不变，缓存 prefill 计算结果，命中时费用约正常 token 的 1/10。Claude 和 OpenAI 都已支持。两者互补，可同时使用。
+          </div>
+        </div>
+
+        <div class="stat-highlight">
+          <div class="stat-item">
+            <div class="stat-value">1/10</div>
+            <div class="stat-label">Prompt Caching 命中时<br>费用约为正常 token 的十分之一</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">信息层</div>
+            <div class="stat-label">记忆压缩<br>决定保留什么内容</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">计算层</div>
+            <div class="stat-label">Prompt Caching<br>减少重复计算开销</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <p>「记忆压缩和 Prompt Caching 解决的是不同层面的问题——前者是信息层，决定哪些内容值得保留；后者是计算层，对已保留的内容减少重复计算。两者互补，可同时使用。」</p>
+          <div class="insight-source">— 信息层 vs 计算层</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 5: 选型决策 -->
+      <div class="subsection">
+        <div class="subsection-title">五、选型决策参考</div>
+        <div class="subsection-sub">不同场景推荐不同方案</div>
+
+        <div class="table-wrap">
+          <table>
+            <tr>
+              <th>场景</th>
+              <th>推荐方案</th>
+              <th>理由</th>
+            </tr>
+            <tr>
+              <td>对话不长、业务简单</td>
+              <td><strong>滑动窗口</strong></td>
+              <td>成本最低，够用就行</td>
+            </tr>
+            <tr>
+              <td>对话长、不想硬截断</td>
+              <td><strong>滑动窗口 + 摘要压缩</strong></td>
+              <td>最稳健的组合方案</td>
+            </tr>
+            <tr>
+              <td>有明确的关键信息字段</td>
+              <td><strong>结构化抽取</strong></td>
+              <td>信息密度最高，查询最快</td>
+            </tr>
+            <tr>
+              <td>高频调用、长 prompt、成本敏感</td>
+              <td><strong>Prompt Caching</strong></td>
+              <td>收益可观，命中后费用降 90%</td>
+            </tr>
+            <tr>
+              <td>工具调用频繁的 Agent</td>
+              <td><strong>主动压缩 + 滑动窗口</strong></td>
+              <td>每步即时压缩，context 始终精简</td>
+            </tr>
+          </table>
+        </div>
+        <div class="source-ref">来源：第 12 篇、第 8 篇（Context Window 管理）</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 6: 短期 vs 长期压缩 -->
+      <div class="subsection">
+        <div class="subsection-title">六、短期 vs 长期：压缩的两个战场</div>
+        <div class="subsection-sub">压缩不只是短期记忆的事</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">核心澄清</div>
+          <div class="analogy-text">
+            很多人以为压缩只是短期记忆的刚需——毕竟 context window 有硬上限。但长期记忆（向量数据库 / 结构化数据）同样需要压缩，只是<strong>形式不同、目的不同、触发时机不同</strong>。短期压缩解决「装不下」，长期压缩解决「检索变差」。两者不是割裂的，而是连通的管道。
+          </div>
+        </div>
+
+        <div class="conflict-row">
+          <div class="conflict-item">
+            <div class="conflict-side left" style="border-color:var(--accent);">
+              <div class="label" style="color:var(--accent);">短期记忆压缩</div>
+              <strong style="color:var(--text);display:block;margin-bottom:6px;">解决「装不下」</strong>
+              载体是 messages 列表，有 <strong>硬性 token 上限</strong>（context window）。压缩是刚需：滑动窗口砍历史、摘要压缩保留脉络、重要性过滤按价值筛、结构化抽取换高密度载体。压缩是<strong>实时执行</strong>，对话过程中就要做。
+            </div>
+            <div class="conflict-mid">vs</div>
+            <div class="conflict-side right" style="border-color:var(--accent);">
+              <div class="label" style="color:var(--accent);">长期记忆压缩</div>
+              <strong style="color:var(--text);display:block;margin-bottom:6px;">解决「检索变差」</strong>
+              载体是向量数据库，没有 context window 那种硬上限。但记忆无限膨胀会导致<strong>检索质量退化</strong>（相似度噪声增大、召回准确率下降）+ 存储成本上升 + 旧信息干扰新决策。压缩是<strong>定期批量执行</strong>，任务后或定时审查。
+            </div>
+          </div>
+        </div>
+
+        <div class="subsection-title" style="font-size:18px;margin-top:36px;">长期记忆的四种「压缩」手段</div>
+        <div class="subsection-sub" style="margin-bottom:20px;">不是滑动窗口和摘要，而是整合与维护</div>
+
+        <div class="tool-limit-row">
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">📦</div>
+            <div class="tool-limit-title">粒度选择</div>
+            <div class="tool-limit-body">
+              存的时候不存每句话、也不存整次对话，以「一次完整交互」或「一个独立知识点」为单位。<strong>粒度决策本身就是压缩</strong>——在写入阶段就决定了存多少、丢多少。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">🔀</div>
+            <div class="tool-limit-title">去重</div>
+            <div class="tool-limit-body">
+              语义相近的多条合并成一条。「喜欢简洁代码」+「代码要精简」+「不要冗余」→ 合成一条。<strong>信息压缩</strong>，减少冗余存储。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">⚖️</div>
+            <div class="tool-limit-title">冲突消解</div>
+            <div class="tool-limit-body">
+              两条矛盾时（「偏好 Python」vs「最近转用 Go」），保留更新的，标记旧的过期。<strong>质量压缩</strong>，消除噪音。
+            </div>
+          </div>
+        </div>
+        <div class="tool-limit-row" style="margin-top:0;">
+          <div class="tool-limit-card" style="border-color:var(--accent);">
+            <div class="tool-limit-icon">💎</div>
+            <div class="tool-limit-title">抽象提炼</div>
+            <div class="tool-limit-body">
+              把多条情节记忆「蒸馏」成一条语义记忆。三次爬虫经历 → 「动态渲染网站用浏览器自动化工具」。<strong>语义压缩</strong>，从具体经验提炼通用规律。价值最大。
+            </div>
+          </div>
+          <div class="tool-limit-card">
+            <div class="tool-limit-icon">⏳</div>
+            <div class="tool-limit-title">衰减（软删除）</div>
+            <div class="tool-limit-body">
+              给每条记忆加新鲜度权重，越久远权重越低，低到阈值就清理。相当于长期记忆的「滑动窗口」——不是硬删，而是渐隐。
+            </div>
+          </div>
+          <div class="tool-limit-card" style="opacity:0.5;">
+            <div class="tool-limit-icon">　</div>
+            <div class="tool-limit-title">　</div>
+            <div class="tool-limit-body">　</div>
+          </div>
+        </div>
+
+        <div class="table-wrap" style="margin-top:36px;">
+          <table>
+            <tr>
+              <th>维度</th>
+              <th>短期记忆压缩</th>
+              <th>长期记忆压缩</th>
+            </tr>
+            <tr>
+              <td><strong>触发原因</strong></td>
+              <td>context window 硬上限</td>
+              <td>检索质量退化 + 存储成本 + 信息过时</td>
+            </tr>
+            <tr>
+              <td><strong>主要手段</strong></td>
+              <td>滑动窗口、摘要、重要性过滤、结构化抽取</td>
+              <td>粒度选择、去重、冲突消解、抽象提炼、衰减</td>
+            </tr>
+            <tr>
+              <td><strong>执行时机</strong></td>
+              <td>实时（对话过程中）</td>
+              <td>定期批量（任务后 / 定时审查）</td>
+            </tr>
+            <tr>
+              <td><strong>本质</strong></td>
+              <td>在有限空间内最大化信息密度</td>
+              <td>在无限空间中保持信号纯度</td>
+            </tr>
+            <tr>
+              <td><strong>如果不做</strong></td>
+              <td>context 爆掉，Agent 崩溃</td>
+              <td>检索噪声大、召回不准、旧记忆干扰新决策</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="insight-box">
+          <p>「两层压缩不是孤立的——当短期记忆通过摘要/结构化抽取压缩后，产出物会写入长期记忆；而从长期记忆检索回来的内容注入到短期记忆时，依然要占 context window 的空间。长期记忆压缩做得越好，注入短期记忆的信号质量越高、噪音越少。这是一个连通的管道。」</p>
+          <div class="insight-source">— 两层压缩的连通关系</div>
+        </div>
+
+        <div class="stat-highlight">
+          <div class="stat-item">
+            <div class="stat-value" style="font-size:15px;">短期压缩</div>
+            <div class="stat-label">解决「装不下」<br>context window 硬上限<br><strong>实时执行</strong></div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" style="font-size:15px;">长期压缩</div>
+            <div class="stat-label">解决「检索变差」<br>信号纯度维护<br><strong>定期批量</strong></div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" style="font-size:15px;">连通管道</div>
+            <div class="stat-label">短期压缩产出 → 写入长期<br>长期检索结果 → 注入短期<br><strong>互相影响</strong></div>
+          </div>
+        </div>
+        <div class="source-ref">来源：第 8 篇（记忆整合）、第 9 篇（记忆衰减）、第 12 篇（压缩方法）综合整理</div>
+      </div>
+
+    </div><!-- /panel-body -->
+  </div><!-- /tab-compress -->
+
+
+  <!-- ══════════════ TAB 05: 工程实践 ══════════════ -->
+  <div id="tab-engineering" class="tab-panel">
+    <div class="panel-hero">
+      <div class="panel-hero-bg"></div>
+      <div class="panel-eyebrow">工程实践</div>
+      <h1 class="panel-title">从理论到落地：<br><em>三问</em> + 框架 + 闭环</h1>
+      <p class="panel-lead">工程实践的核心是回答三个问题：存什么、怎么存、什么时候取。此外，知识图谱让记忆产生关联，开源框架提供现成方案，读→用→写闭环把所有部分串在一起。</p>
+    </div>
+
+    <div class="panel-body">
+
+      <!-- Part 1: 工程三问 -->
+      <div class="subsection" id="sec-eng3q">
+        <div class="subsection-title">一、工程三问</div>
+        <div class="subsection-sub">存什么 / 怎么存 / 什么时候取</div>
+
+        <div class="ppac-grid">
+          <div class="ppac-card">
+            <div class="ppac-letter">Q1</div>
+            <div class="ppac-abbr">存什么</div>
+            <div class="ppac-name">判断标准：下次有用吗？</div>
+            <div class="ppac-def">这条信息，下次任务开始时如果知道，会让 Agent 做得更好吗？</div>
+            <div class="ppac-case">
+              <strong>✅ 值得存：</strong>用户偏好/习惯、关键结论/决策、外部知识<br>
+              <strong>❌ 不值得存：</strong>中间推理过程、工具原始数据、闲聊
+            </div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">Q2</div>
+            <div class="ppac-abbr">怎么存</div>
+            <div class="ppac-name">根据类型选存储介质</div>
+            <div class="ppac-def">不要一刀切，根据信息类型选存储介质。</div>
+            <div class="ppac-case">
+              <strong>非结构化文本</strong>（文档、摘要）→ 向量数据库<br>
+              <strong>结构化偏好/状态</strong> → 关系数据库 / KV 存储<br>
+              <strong>主流做法</strong> → 混合存储
+            </div>
+          </div>
+        </div>
+
+        <div class="barrier-row" style="margin-top:16px;">
+          <div class="barrier-card" style="border-left:3px solid var(--accent);">
+            <div class="barrier-icon">🔍</div>
+            <div>
+              <div class="barrier-title">Q3 · 主动检索（任务开始前）</div>
+              <div class="barrier-body">
+                任务开始前，用任务描述检索相关记忆，注入 system prompt 作为背景知识。Agent 一开始就带着「历史记忆」进入任务。<br><br>
+                <strong>类比：</strong>医生看诊前先翻病历，带着病史进入这次问诊。
+              </div>
+            </div>
+          </div>
+          <div class="barrier-card" style="border-left:3px solid #e67e22;">
+            <div class="barrier-icon">⚡</div>
+            <div>
+              <div class="barrier-title">Q3 · 按需检索（执行过程中）</div>
+              <div class="barrier-body">
+                把「查记忆」封装成 Tool，Agent 在推理过程中自己判断什么时候调。更灵活，但依赖模型判断力。<br><br>
+                <strong>类比：</strong>医生看诊中遇到不确定的症状，主动去查医学文献。<br><br>
+                <strong>实践最佳：</strong>session 开始时主动检索加载背景，执行中按需检索专业知识。两者结合。
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="source-ref">来源：第 8 篇</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 2: 知识图谱 -->
+      <div class="subsection" id="sec-kg">
+        <div class="subsection-title">二、知识图谱：让记忆产生关联</div>
+        <div class="subsection-sub">向量数据库做不到的事</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">向量检索的盲区</div>
+          <div class="analogy-text">
+            存了「用户 A 是公司 B 的 CTO」和「公司 B 主营云计算」，问「用户 A 所在公司做什么业务」——纯向量检索找不到，因为这两条文本语义不相近。知识图谱解决的就是这个问题：用「实体 → 关系 → 实体」的三元组存储信息，查询时沿关系链条做多跳推理。
+          </div>
+        </div>
+
+        <div class="conflict-row">
+          <div class="conflict-item">
+            <div class="conflict-side left">
+              <div class="label">向量数据库</div>
+              <strong style="color:var(--text);display:block;margin-bottom:6px;">模糊语义检索</strong>
+              <div style="font-size:12.5px;color:var(--text2);line-height:1.7;">
+                · ✅ 擅长语义相似度匹配<br>
+                · ❌ 不擅长精确关系推理<br>
+                · ❌ 多跳查询做不到<br>
+                · 每条记忆独立无关联
+              </div>
+            </div>
+            <div class="conflict-mid">+</div>
+            <div class="conflict-side right">
+              <div class="label">知识图谱</div>
+              <strong style="color:var(--text);display:block;margin-bottom:6px;">精确关系推理</strong>
+              <div style="font-size:12.5px;color:var(--text2);line-height:1.7;">
+                · ❌ 不擅长模糊语义匹配<br>
+                · ✅ 擅长精确关系推理<br>
+                · ✅ 多跳查询是核心能力<br>
+                · 三元组存储，关系显式表达
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="code-block"><span class="cm"># 三元组结构</span>
+用户 A --[担任 CTO]--> 公司 B
+公司 B --[主营业务]--> 云计算
+公司 B --[成立于]----> 2015年
+
+<span class="cm"># 多跳推理：从「用户 A」出发</span>
+<span class="cm"># → 沿「担任 CTO」找到「公司 B」</span>
+<span class="cm"># → 沿「主营业务」找到「云计算」</span>
+<span class="cm"># 两跳拿到答案，向量检索做不到</span></div>
+
+        <div class="insight-box">
+          <p>「实践中两者配合：对话中用 LLM 自动提取实体和关系存入图谱，检索时先向量检索拿候选，再知识图谱补充关联信息，合并后注入 context。」</p>
+          <div class="insight-source">— 知识图谱与向量数据库配合策略</div>
+        </div>
+
+        <div class="subsection-title" style="font-size:18px;margin-top:40px;">实战案例：证据驱动的知识库治理</div>
+        <div class="subsection-sub" style="margin-bottom:20px;">LLM 生成的知识，如何安全地写进知识图谱</div>
+
+        <div class="analogy-box">
+          <div class="analogy-label">核心问题</div>
+          <div class="analogy-text">
+            图谱里的三元组从哪来？最常见做法是让 LLM 从对话和文档里自动抽取实体与关系。但 LLM 会幻觉——可能抽错、可能编造、可能基于过时信息下结论。如果让 LLM 直接写图谱，一次幻觉就会污染整张图，且无法溯源。实战解法是四阶段机制：<strong>Evidence → Proposal → Decision → Identity</strong>——让 LLM 只当「参谋」，确定性系统当「法官」。
+          </div>
+        </div>
+
+        <div class="ppac-grid">
+          <div class="ppac-card">
+            <div class="ppac-letter">E</div>
+            <div class="ppac-abbr">确定性来源</div>
+            <div class="ppac-name">Evidence 证据</div>
+            <div class="ppac-def">知识库的原始事实依据：代码调用关系、配置值、文档、运行数据。客观存在，可验证。</div>
+            <div class="ppac-case"><strong>关键：</strong>不是 LLM 想出来的，是系统扫出来的。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">P</div>
+            <div class="ppac-abbr">LLM 输出</div>
+            <div class="ppac-name">Proposal 候选提案</div>
+            <div class="ppac-def">LLM 基于证据生成的知识建议（三元组）。可能看错、可能过时、可能混淆相似实体。</div>
+            <div class="ppac-case"><strong>关键：</strong>默认不被信任，绝不能直接入库。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">D</div>
+            <div class="ppac-abbr">确定性门禁</div>
+            <div class="ppac-name">Decision 决策校验</div>
+            <div class="ppac-def">用代码逻辑而非 LLM 判断：比对证据是否真实存在、与 CurrentView 是否冲突、schema 是否合法。</div>
+            <div class="ppac-case"><strong>关键：</strong>确定性——同一提案永远得到同一结论。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">I</div>
+            <div class="ppac-abbr">最终可信状态</div>
+            <div class="ppac-name">Identity 发布身份</div>
+            <div class="ppac-def">校验通过的提案原子化写入 Neo4j CurrentView，带 ID、时间戳、证据链接。</div>
+            <div class="ppac-case"><strong>关键：</strong>随时能回答「这条知识是哪来的」。</div>
+          </div>
+        </div>
+
+        <div class="code-block"><span class="cm"># 四阶段流程（伪代码）</span>
+<span class="cm"># 1. 抽取证据（确定性）</span>
+evidence = scan_code("orderService.submit() → paymentService.pay()")
+
+<span class="cm"># 2. LLM 生成候选（可能出错）</span>
+proposal = llm.extract_triples(evidence)   <span class="cm"># 建议新增一条边</span>
+
+<span class="cm"># 3. 确定性门禁校验（不可跳过）</span>
+if gate.verify(proposal, against=evidence) \
+   and not gate.conflict(proposal, CurrentView) \
+   and gate.schema_ok(proposal):
+    pass
+else:
+    discard(proposal)   <span class="cm"># 或补充证据后重新提案</span>
+
+<span class="cm"># 4. 原子化发布（带身份）</span>
+identity = CurrentView.commit(proposal)   <span class="cm"># 写库，可溯源</span></div>
+
+        <div class="table-wrap" style="margin-top:28px;">
+          <table>
+            <tr>
+              <th>知识治理阶段</th>
+              <th>类比软件开发</th>
+              <th>解决的问题</th>
+            </tr>
+            <tr>
+              <td><strong>Evidence</strong></td>
+              <td>需求来源 / 事实依据</td>
+              <td>知识从哪里来</td>
+            </tr>
+            <tr>
+              <td><strong>Proposal</strong></td>
+              <td>开发者提交的 PR</td>
+              <td>新知识长什么样</td>
+            </tr>
+            <tr>
+              <td><strong>Decision</strong></td>
+              <td>CI 测试 + Code Review</td>
+              <td>怎么确认它是真的</td>
+            </tr>
+            <tr>
+              <td><strong>Identity</strong></td>
+              <td>合入主干（带 commit hash）</td>
+              <td>如何被信任和使用</td>
+            </tr>
+          </table>
+        </div>
+
+        <div class="stat-highlight">
+          <div class="stat-item">
+            <div class="stat-value">97.7%</div>
+            <div class="stat-label">真实 HTTP 调用 Recall<br>173/177 条</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">94.1%</div>
+            <div class="stat-label">跨仓调用链 Recall<br>48/51 条</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Flow 证据召回<br>30/30 条</div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <p>「核心原则：LLM 永远只生成候选，写入必须经过确定性验证。这样知识图谱既能被 AI 持续自动更新，又不会被幻觉污染——每一条新知识都有据可查。没有这个机制，LLM 直接写图谱就相当于没有 review、没有测试就合代码。」</p>
+          <div class="insight-source">— 证据驱动知识治理的核心原则</div>
+        </div>
+        <div class="source-ref">来源：第 8 篇 + 知识库实战（企业级代码与业务知识系统）</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 3: 开源框架 -->
+      <div class="subsection">
+        <div class="subsection-title">三、开源记忆框架</div>
+        <div class="subsection-sub">三个主流方案各有特色</div>
+
+        <div class="ppac-grid">
+          <div class="ppac-card">
+            <div class="ppac-letter">M</div>
+            <div class="ppac-abbr">GitHub 50K+ Stars</div>
+            <div class="ppac-name">Mem0</div>
+            <div class="ppac-def">记忆管理做成独立服务层。调用 <code>memory.add()</code> / <code>memory.search()</code>，底层 embedding、去重、冲突消解全自动化。</div>
+            <div class="ppac-case"><strong>特色：</strong>按 user_id 隔离记忆，支持向量存储 + 图存储（知识图谱），适合个性化记忆场景。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">L</div>
+            <div class="ppac-abbr">前身 MemGPT</div>
+            <div class="ppac-name">Letta</div>
+            <div class="ppac-def">灵感来自操作系统内存管理，分三层：Core Memory（始终在 context window）、Recall Memory（近期对话缓存）、Archival Memory（长期归档）。</div>
+            <div class="ppac-case"><strong>特色：</strong>Agent 自己通过工具调用管理三层记忆，自己决定何时移入/移出。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">Z</div>
+            <div class="ppac-abbr">时间感知</div>
+            <div class="ppac-name">Zep（及开源组件 Graphiti）</div>
+            <div class="ppac-def">引入「时间感知」概念，给每条记忆标注「有效时间窗口」。比如「预算 5 万」三个月后可能过期。通过时序知识图谱管理记忆生命周期。</div>
+            <div class="ppac-case"><strong>特色：</strong>长期运行的 Agent 系统中非常实用，解决「记忆不衰减导致违和」的问题。</div>
+          </div>
+          <div class="ppac-card">
+            <div class="ppac-letter">✦</div>
+            <div class="ppac-abbr">选型建议</div>
+            <div class="ppac-name">怎么选</div>
+            <div class="ppac-def">Mem0 适合需要个性化记忆的应用；Letta 适合需要精细控制记忆管理的 Agent；Zep 适合长期运行、记忆需要衰减的场景。</div>
+            <div class="ppac-case"><strong>关键：</strong>先用框架快速搭建，再根据业务需求自研替换模块。</div>
+          </div>
+        </div>
+        <div class="source-ref">来源：第 8 篇</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 4: 完整工作流 -->
+      <div class="subsection">
+        <div class="subsection-title">四、完整工作流：读 → 用 → 写</div>
+        <div class="subsection-sub">三阶段闭环</div>
+
+        <div class="flow-row">
+          <div class="flow-step" style="border-left:3px solid var(--accent);">
+            <div class="flow-step-num">阶段 01 · 任务前</div>
+            <h4>📖 读</h4>
+            <p>
+              1. 从实体记忆取用户结构化偏好<br>
+              2. 用任务描述检索长期记忆<br>
+              3. 拼进 system prompt<br><br>
+              <strong>→ Agent 带着完整用户画像进入任务</strong>
+            </p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="border-left:3px solid #e67e22;">
+            <div class="flow-step-num">阶段 02 · 执行中</div>
+            <h4>🔧 用</h4>
+            <p>
+              1. 短期记忆全程工作<br>
+              2. 每步结果追加进 messages<br>
+              3. 遇到需要专业知识时，主动检索长期记忆（Tool）<br>
+              4. 检索结果注入当前 context<br><br>
+              <strong>→ 短期记忆维持连贯，长期记忆按需补充</strong>
+            </p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-step" style="border-left:3px solid var(--green);">
+            <div class="flow-step-num">阶段 03 · 任务后</div>
+            <h4>✍️ 写</h4>
+            <p>
+              1. 新偏好 → 更新实体记忆字段<br>
+              2. 有价值结论 → 写入长期记忆<br>
+              3. 短期记忆清空，工作台恢复干净<br><br>
+              <strong>→ 新知识沉淀，下次可用</strong>
+            </p>
+          </div>
+        </div>
+
+        <div class="code-block"><span class="ck">def</span> <span class="cf">run_agent_with_memory</span>(user_request, long_term_memory, short_term_memory):
+    <span class="cm"># ── 读：任务开始前检索长期记忆 ──</span>
+    relevant = long_term_memory.retrieve(user_request, top_k=<span class="cf">3</span>)
+    system_prompt = <span class="cm">f"""你是一个智能助手。
+以下是用户的相关历史信息，请在处理任务时参考：
+{chr(10).join(relevant)}"""</span>
+    short_term_memory.add(<span class="cm">"system"</span>, system_prompt)
+    short_term_memory.add(<span class="cm">"user"</span>, user_request)
+
+    <span class="cm"># ── 用：执行任务，短期记忆维持状态 ──</span>
+    result = execute_task(short_term_memory)
+
+    <span class="cm"># ── 写：任务完成后，重要结论写入长期记忆 ──</span>
+    <span class="ck">if</span> result.is_important:
+        long_term_memory.save(
+            content=result.summary,
+            metadata={<span class="cm">"task_type"</span>: <span class="cm">"coding"</span>, <span class="cm">"timestamp"</span>: now()}
+        )
+    short_term_memory.clear()  <span class="cm"># 清空，等待下一个任务</span>
+    <span class="ck">return</span> result</div>
+
+        <div class="insight-box">
+          <p>「每次任务开始时把历史积累读进来，执行中靠短期记忆保持连贯，结束后把新知识写回去沉淀。Agent 用得越多，积累越厚，越来越『了解』用户——这才是记忆系统真正的价值。」</p>
+          <div class="insight-source">— 读→用→写闭环的核心价值</div>
+        </div>
+        <div class="source-ref">来源：第 8 篇、第 9 篇</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Part 5: 面试雷区 -->
+      <div class="subsection">
+        <div class="subsection-title">五、面试雷区速查</div>
+        <div class="subsection-sub">四个最常犯的错误</div>
+
+        <div class="barrier-row">
+          <div class="barrier-card" style="border-left:3px solid #dc2626;">
+            <div class="barrier-icon">❌</div>
+            <div>
+              <div class="barrier-title">雷区 1：长期记忆 = 关键词搜索</div>
+              <div class="barrier-body">长期记忆说成「存数据库靠关键词搜索」→ 应该是 <strong>Embedding + 向量数据库，语义检索</strong>。关键词搜索找的是字面匹配，语义检索找的是意思相近。</div>
+            </div>
+          </div>
+          <div class="barrier-card" style="border-left:3px solid #dc2626;">
+            <div class="barrier-icon">❌</div>
+            <div>
+              <div class="barrier-title">雷区 2：粒度越细越好</div>
+              <div class="barrier-body">以为粒度越细越好 → 太细导致<strong>记忆碎片化</strong>，检索时只能命中碎片，LLM 拿到不完整信息。合理粒度是「完整交互」或「独立知识点」。</div>
+            </div>
+          </div>
+          <div class="barrier-card" style="border-left:3px solid #dc2626;">
+            <div class="barrier-icon">❌</div>
+            <div>
+              <div class="barrier-title">雷区 3：只知道滑动窗口</div>
+              <div class="barrier-body">记忆压缩只知道滑动窗口 → 实际有<strong>四种方法</strong>，解决不同维度的问题：时间维度（滑动窗口/摘要）、价值维度（重要性过滤）、载体维度（结构化抽取）。</div>
+            </div>
+          </div>
+          <div class="barrier-card" style="border-left:3px solid #dc2626;">
+            <div class="barrier-icon">❌</div>
+            <div>
+              <div class="barrier-title">雷区 4：搞混两层记忆作用时机</div>
+              <div class="barrier-body">搞不清两层记忆的作用时机 → 短期是执行中工作台，长期是<strong>任务前检索 + 任务后写入</strong>。不是两层记忆同时工作，而是各司其职、分阶段配合。</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="insight-box">
+          <p>「整理自『小林面试笔记』Agent 记忆系列三篇文章：第 8 篇（记忆机制与模块设计）、第 9 篇（长短期记忆存储）、第 12 篇（记忆压缩方法）。三篇对应不同维度——分类体系、存储实现、空间管理——合在一起构成完整知识体系。」</p>
+          <div class="insight-source">— 参考来源</div>
+        </div>
+      </div>
+
+    </div><!-- /panel-body -->
+  </div><!-- /tab-engineering -->
+
+</div><!-- /content -->
+
+<script>
+  const tabMap = {
+    'tab-overview': 0,
+    'tab-short': 1,
+    'tab-long': 2,
+    'tab-compress': 3,
+    'tab-engineering': 4
+  };
+
+  function activateTab(id) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === tabMap[id]);
+    });
+  }
+
+  function switchTab(id) {
+    activateTab(id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToSection(tabId, sectionId) {
+    activateTab(tabId);
+    if (sectionId) {
+      requestAnimationFrame(() => {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+</script>
+</body>
+</html>
