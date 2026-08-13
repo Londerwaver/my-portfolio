@@ -98,7 +98,7 @@
     .hero {
       max-width: 960px;
       margin: 0 auto;
-      padding: 72px 2rem 56px;
+      padding: 72px 2rem 48px;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 3rem;
@@ -131,17 +131,43 @@
       font-weight: 700;
       line-height: 1.15;
       color: var(--ink);
-      margin-bottom: 1.25rem;
+      margin-bottom: 0.75rem;
       letter-spacing: -0.01em;
     }
 
-    .hero-bio {
+    .hero-role {
       font-size: 1rem;
+      color: var(--accent);
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+    }
+
+    .hero-bio {
+      font-size: 0.95rem;
       color: var(--ink-soft);
       line-height: 1.8;
       max-width: 520px;
-      margin-bottom: 1.75rem;
+      margin-bottom: 1.25rem;
     }
+
+    .hero-contact {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-contact a, .hero-contact span {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: color 0.2s;
+    }
+
+    .hero-contact a:hover { color: var(--accent); }
 
     .hero-tags {
       display: flex;
@@ -244,6 +270,165 @@
       color: var(--muted);
       font-weight: 400;
       font-family: var(--mono);
+    }
+
+    /* ── TIMELINE ── */
+    .timeline {
+      position: relative;
+      padding-left: 1.5rem;
+    }
+
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 5px;
+      top: 8px;
+      bottom: 8px;
+      width: 2px;
+      background: var(--line);
+      border-radius: 1px;
+    }
+
+    .tl-item {
+      position: relative;
+      padding-bottom: 2rem;
+    }
+
+    .tl-item:last-child { padding-bottom: 0; }
+
+    .tl-item::before {
+      content: '';
+      position: absolute;
+      left: -1.5rem;
+      top: 6px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 2.5px solid var(--accent);
+      z-index: 1;
+    }
+
+    .tl-head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.3rem;
+    }
+
+    .tl-company {
+      font-family: var(--font-head);
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .tl-role {
+      font-size: 0.88rem;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .tl-date {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
+
+    .tl-desc {
+      font-size: 0.85rem;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+
+    /* ── SKILL MATRIX ── */
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .skill-cat {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+    }
+
+    .skill-cat-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .skill-cat-title::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      background: var(--accent);
+    }
+
+    .skill-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .skill-tag {
+      font-size: 0.76rem;
+      font-weight: 500;
+      padding: 0.3em 0.7em;
+      border-radius: 6px;
+      background: var(--accent-lt);
+      color: var(--accent-deep);
+    }
+
+    /* ── EDUCATION ── */
+    .edu-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+
+    .edu-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .edu-school {
+      font-family: var(--font-head);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 0.3rem;
+    }
+
+    .edu-degree {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      margin-bottom: 0.25rem;
+    }
+
+    .edu-date {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    .edu-honor {
+      font-size: 0.76rem;
+      color: var(--glow);
+      font-weight: 500;
+      margin-top: 0.3rem;
     }
 
     /* ── CARD GRID ── */
@@ -359,6 +544,14 @@
       font-size: 0.8rem;
     }
 
+    footer a {
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    footer a:hover { color: var(--accent); }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 768px) {
       .hero {
@@ -373,6 +566,8 @@
       }
       .nav-links { display: none; }
       .card-grid { grid-template-columns: 1fr; }
+      .skill-grid { grid-template-columns: 1fr; }
+      .edu-grid { grid-template-columns: 1fr; }
       .stats-bar { gap: 1.5rem; }
     }
 
@@ -387,6 +582,8 @@
   <nav>
     <a class="nav-logo" href="#">龙薇 · 个人作品集</a>
     <ul class="nav-links">
+      <li><a href="#experience">经历</a></li>
+      <li><a href="#skills">技能</a></li>
       <li><a href="#design">产品设计方法</a></li>
       <li><a href="#research">行业调研</a></li>
     </ul>
@@ -397,15 +594,21 @@
     <div class="hero-text">
       <p class="hero-eyebrow">Portfolio · 个人作品</p>
       <h1 class="hero-name">龙薇</h1>
+      <p class="hero-role">AI 应用产品经理 · 6 年互联网经验</p>
       <p class="hero-bio">
-        产品经理，华中科技大学硕士，曾任职于京东、新浪微博、蚂蚁集团，现专注于 AI 产品落地。主导从 0 到 1 构建 AI 质检系统，推动 RAG 检索链路与大模型评测体系落地。持续记录产品设计方法与行业研究。
+        曾任职于京东、新浪微博、蚂蚁集团，现专注于 AI 产品落地。主导从 0 到 1 构建 AI 质检系统与 Agentic 产品，擅长在复杂场景中识别核心问题、抽象通用方案并推动落地。
       </p>
+      <div class="hero-contact">
+        <a href="mailto:longweiwork@outlook.com">✉ longweiwork@outlook.com</a>
+        <span>📱 15623925079</span>
+        <span>📍 武汉</span>
+      </div>
       <div class="hero-tags">
         <span class="tag">AI 产品</span>
         <span class="tag">交易系统</span>
         <span class="tag">LLM 应用</span>
         <span class="tag">RAG</span>
-        <span class="tag">武汉</span>
+        <span class="tag">Agentic 设计</span>
       </div>
     </div>
     <div class="hero-photo">
@@ -421,8 +624,12 @@
       <span class="stat-label">篇作品</span>
     </div>
     <div class="stat-item">
-      <span class="stat-num">2</span>
-      <span class="stat-label">个主题</span>
+      <span class="stat-num">6</span>
+      <span class="stat-label">年产品经验</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">4</span>
+      <span class="stat-label">段大厂经历</span>
     </div>
     <div class="stat-item">
       <span class="stat-num">2023</span>
@@ -430,7 +637,124 @@
     </div>
   </div>
 
-  <!-- SECTION 1：产品设计方法 -->
+  <!-- SECTION: 工作经历 -->
+  <section class="section" id="experience">
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <h2 class="section-title">工作经历</h2>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-company">核桃编程</span>
+          <span class="tl-role">AI 产品经理 · 虚线带 3 人</span>
+          <span class="tl-date">2025.02 — 至今</span>
+        </div>
+        <p class="tl-desc">主导 AI 质检系统从 0 到 1 落地与数据飞轮闭环，设计 Agentic 产品分层路由与三级记忆架构</p>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-company">蚂蚁集团 · 支付宝事业群</span>
+          <span class="tl-role">产品经理 · 电商交易链路</span>
+          <span class="tl-date">2024.02 — 2024.10</span>
+        </div>
+        <p class="tl-desc">主导小程序交易链路组件化设计，五层抽象搭建通用链路，直播 CVR 提升 7%、会员频道 CVR 提升 9%</p>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-company">新浪微博 · 电商事业部</span>
+          <span class="tl-role">产品经理 · 闭环交易系统</span>
+          <span class="tl-date">2022.06 — 2024.02</span>
+        </div>
+        <p class="tl-desc">从 0 到 1 搭建虚拟商品交易 / 履约 / 售后体系，抽象两种通用履约模式，月 GMV 达亿元</p>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-head">
+          <span class="tl-company">京东零售 · 平台生态部</span>
+          <span class="tl-role">产品经理 · 商家开放生态</span>
+          <span class="tl-date">2020.07 — 2022.03</span>
+        </div>
+        <p class="tl-desc">主导商品模型升级，扩展「按效果 + 后付费」交易模式，带来百万级年商业化收入</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: 技能 -->
+  <section class="section" id="skills">
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <h2 class="section-title">技能矩阵</h2>
+    </div>
+
+    <div class="skill-grid">
+      <div class="skill-cat">
+        <div class="skill-cat-title">AI 能力</div>
+        <div class="skill-tags">
+          <span class="skill-tag">LLM 产品落地</span>
+          <span class="skill-tag">Agentic 产品设计</span>
+          <span class="skill-tag">数据冷启动</span>
+          <span class="skill-tag">向量检索召回与重排</span>
+          <span class="skill-tag">Prompt 训练优化</span>
+          <span class="skill-tag">多模型评测体系</span>
+          <span class="skill-tag">数据飞轮闭环</span>
+        </div>
+      </div>
+
+      <div class="skill-cat">
+        <div class="skill-cat-title">产品工具</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Axure</span>
+          <span class="skill-tag">Figma</span>
+          <span class="skill-tag">Claude · Codex</span>
+        </div>
+      </div>
+
+      <div class="skill-cat">
+        <div class="skill-cat-title">方法论</div>
+        <div class="skill-tags">
+          <span class="skill-tag">AB 实验设计与验证</span>
+          <span class="skill-tag">复杂系统抽象建模</span>
+          <span class="skill-tag">跨团队协作推动</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: 教育背景 -->
+  <section class="section" id="education">
+    <div class="section-header">
+      <div class="section-bar"></div>
+      <h2 class="section-title">教育背景</h2>
+    </div>
+
+    <div class="edu-grid">
+      <div class="edu-card">
+        <div class="edu-school">华中科技大学</div>
+        <div class="edu-degree">硕士 · 社会保障</div>
+        <div class="edu-date">2017.09 — 2020.06</div>
+        <div class="edu-honor">前 5%（保研）· 一等奖学金</div>
+      </div>
+
+      <div class="edu-card">
+        <div class="edu-school">华中师范大学</div>
+        <div class="edu-degree">学士 · 社会工作</div>
+        <div class="edu-date">2013.09 — 2017.06</div>
+        <div class="edu-honor">前 5% · 优秀毕业生</div>
+      </div>
+
+      <div class="edu-card">
+        <div class="edu-school">武汉大学</div>
+        <div class="edu-degree">学士（双学位）· 金融学</div>
+        <div class="edu-date">2014.02 — 2017.06</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION: 产品设计方法 -->
   <section class="section" id="design">
     <div class="section-header">
       <div class="section-bar"></div>
@@ -523,7 +847,7 @@
     </div>
   </section>
 
-  <!-- SECTION 2：行业信息调研 -->
+  <!-- SECTION: 行业信息调研 -->
   <section class="section" id="research">
     <div class="section-header">
       <div class="section-bar"></div>
@@ -618,7 +942,7 @@
 
   <!-- FOOTER -->
   <footer>
-    <p>© 2025 龙薇 · longweiwork@outlook.com · 用心记录，持续成长</p>
+    <p>© 2025 <a href="mailto:longweiwork@outlook.com">龙薇</a> · longweiwork@outlook.com · 15623925079 · 用心记录，持续成长</p>
   </footer>
 
   <script>
