@@ -6,28 +6,37 @@
   <title>龙薇 · 个人作品集</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --ink:       #1a1d24;
-      --ink-soft:  #4a4f5c;
-      --ink-mute:  #8a8f9e;
-      --bg:        #f7f6f2;
-      --bg-card:   #ffffff;
-      --accent:    #2a5caa;
-      --accent-lt: #e8eef8;
-      --rule:      #dddbd4;
-      --radius:    6px;
+      --ink:         #1f2430;
+      --ink-soft:    #5b6472;
+      --muted:       #8a93a3;
+      --paper:       #f6f5f2;
+      --surface:     #ffffff;
+      --line:        #e7e4dd;
+      --accent:      #3d4cc4;
+      --accent-deep: #2c3a9e;
+      --accent-lt:   #eef0fb;
+      --glow:        #0ea5a3;
+      --radius:      12px;
+      --radius-lg:   16px;
+      --shadow-sm:   0 1px 3px rgba(31,36,48,0.06);
+      --shadow-md:   0 4px 16px rgba(31,36,48,0.08);
+      --shadow-lg:   0 8px 32px rgba(31,36,48,0.10);
+      --font-body:   'Inter', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      --font-head:   'Noto Serif SC', serif;
+      --mono:        'JetBrains Mono', monospace;
     }
 
     html { font-size: 16px; scroll-behavior: smooth; }
 
     body {
-      background: var(--bg);
+      background: var(--paper);
       color: var(--ink);
-      font-family: 'Inter', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+      font-family: var(--font-body);
       line-height: 1.6;
       -webkit-font-smoothing: antialiased;
     }
@@ -37,23 +46,36 @@
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(247, 246, 242, 0.92);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--rule);
+      background: rgba(246, 245, 242, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
       padding: 0 2rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 56px;
+      height: 60px;
     }
 
     .nav-logo {
-      font-family: 'Noto Serif SC', serif;
+      font-family: var(--font-head);
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 1.05rem;
       color: var(--ink);
       text-decoration: none;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .nav-logo::before {
+      content: '';
+      width: 22px;
+      height: 22px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+      display: inline-block;
     }
 
     .nav-links {
@@ -66,7 +88,7 @@
       text-decoration: none;
       color: var(--ink-soft);
       font-size: 0.875rem;
-      font-weight: 400;
+      font-weight: 500;
       transition: color 0.2s;
     }
 
@@ -74,33 +96,43 @@
 
     /* ── HERO ── */
     .hero {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 80px 2rem 64px;
+      padding: 72px 2rem 56px;
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 3rem;
       align-items: center;
     }
 
-    .hero-text {}
-
     .hero-eyebrow {
-      font-size: 0.75rem;
-      font-weight: 500;
-      letter-spacing: 0.12em;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       color: var(--accent);
-      margin-bottom: 1rem;
+      margin-bottom: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 24px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 1px;
     }
 
     .hero-name {
-      font-family: 'Noto Serif SC', serif;
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 600;
-      line-height: 1.2;
+      font-family: var(--font-head);
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      font-weight: 700;
+      line-height: 1.15;
       color: var(--ink);
       margin-bottom: 1.25rem;
+      letter-spacing: -0.01em;
     }
 
     .hero-bio {
@@ -120,27 +152,25 @@
     .tag {
       background: var(--accent-lt);
       color: var(--accent);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 500;
-      padding: 0.3em 0.9em;
+      padding: 0.35em 0.9em;
       border-radius: 20px;
     }
 
     .hero-photo {
-      width: 160px;
-      height: 160px;
+      width: 168px;
+      height: 168px;
       border-radius: 50%;
       object-fit: cover;
-      border: 3px solid var(--rule);
+      border: 4px solid var(--surface);
+      box-shadow: var(--shadow-md);
       flex-shrink: 0;
-      /* Placeholder gradient when no photo */
-      background: linear-gradient(135deg, #c8d8f0 0%, #e8d5c0 100%);
+      background: linear-gradient(135deg, #e0e7ff 0%, #fef3e8 100%);
       display: flex;
       align-items: center;
       justify-content: center;
-      color: var(--ink-mute);
-      font-size: 0.75rem;
-      text-align: center;
+      font-size: 2rem;
       overflow: hidden;
     }
 
@@ -151,31 +181,59 @@
       display: block;
     }
 
-    /* ── DIVIDER ── */
-    .section-divider {
-      max-width: 900px;
+    /* ── STATS BAR ── */
+    .stats-bar {
+      max-width: 960px;
       margin: 0 auto;
-      padding: 0 2rem;
-      border: none;
-      border-top: 1px solid var(--rule);
+      padding: 0 2rem 48px;
+      display: flex;
+      gap: 2.5rem;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .stat-num {
+      font-family: var(--font-head);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.03em;
     }
 
     /* ── SECTION ── */
     .section {
-      max-width: 900px;
+      max-width: 960px;
       margin: 0 auto;
-      padding: 56px 2rem;
+      padding: 48px 2rem;
     }
 
     .section-header {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       gap: 1rem;
       margin-bottom: 2rem;
     }
 
+    .section-bar {
+      width: 4px;
+      height: 28px;
+      border-radius: 2px;
+      background: linear-gradient(180deg, var(--accent) 0%, var(--accent-deep) 100%);
+      flex-shrink: 0;
+    }
+
     .section-title {
-      font-family: 'Noto Serif SC', serif;
+      font-family: var(--font-head);
       font-size: 1.5rem;
       font-weight: 600;
       color: var(--ink);
@@ -183,37 +241,68 @@
 
     .section-count {
       font-size: 0.8rem;
-      color: var(--ink-mute);
+      color: var(--muted);
       font-weight: 400;
+      font-family: var(--mono);
     }
 
-    /* ── ARTICLE LIST ── */
-    .article-list {
+    /* ── CARD GRID ── */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s ease;
       display: flex;
       flex-direction: column;
-      gap: 1px;
-      background: var(--rule);
-      border: 1px solid var(--rule);
-      border-radius: var(--radius);
+      gap: 0.65rem;
+      position: relative;
       overflow: hidden;
     }
 
-    .article-item {
-      background: var(--bg-card);
-      padding: 1.25rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1.25rem;
-      text-decoration: none;
-      color: inherit;
-      transition: background 0.15s;
+    .card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transform-origin: bottom;
+      transition: transform 0.25s ease;
     }
 
-    .article-item:hover { background: var(--accent-lt); }
+    .card:hover {
+      border-color: transparent;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+    }
 
-    .article-item:hover .article-title { color: var(--accent); }
+    .card:hover::before {
+      transform: scaleY(1);
+      transform-origin: top;
+    }
 
-    .article-icon {
+    .card:hover .card-title {
+      color: var(--accent);
+    }
+
+    .card-top {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .card-icon {
       width: 36px;
       height: 36px;
       border-radius: 8px;
@@ -226,62 +315,55 @@
       font-size: 1rem;
     }
 
-    .article-body { flex: 1; min-width: 0; }
+    .card-date {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-left: auto;
+    }
 
-    .article-title {
-      font-size: 0.95rem;
+    .card-title {
+      font-size: 0.98rem;
       font-weight: 500;
       color: var(--ink);
-      transition: color 0.15s;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.5;
+      transition: color 0.2s;
     }
 
-    .article-meta {
-      font-size: 0.78rem;
-      color: var(--ink-mute);
-      margin-top: 0.2em;
+    .card-desc {
+      font-size: 0.82rem;
+      color: var(--ink-soft);
+      line-height: 1.5;
     }
 
-    .article-arrow {
-      color: var(--ink-mute);
-      font-size: 1rem;
-      flex-shrink: 0;
-      transition: transform 0.15s, color 0.15s;
+    .card-arrow {
+      position: absolute;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      color: var(--muted);
+      font-size: 0.9rem;
+      transition: transform 0.2s, color 0.2s;
     }
 
-    .article-item:hover .article-arrow {
-      transform: translateX(3px);
+    .card:hover .card-arrow {
+      transform: translateX(4px);
       color: var(--accent);
     }
 
-    /* Empty state */
-    .empty-state {
-      background: var(--bg-card);
-      border: 1px dashed var(--rule);
-      border-radius: var(--radius);
-      padding: 2.5rem;
-      text-align: center;
-      color: var(--ink-mute);
-      font-size: 0.875rem;
-    }
-
-    .empty-state span { display: block; font-size: 1.5rem; margin-bottom: 0.5rem; }
-
     /* ── FOOTER ── */
     footer {
-      border-top: 1px solid var(--rule);
+      border-top: 1px solid var(--line);
       text-align: center;
-      padding: 2rem;
-      color: var(--ink-mute);
+      padding: 2.5rem 2rem;
+      color: var(--muted);
       font-size: 0.8rem;
     }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 640px) {
+    @media (max-width: 768px) {
       .hero {
         grid-template-columns: 1fr;
+        text-align: left;
         padding-top: 48px;
       }
       .hero-photo {
@@ -290,6 +372,8 @@
         order: -1;
       }
       .nav-links { display: none; }
+      .card-grid { grid-template-columns: 1fr; }
+      .stats-bar { gap: 1.5rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -330,179 +414,203 @@
     </div>
   </section>
 
-  <hr class="section-divider" />
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-num" id="stat-total">16</span>
+      <span class="stat-label">篇作品</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">2</span>
+      <span class="stat-label">个主题</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">2023</span>
+      <span class="stat-label">起笔之年</span>
+    </div>
+  </div>
 
   <!-- SECTION 1：产品设计方法 -->
   <section class="section" id="design">
     <div class="section-header">
+      <div class="section-bar"></div>
       <h2 class="section-title">产品设计方法</h2>
       <span class="section-count" id="design-count"></span>
     </div>
 
-    <!--
-      ✏️ 新增文章：复制一个 <a class="article-item"> 块，填写：
-         href  = 你的 html 文件路径，例如 "articles/gpt-intro.html"
-         title = 文章标题
-         meta  = 日期或副标题
-    -->
-    <div class="article-list" id="design-list">
+    <div class="card-grid" id="design-list">
 
-      <a class="article-item" href="产品设计方法/Agent思考架构全景.html">
-        <div class="article-icon">📘</div>
-        <div class="article-body">
-          <div class="article-title">Agent 思考架构全景</div>
-          <div class="article-meta">AI 基础 · 设计范式</div>
+      <a class="card" href="产品设计方法/Agent思考架构全景.html">
+        <div class="card-top">
+          <div class="card-icon">📘</div>
+          <span class="card-date">AI 基础</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">Agent 思考架构全景</div>
+        <div class="card-desc">AI 基础 · 设计范式</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="产品设计方法/AI Agent 记忆系统.html">
-        <div class="article-icon">📘</div>
-        <div class="article-body">
-          <div class="article-title">AI Agent 记忆系统</div>
-          <div class="article-meta">AI 基础 · 系统学习笔记</div>
+      <a class="card" href="产品设计方法/AI Agent 记忆系统.html">
+        <div class="card-top">
+          <div class="card-icon">📘</div>
+          <span class="card-date">AI 基础</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">AI Agent 记忆系统</div>
+        <div class="card-desc">系统学习笔记</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="产品设计方法/多 Agent 架构设计.html">
-        <div class="article-icon">📘</div>
-        <div class="article-body">
-          <div class="article-title">多 Agent 架构设计</div>
-          <div class="article-meta">AI 基础 · 体系化笔记</div>
+      <a class="card" href="产品设计方法/多 Agent 架构设计.html">
+        <div class="card-top">
+          <div class="card-icon">📘</div>
+          <span class="card-date">AI 基础</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">多 Agent 架构设计</div>
+        <div class="card-desc">体系化笔记</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="产品设计方法/AI Native 需求链路改造.html">
-        <div class="article-icon">📘</div>
-        <div class="article-body">
-          <div class="article-title">AI Native 需求链路改造</div>
-          <div class="article-meta">AI 应用 · 需求链路思考</div>
+      <a class="card" href="产品设计方法/AI Native 需求链路改造.html">
+        <div class="card-top">
+          <div class="card-icon">📘</div>
+          <span class="card-date">AI 应用</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">AI Native 需求链路改造</div>
+        <div class="card-desc">需求链路思考</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="产品设计方法/如何从0到1设计商家系统.html">
-        <div class="article-icon">📐</div>
-        <div class="article-body">
-          <div class="article-title">如何从0到1设计商家系统</div>
-          <div class="article-meta">2023-11-11 · 产品设计</div>
+      <a class="card" href="产品设计方法/如何从0到1设计商家系统.html">
+        <div class="card-top">
+          <div class="card-icon">📐</div>
+          <span class="card-date">2023-11-11</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">如何从0到1设计商家系统</div>
+        <div class="card-desc">商家系统架构与五级产品体系</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="产品设计方法/如何理解得物的交易模式.html">
-        <div class="article-icon">📐</div>
-        <div class="article-body">
-          <div class="article-title">如何理解得物的交易模式</div>
-          <div class="article-meta">2023-12-06 · 产品设计</div>
+      <a class="card" href="产品设计方法/如何理解得物的交易模式.html">
+        <div class="card-top">
+          <div class="card-icon">📐</div>
+          <span class="card-date">2023-12-06</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">如何理解得物的交易模式</div>
+        <div class="card-desc">潮流电商市场环境与交易模式解析</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="产品设计方法/客服系统产品设计之道.html">
-        <div class="article-icon">📐</div>
-        <div class="article-body">
-          <div class="article-title">打造转化神器！深度解析客服系统的产品设计之道</div>
-          <div class="article-meta">2024-11-07 · 产品设计</div>
+      <a class="card" href="产品设计方法/客服系统产品设计之道.html">
+        <div class="card-top">
+          <div class="card-icon">📐</div>
+          <span class="card-date">2024-11-07</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">打造转化神器！客服系统的产品设计之道</div>
+        <div class="card-desc">经营型与服务型双目标体系解析</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="产品设计方法/电商价格战下的资损防控秘籍.html">
-        <div class="article-icon">📐</div>
-        <div class="article-body">
-          <div class="article-title">产品设计：电商价格战下的资损防控秘籍</div>
-          <div class="article-meta">2024-11-18 · 产品设计</div>
+      <a class="card" href="产品设计方法/电商价格战下的资损防控秘籍.html">
+        <div class="card-top">
+          <div class="card-icon">📐</div>
+          <span class="card-date">2024-11-18</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">电商价格战下的资损防控秘籍</div>
+        <div class="card-desc">规则巡检与提醒止血三步法</div>
+        <span class="card-arrow">→</span>
       </a>
 
     </div>
   </section>
 
-  <hr class="section-divider" />
-
   <!-- SECTION 2：行业信息调研 -->
   <section class="section" id="research">
     <div class="section-header">
+      <div class="section-bar"></div>
       <h2 class="section-title">行业信息调研</h2>
       <span class="section-count" id="research-count"></span>
     </div>
 
-    <div class="article-list" id="research-list">
+    <div class="card-grid" id="research-list">
 
-      <a class="article-item" href="行业信息调研/抖音电商是如何成为生意的.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">抖音电商是如何成为生意的</div>
-          <div class="article-meta">2023-11-11 · 行业调研</div>
+      <a class="card" href="行业信息调研/抖音电商是如何成为生意的.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2023-11-11</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">抖音电商是如何成为生意的</div>
+        <div class="card-desc">内外部环境、发展历程与当前打法</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="行业信息调研/淘宝服务市场发展历程.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">淘宝服务市场发展历程</div>
-          <div class="article-meta">2023-11-11 · 行业调研</div>
+      <a class="card" href="行业信息调研/淘宝服务市场发展历程.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2023-11-11</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">淘宝服务市场发展历程</div>
+        <div class="card-desc">从数字智能到精细化运营的演进</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="行业信息调研/抖音生活服务是否开始加速.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">抖音生活服务是否开始加速？</div>
-          <div class="article-meta">2023-11-16 · 行业调研</div>
+      <a class="card" href="行业信息调研/抖音生活服务是否开始加速.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2023-11-16</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">抖音生活服务是否开始加速？</div>
+        <div class="card-desc">发展历程、当前打法与未来思考</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="行业信息调研/阿里健康靠什么赚钱.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">阿里健康靠什么赚钱？</div>
-          <div class="article-meta">2023-12-14 · 行业调研</div>
+      <a class="card" href="行业信息调研/阿里健康靠什么赚钱.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2023-12-14</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">阿里健康靠什么赚钱？</div>
+        <div class="card-desc">政策法规演进与三朵云业务分析</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="行业信息调研/包罗万象的支付宝小程序交易.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">包罗万象的支付宝小程序交易</div>
-          <div class="article-meta">2024-01-09 · 行业调研</div>
+      <a class="card" href="行业信息调研/包罗万象的支付宝小程序交易.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2024-01-09</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">包罗万象的支付宝小程序交易</div>
+        <div class="card-desc">64个订单模板与六大交易类型解析</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="行业信息调研/互联网消费医疗新探.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">互联网消费医疗新探：市场脉动与产品设计</div>
-          <div class="article-meta">2024-11-28 · 行业调研</div>
+      <a class="card" href="行业信息调研/互联网消费医疗新探.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2024-11-28</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">互联网消费医疗新探</div>
+        <div class="card-desc">市场脉动、产业链与产品设计</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="行业信息调研/双城记-美团KeeTa出海战略.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">双城记：解码美团 KeeTa 出海战略</div>
-          <div class="article-meta">2025-04-08 · 行业调研</div>
+      <a class="card" href="行业信息调研/双城记-美团KeeTa出海战略.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2025-04-08</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">双城记：解码美团 KeeTa 出海战略</div>
+        <div class="card-desc">香港实践与中东突围的双城分析</div>
+        <span class="card-arrow">→</span>
       </a>
 
-      <a class="article-item" href="行业信息调研/长江存储AI战略调研.html">
-        <div class="article-icon">🔍</div>
-        <div class="article-body">
-          <div class="article-title">长江存储的 AI 战略调研</div>
-          <div class="article-meta">2026-08-10 · 行业研究</div>
+      <a class="card" href="行业信息调研/长江存储AI战略调研.html">
+        <div class="card-top">
+          <div class="card-icon">🔍</div>
+          <span class="card-date">2026-08-10</span>
         </div>
-        <span class="article-arrow">→</span>
+        <div class="card-title">长江存储的 AI 战略调研</div>
+        <div class="card-desc">存储芯片龙头 AI 转型全景</div>
+        <span class="card-arrow">→</span>
       </a>
 
     </div>
@@ -516,16 +624,20 @@
   <script>
     // 自动统计每个分区的条目数量
     const sections = [
-      { listId: 'design-list',       countId: 'design-count' },
+      { listId: 'design-list',   countId: 'design-count' },
       { listId: 'research-list', countId: 'research-count' },
     ];
 
+    let total = 0;
     sections.forEach(({ listId, countId }) => {
       const list  = document.getElementById(listId);
       const count = document.getElementById(countId);
-      const n = list ? list.querySelectorAll('.article-item').length : 0;
+      const n = list ? list.querySelectorAll('.card').length : 0;
+      total += n;
       if (count) count.textContent = n + ' 篇';
     });
+    const statTotal = document.getElementById('stat-total');
+    if (statTotal) statTotal.textContent = total;
   </script>
 
 </body>
