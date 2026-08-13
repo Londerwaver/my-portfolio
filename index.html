@@ -207,35 +207,6 @@
       display: block;
     }
 
-    /* ── STATS BAR ── */
-    .stats-bar {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 0 2rem 48px;
-      display: flex;
-      gap: 2.5rem;
-    }
-
-    .stat-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-
-    .stat-num {
-      font-family: var(--font-head);
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--accent);
-      line-height: 1;
-    }
-
-    .stat-label {
-      font-size: 0.78rem;
-      color: var(--muted);
-      letter-spacing: 0.03em;
-    }
-
     /* ── SECTION ── */
     .section {
       max-width: 960px;
@@ -568,7 +539,6 @@
       .card-grid { grid-template-columns: 1fr; }
       .skill-grid { grid-template-columns: 1fr; }
       .edu-grid { grid-template-columns: 1fr; }
-      .stats-bar { gap: 1.5rem; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -616,26 +586,6 @@
            onerror="this.parentElement.innerHTML='<span style=\'font-size:2rem\'>👤</span>'" />
     </div>
   </section>
-
-  <!-- STATS BAR -->
-  <div class="stats-bar">
-    <div class="stat-item">
-      <span class="stat-num" id="stat-total">16</span>
-      <span class="stat-label">篇作品</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num">6</span>
-      <span class="stat-label">年产品经验</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num">4</span>
-      <span class="stat-label">段大厂经历</span>
-    </div>
-    <div class="stat-item">
-      <span class="stat-num">2023</span>
-      <span class="stat-label">起笔之年</span>
-    </div>
-  </div>
 
   <!-- SECTION: 工作经历 -->
   <section class="section" id="experience">
@@ -952,16 +902,12 @@
       { listId: 'research-list', countId: 'research-count' },
     ];
 
-    let total = 0;
     sections.forEach(({ listId, countId }) => {
       const list  = document.getElementById(listId);
       const count = document.getElementById(countId);
       const n = list ? list.querySelectorAll('.card').length : 0;
-      total += n;
       if (count) count.textContent = n + ' 篇';
     });
-    const statTotal = document.getElementById('stat-total');
-    if (statTotal) statTotal.textContent = total;
   </script>
 
 </body>
