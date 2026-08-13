@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>抖音电商是如何成为生意的 · 行业信息调研</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1f2430;
+  --ink-soft:#5b6472;
+  --muted:#8a93a3;
+  --paper:#f6f5f2;
+  --surface:#ffffff;
+  --line:#e7e4dd;
+  --accent:#3d4cc4;
+  --accent-deep:#2c3a9e;
+  --glow:#0ea5a3;
+  --warn:#d97706;
+  --ok:#16a34a;
+  --radius:12px;
+  --radius-lg:16px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+  --font-body:'Inter','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-head:'Noto Serif SC','Songti SC',serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.85;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(61,76,196,.14)}
+
+/* ---------- 顶栏 ---------- */
+.topbar{
+  position:sticky;top:0;z-index:50;
+  height:56px;display:flex;align-items:center;gap:12px;
+  padding:0 24px;background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .logo{
+  width:26px;height:26px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;
+}
+.topbar a.brand{
+  font-family:var(--font-head);font-weight:600;font-size:14.5px;
+  color:var(--ink);text-decoration:none;letter-spacing:.3px;
+}
+.topbar a.brand:hover{color:var(--accent)}
+.topbar .badge{
+  margin-left:auto;font-size:12px;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:3px 12px;
+  background:var(--surface);
+}
+
+/* ---------- 主内容 ---------- */
+.main{max-width:780px;margin:0 auto;padding:64px 28px 96px}
+
+/* ---------- Hero ---------- */
+.hero{padding:8px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.hero .kicker::before{content:"";width:22px;height:2px;background:var(--glow);border-radius:2px}
+.hero h1{
+  font-family:var(--font-head);
+  font-size:36px;line-height:1.35;letter-spacing:.5px;font-weight:600;
+}
+.hero .sub{
+  margin-top:16px;font-size:15.5px;color:var(--ink-soft);
+  max-width:660px;
+}
+.hero .meta{
+  margin-top:24px;display:flex;flex-wrap:wrap;gap:8px;
+}
+.hero .meta span{
+  font-size:12.5px;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:4px 13px;
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.hero .meta a{color:var(--accent);text-decoration:none}
+.hero .meta a:hover{text-decoration:underline}
+
+/* ---------- 章节 ---------- */
+.chapter{margin-bottom:60px}
+.ch-head{display:flex;gap:14px;align-items:center;margin-bottom:26px}
+.ch-num{
+  flex:none;width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  color:#fff;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:15px;
+  box-shadow:0 5px 14px rgba(61,76,196,.25);
+}
+.ch-head h2{font-size:24px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+
+.article p{margin-bottom:14px;text-align:justify}
+.article strong{color:var(--accent-deep);font-weight:600}
+.article .lead{color:var(--ink-soft)}
+
+/* ---------- 列表 ---------- */
+.article ul,.article ol{margin:0 0 16px 24px}
+.article li{margin-bottom:8px}
+.article li::marker{color:var(--accent)}
+.article ul li strong{display:inline}
+
+/* ---------- 引用块 ---------- */
+.quote{
+  font-size:15px;color:var(--ink-soft);
+  border-left:3px solid var(--accent);
+  background:rgba(61,76,196,.05);
+  padding:16px 20px;margin:20px 0;
+  border-radius:0 var(--radius) var(--radius) 0;
+}
+.quote p{margin-bottom:8px;text-align:justify}
+.quote p:last-child{margin-bottom:0}
+.quote .src{
+  display:block;margin-top:6px;font-size:12.5px;color:var(--muted);
+  font-family:var(--font-body);
+}
+.quote a{color:var(--accent)}
+
+/* ---------- 表格 ---------- */
+.table-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:13.5px;min-width:600px}
+th{
+  background:linear-gradient(180deg,#fafaf7,#f2f1ec);
+  font-weight:650;text-align:left;padding:11px 16px;
+  border-bottom:1px solid var(--line);color:var(--ink);
+  white-space:nowrap;
+}
+td{padding:10px 16px;border-bottom:1px solid var(--line);color:var(--ink-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(61,76,196,.03)}
+td:first-child{font-family:var(--mono);color:var(--accent-deep);font-weight:600;white-space:nowrap}
+.caption{font-size:12.5px;color:var(--muted);text-align:center;margin:6px 0 20px}
+
+/* ---------- 页脚 ---------- */
+.footnote{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--muted);
+}
+.footnote a{color:var(--accent);text-decoration:none}
+.footnote a:hover{text-decoration:underline}
+.footnote .to-top{
+  width:34px;height:34px;border-radius:10px;border:1px solid var(--line);
+  background:var(--surface);display:grid;place-items:center;text-decoration:none;
+  color:var(--ink-soft);font-size:15px;box-shadow:var(--shadow);
+}
+.footnote .to-top:hover{color:var(--accent);border-color:var(--accent)}
+
+@media(max-width:640px){
+  .main{padding:40px 18px 64px}
+  .hero h1{font-size:27px}
+  .ch-head h2{font-size:20px}
+  .topbar .badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">调</div>
+  <a class="brand" href="../index.html">龙薇 · 个人作品集</a>
+  <span class="badge">行业信息调研</span>
+</div>
+
+<div class="main">
+
+  <header class="hero">
+    <div class="kicker">行业调研</div>
+    <h1>抖音电商是如何成为生意的</h1>
+    <p class="sub">从内外部环境、发展历程到当前打法，系统梳理抖音电商三年做起来的生意逻辑。</p>
+    <div class="meta">
+      <span>✍️ 作者 <b>逗逗龙</b></span>
+      <span>📅 发布时间 <b>2023-11-11</b></span>
+      <span>📮 公众号 <b>逗逗龙的产品趣谈</b></span>
+      <span>🔗 <a href="https://mp.weixin.qq.com/s/37jWY0VMs3mN8xZppjH7gA" target="_blank" rel="noopener">原文链接 ↗</a></span>
+    </div>
+  </header>
+
+  <article class="article">
+    <p class="lead">从近几年的电商行业发生了较大的变化，在互联网流量见顶，投资疲软，商业化收入压力增加的背景下，大部分的互联网公司开始了电商的探索。</p>
+    <p>其中抖音电商的崛起改变了原有电商的格局，5月17日字节在广州举办了2023年抖音电商生态大会，对于这样的大会电商从业者应该不会陌生，在618这个大促节点前组织大会的召开，除了展示抖音电商过往成绩之外，也是向外界同步抖音电商打法。本文将梳理抖音电商的发展历程，旨在回答三个问题：</p>
+    <ul>
+      <li>抖音为什么要入局电商？</li>
+      <li>抖音电商过去做了什么？</li>
+      <li>抖音电商当前的打法是什么？</li>
+    </ul>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">01</div>
+        <h2>抖音入局电商的内外部环境</h2>
+      </div>
+      <p>抖音为什么要入局电商？这个问题曾经已经引起过业界的广泛讨论，可以内部以及外部两方面来予以回答。</p>
+      <p><strong>首先，外部环境的变化。</strong>截至当前，电商行业入局者众，头部公司入局电商大致可分如下几类：第一类，原本就是电商出身，如淘宝、京东、拼多多等；第二类，内容型平台转型，如快手、抖音、小红书等；第三类，由社交平台转型，如微信微店，着重在私域电商运营；第四类，本地方向的美团、滴滴，也有电商业务。为什么原本在不同赛道上的企业，都入局了电商？</p>
+
+      <div class="quote">
+        <p>截至 2022 年 12 月，我国网民规模为 10.67 亿，较 2021 年 12 月新增网民 3549 万，互联网普及率达 75.6%。截至 2022 年 12 月，我国网络购物用户规模达 8.45 亿，占网民整体的 79.2%。2022 年全年网上零售额达 13.79 万亿元，同比增长 4.0%。</p>
+        <span class="src">—— 中国互联网信息中心（CNNIC）：第51次《中国互联网发展状态统计报告》</span>
+      </div>
+
+      <p>以上是中国互联网信息中心（CNNIC）公布数据，从上述的数据，我们可以得到两个结论：</p>
+      <ul>
+        <li>中国网民规模较大，互联网普及率较高，互联网行业流量见顶，已经跨入存量竞争的阶段。</li>
+        <li>网络购物的用户规模大，中国网民都有线上购物的习惯，占网民整体的79.2%，网络购物保持增长态势，销售额近14万亿。</li>
+      </ul>
+      <p>从外部环境来看，各大互联网巨头都面临着增长疲软的问题，加上投资环境变化，要求公司提高自身的造血能力，如何实现流量变现是各大公司面临的共同问题。而电商是一个巨大的蛋糕，即使电商用户的渗透增长也进入瓶颈期，但是巨大的市场和用户规模，促使互联网公司进行电商的尝试，试图成为下一个黑马。</p>
+      <p><strong>其次，从字节跳动的内部环境来说。</strong>抖音作为巨大的流量引擎，一直深耕于内容领域，在20年抖音电商元年，抖音的日活已突破6亿。</p>
+
+      <div class="quote">
+        <p>2020年抖音日活跃用户突破6亿，日均视频搜索次数突破4亿。</p>
+        <span class="src">—— 抖音官方：2020抖音数据报告（完整版）</span>
+      </div>
+
+      <p>同时，抖音作为用户黏性较高的内容平台，用户的使用时长也相当可观。通过20年极光和抖音的公开数据，一个用户每日需要在抖音的平均使用时长超过70分钟。抖音的使用时长相比其他软件更有做电商的优势，用户有停留，才能完成浏览、加购、转化。</p>
+
+      <div class="quote">
+        <p>根据第三方机构极光的数据，2020年9月以来，抖音用户日均总使用时长是441.6亿分钟——将近9万年。假设是一个人观看的话，大概要让一位尼安德特人从远古端着手机看到现在。</p>
+        <span class="src">—— 张珺，腾讯科技：《抖音内幕：时间熔炉的诞生》</span>
+      </div>
+
+      <p>有流量有停留的抖音，是否就拥有了搭建电商的全部基础呢？做电商，可以回归到最简单的<strong>【需求-匹配-供给】</strong>，基于这个分析框架，我们可以来分析抖音是否具备发展电商的基础。</p>
+      <ul>
+        <li><strong>供给：</strong>和大多数内容起家的互联网公司一样，广告是抖音商业化支柱，不同的品牌广告主来抖音投放，其实抖音在开始电商前已经积累了一定的B端资源。长期以来的数据积累，能够支持抖音决策最先试水哪些行业。</li>
+        <li><strong>需求：</strong>上文提到，抖音具有流量优势，无论是用户量级或者用户的使用时长都非常可观。作为内容平台，其实在供给和需求侧已经有一定的积累，做电商就是从导流到闭环的变化，电商就是完成了最后一公里的转化。</li>
+        <li><strong>供需匹配：</strong>原来传统的货架电商，都是通过首页推荐、搜索等渠道，来实现人货的匹配。但是抖音作为内容平台，已经积累了相当内容创作者资源，能够借助创作者的内容表达，同时抖音账号标签体系，能够识别用户的需求。来实现人货匹配。</li>
+      </ul>
+      <p>另外，就是字节跳动本身就是应用工厂，【广泛撒网+快速试错】是这家公司的企业基因。基于外部环境变化，以及内容平台做电商的优势，抖音开始了电商的尝试。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">02</div>
+        <h2>抖音电商的发展历程</h2>
+      </div>
+      <p>从2020年初，以罗永浩等KOL开始了抖音直播，打响抖音电商第一枪。20年字节跳动成立一级业务部门，正式开始抖音电商。2021年召开了首次抖音电商生态大会，接下来的三年抖音都召开了电商生态大会。这一节，将基于历届大会内容以及字节公开报告，来梳理抖音电商这三年来的数据效果和对应的打法，来总结字节开始抖音电商的这三年都做了什么。</p>
+      <p>其实在2020年以前，抖音电商就开始电商的布局，抖音电商的萌芽是导流电商。闭环电商和导流电商核心区别在于平台是否有提供完整的闭环电商服务。闭环电商撮合用户购买平台内商品，而非外部商品，从商品发布、交易、履约、售后、结算都是在平台内完成。而导流电商，则是撮合平台用户到第三方平台完成交易。</p>
+      <p>2020年是抖音电商从导流电商到闭环电商的重要转折点。2020年疫情期间直播兴起，抖音直播日活和使用时长提升。20年3月字节同时推进了【百万开麦，抖音主播扶持计划】以及【中小企业复苏计划】，建设达人和商家基础。以20年4月1日的罗永浩直播为起点，在此之后抖音电商按上了加速键。20年6月，字节跳动成立了电商一级业务部门，正式发布了【抖音电商】品牌。</p>
+      <p>2021年4月，字节召开首届抖音电商生态大会，在大会上宣布了【兴趣电商】的平台定位，发布雪球增长逻辑和FACT四大经营赛道。</p>
+      <p>2022年5月，抖音电商第二届生态大会在线上举办，宣布了从【兴趣电商】升级到【全域兴趣电商】的阶段，提出了要建设货架电商，同时全面铺开内容场景与电商的协同。</p>
+      <p>2023年5月，抖音电商第三届生态大会在广州举办。在本次大会上，提出【全域一体，飞轮增长】，进一步解读【全域兴趣电商】的运行飞轮是全域的互联互通，认为货架场已经成为了除内容场外的流量引擎。</p>
+      <p>从2020年到2022年的三年发展，衡量一个电商平台规模的核心指标为GMV。但是字节跳动并没有对外正式的披露抖音电商的GMV数据，所以下文提到数据都来自于第三方数据。（数据来源：晚点LatePost、36氪Pro、晚点财经）</p>
+      <p>通过现在从第三方收集到的数据来看，抖音电商GMV在这三年间保持着高增长的趋势。但是从晚点团队披露的GMV组成来看，上述GMV的数据组成包含两部分：闭环电商和导流电商。</p>
+
+      <div class="quote">
+        <p>抖音电商业务计划的 2021 全年 GMV 目标是 10000 亿元，比上一年翻一倍，相当于拼多多 2019 年全年的交易总额。这 10000 亿元中，仍包括外部平台交易的部分，但抖音小店比例将更高。《晚点 LatePost》获悉， 2021 年 1 月，抖音小店的 GMV 已经突破 300 亿。照此发展，整个 2021 年的规模有望接近 4000 亿元，占其全年 GMV 目标 40% 左右，比 2020 年更高。</p>
+        <span class="src">—— 晚点LatePost：《晚点独家 | 抖音一年带货超 5000 亿元，将启动跨境电商业务》</span>
+      </div>
+
+      <p>按照上文中晚点团队预测的数据，在21年抖音闭环小店所占GMV的比例可能不及一半，而抖音电商的难点也在于如何让自身成为真正的电商平台。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">03</div>
+        <h2>抖音电商当前打法</h2>
+      </div>
+      <p>上文有提到，基于【需求-匹配-供给】的分析框架，抖音都具备一定发展电商的基础，面对内外部环境的增长压力，抖音选择通过电商来展示商业化价值。在分析抖音电商当前打法，也基于这个分析框架拆分来看。</p>
+      <p><strong>首先是需求侧</strong>，作为头部内容平台，流量优势最为明显。相比于站外拉新动作来提高用户增长，抖音更倾向于将已有用户转化为电商的用户，消化平台已有的流量。在抖音电商20年的初见成效后，加大了流量在抖音电商的投入。</p>
+      <p><strong>其次，可以看到抖音在这三年花了较大的功夫在供需的匹配上</strong>，逐步完善了全域供需匹配渠道，其目的就是进一步提高电商用户在抖音用户的占比。在2020年，抖音通过直播和短视频的方式，将流量引导至抖音电商。2021年，抖音的平台定位又从【兴趣电商】变更为【全域兴趣电商】，开始搭建货架电商。</p>
+
+      <div class="quote">
+        <p>抖音电商在2022年的抖音电商生态大会上公开，除了原来的直播和短视频这两个场保持增长之外，衍生了搜索、商城、店铺这些场景，商品图搜索同比增长217%（2021年4月vs2022年4月），店铺PV相比增长279%（2021年6月vs2022年4月，商城GMV同比增长661%（2021年4月vs2022年4月）。</p>
+        <span class="src">—— 魏雯雯，2022年抖音电商生态大会：《美好生活，触手可得》</span>
+      </div>
+
+      <p>可以理解为，除了加大直播和短视频等内容场电商的曝光，实现【货找人】之外，又增加了【人找货】的传统货架电商流量口，包括搜索、商城、店铺等新的流量场。</p>
+      <p>在2023年的抖音生态大会上，抖音电商的发布了【深耕全域兴趣电商】的概念。与2022年【全域兴趣电商】相比，着重强调了【深耕】。从抖音总裁魏雯雯在会上的发言来看，【深耕】是实现内容场和货架场的进一步联动，实现【全域一体，飞轮增长】。</p>
+
+      <div class="quote">
+        <p>2023年抖音电商生态大会上的公开数据表示，货架场的GMV占总体GMV的30%，其中抖音商场的GMV同比增加277%，搜索GMV同比增加159%，货架场GMV占五成以上的商家占50%。内容场景的商品流量占56%，货架场景商品流量占44%。</p>
+        <span class="src">—— 魏雯雯，2023年抖音电商生态大会：《深耕全域兴趣电商，丰富用户美好生活》</span>
+      </div>
+
+      <p>魏雯雯用一组数据回应了外界对于抖音发展货架电商的质疑，同时也是为了进一步的铺垫。目前抖音的货架场已经成为了流量引擎场，商品在内容和货架场景的流量差距在逐渐减小，货架场景的GMV占比在提升。</p>
+      <p>抖音电商形成了内容场和货架场的双流量场，各流量场的矩阵也形成了差异化的打法。在内容场的产品矩阵包含直播、短视频、图文，而货架场景则包括搜索、店铺、橱窗、商城频道，而抖音电商则致力于串联两个流量场，使得用户在内容场和货架场之间平滑过渡。</p>
+      <p>在2023年的抖音生态大会上，提出了【FACT+S】的全域经营理论。首先不变的还是内容场下【FACT+】经营理论。直播、短视频、图文这些不同内容形式，会承载着商品的信息，通过阵地自营（Field）、达人矩阵（Alliance）、主题活动（Campaign)、头部大V（Top KOL），分发和匹配到用户。</p>
+      <p>和原来的相比不同的是，今年的经营理论增加了【S】，此处的【S】就是增加的货架场景，包括：搜索运营（Search）、商城推荐/频道活动（Shopping Center）、店铺/达人橱窗（Shop），商品卡会在以上的匹配场景与用户匹配。抖音电商四大扶持政策中【商品卡免佣】、【橱窗经营返现】都是致力于通过平台的让利，使商家和达人更多的投入在货架电商上。</p>
+      <p><strong>最后对于供给侧的搭建。</strong>供给侧的核心角色是商家，平台的招商情况，和平台的商品、服务水平息息相关。从抖音电商公开的数据来看，抖音商家数已达到百万量级，抖音平台的商家数量已形成规模，同时不乏品牌头部商家。</p>
+
+      <div class="quote">
+        <p>抖音电商累计动销商家数达252万+，年GMV破千万的商家数达3.2万+，同时已经成为700+头部平台的全网最大生意阵地，年销售额过千万的爆品10000+。</p>
+        <span class="src">—— 魏雯雯，2023年抖音电商生态大会：《深耕全域兴趣电商，丰富用户美好生活》；木青，2023年抖音电商生态大会：《双场共振，飞轮增长》</span>
+      </div>
+
+      <p>抖音对于商家管理是分层。抖音在23年公布的四大扶持政策，其中有两项是针对与不同等级的商家的政策。【抖音旗舰】是针对于偏头部的商家，对于品牌商家有专属身份标识，对于品牌商家会有专属的流量和权益扶持。【0元入驻】则是针对于中小型商家，无需缴纳保证金，实现中小商家的快速开店。</p>
+      <p>不同等级的商家需要有明确的成长路径。比较有意思的是，抖音电商在2022年提出了【FACTOR认证】，不同于商家成长仅针对于商家角色。此项认证适用角色更广泛，包括商家、服务商或者个人，进一步推广抖音的经营策略，增强行业影响力。</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">04</div>
+        <h2>总结</h2>
+      </div>
+      <p>行文至末，已经可以回答最开始的三个问题，进而回答抖音电商是如何成为生意的，抖音电商整体发展时间不长，但是已经形成规模。</p>
+      <p>在外部压力和内部优势的双重作用下，抖音开始了电商尝试，提高自身造血能力，实现商业化收入的增加。</p>
+      <p>抖音电商的发展是分阶段，逐步增加投入成本的。以2020年作为抖音电商的分界点，在2020年以前抖音其实已经开始了导流电商的尝试，从最开始的导流到抖音内小程序，已经出现要打造闭环电商的意图，想要将流量留在抖音内部。</p>
+      <p>从2020年正式发布抖音电商的品牌之后，抖音电商一路快速发展。基于【需求-匹配-供给】的分析框架，来看抖音的当前打法。</p>
+      <ul>
+        <li><strong>从需求侧来看，</strong>抖音电商更倾向于消化抖音内部的用户，将抖音的用户转化为抖音电商的用户；</li>
+        <li><strong>从匹配侧来看，</strong>抖音投入较大的精力在多场景的建设供需匹配上。从兴趣电商到全域兴趣电商，抖音电商搭建了内容场和货架场，以在抖音全域实现人货在场内的匹配；</li>
+        <li><strong>从供给侧来看，</strong>抖音电商商家已经形成规模，不乏品牌商家。抖音电商试图对商家进行分层的管理和扶持；</li>
+      </ul>
+      <p>抖音电商从导流到闭环，闭环电商又从兴趣电商发展到全域兴趣电商，通过分阶段建设，基于自身优势出发，逐步实现了当前的生意规模。</p>
+    </section>
+  </article>
+
+  <footer class="footnote">
+    <span>抖音电商是如何成为生意的 · 行业信息调研 · 2023</span>
+    <a href="../index.html">← 返回作品集</a>
+  </footer>
+
+</div>
+
+</body>
+</html>

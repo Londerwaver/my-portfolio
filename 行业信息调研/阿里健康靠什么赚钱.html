@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>阿里健康靠什么赚钱？ · 行业信息调研</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1f2430;
+  --ink-soft:#5b6472;
+  --muted:#8a93a3;
+  --paper:#f6f5f2;
+  --surface:#ffffff;
+  --line:#e7e4dd;
+  --accent:#3d4cc4;
+  --accent-deep:#2c3a9e;
+  --glow:#0ea5a3;
+  --warn:#d97706;
+  --ok:#16a34a;
+  --radius:12px;
+  --radius-lg:16px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+  --font-body:'Inter','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-head:'Noto Serif SC','Songti SC',serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.85;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(61,76,196,.14)}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  height:56px;display:flex;align-items:center;gap:12px;
+  padding:0 24px;background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .logo{
+  width:26px;height:26px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;
+}
+.topbar a.brand{
+  font-family:var(--font-head);font-weight:600;font-size:14.5px;
+  color:var(--ink);text-decoration:none;letter-spacing:.3px;
+}
+.topbar a.brand:hover{color:var(--accent)}
+.topbar .badge{
+  margin-left:auto;font-size:12px;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:3px 12px;
+  background:var(--surface);
+}
+
+.main{max-width:780px;margin:0 auto;padding:64px 28px 96px}
+
+.hero{padding:8px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.hero .kicker::before{content:"";width:22px;height:2px;background:var(--glow);border-radius:2px}
+.hero h1{
+  font-family:var(--font-head);
+  font-size:36px;line-height:1.35;letter-spacing:.5px;font-weight:600;
+}
+.hero .sub{
+  margin-top:16px;font-size:15.5px;color:var(--ink-soft);
+  max-width:660px;
+}
+.hero .meta{
+  margin-top:24px;display:flex;flex-wrap:wrap;gap:8px;
+}
+.hero .meta span{
+  font-size:12.5px;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:4px 13px;
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.hero .meta a{color:var(--accent);text-decoration:none}
+.hero .meta a:hover{text-decoration:underline}
+
+.chapter{margin-bottom:60px}
+.ch-head{display:flex;gap:14px;align-items:center;margin-bottom:26px}
+.ch-num{
+  flex:none;width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  color:#fff;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:15px;
+  box-shadow:0 5px 14px rgba(61,76,196,.25);
+}
+.ch-head h2{font-size:24px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+
+.article p{margin-bottom:14px;text-align:justify}
+.article strong{color:var(--accent-deep);font-weight:600}
+.article .lead{color:var(--ink-soft)}
+
+.article ul,.article ol{margin:0 0 16px 24px}
+.article li{margin-bottom:8px}
+.article li::marker{color:var(--accent)}
+
+.quote{
+  font-size:15px;color:var(--ink-soft);
+  border-left:3px solid var(--accent);
+  background:rgba(61,76,196,.05);
+  padding:16px 20px;margin:20px 0;
+  border-radius:0 var(--radius) var(--radius) 0;
+}
+.quote p{margin-bottom:8px;text-align:justify}
+.quote p:last-child{margin-bottom:0}
+.quote .src{
+  display:block;margin-top:6px;font-size:12.5px;color:var(--muted);
+}
+.quote a{color:var(--accent)}
+
+/* ---------- 表格 ---------- */
+.table-wrap{overflow-x:auto;margin:18px 0;border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow)}
+table{width:100%;border-collapse:collapse;background:var(--surface);font-size:13.5px;min-width:600px}
+th{
+  background:linear-gradient(180deg,#fafaf7,#f2f1ec);
+  font-weight:650;text-align:left;padding:11px 16px;
+  border-bottom:1px solid var(--line);color:var(--ink);
+  white-space:nowrap;
+}
+td{padding:10px 16px;border-bottom:1px solid var(--line);color:var(--ink-soft);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tbody tr:hover{background:rgba(61,76,196,.03)}
+td:first-child{font-family:var(--mono);color:var(--accent-deep);font-weight:600;white-space:nowrap}
+.caption{font-size:12.5px;color:var(--muted);text-align:center;margin:6px 0 20px}
+
+.footnote{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--muted);
+}
+.footnote a{color:var(--accent);text-decoration:none}
+.footnote a:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .main{padding:40px 18px 64px}
+  .hero h1{font-size:27px}
+  .ch-head h2{font-size:20px}
+  .topbar .badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">调</div>
+  <a class="brand" href="../index.html">龙薇 · 个人作品集</a>
+  <span class="badge">行业信息调研</span>
+</div>
+
+<div class="main">
+
+  <header class="hero">
+    <div class="kicker">行业调研</div>
+    <h1>阿里健康靠什么赚钱？</h1>
+    <p class="sub">从市场环境、政策演变到业务分布，拆解互联网医疗巨头"三朵云"的生意。</p>
+    <div class="meta">
+      <span>✍️ 作者 <b>逗逗龙</b></span>
+      <span>📅 发布时间 <b>2023-12-14</b></span>
+      <span>📮 公众号 <b>逗逗龙的产品趣谈</b></span>
+      <span>🔗 <a href="https://mp.weixin.qq.com/s/NEbxTrJo2nzPrTHS8vRgBQ" target="_blank" rel="noopener">原文链接 ↗</a></span>
+    </div>
+  </header>
+
+  <article class="article">
+    <p class="lead">阿里健康是阿里巴巴集团"DoubleH"战略（Health and Happiness）在大健康领域的旗舰平台，是阿里巴巴集团投资控股的公司之一。阿里健康是阿里巴巴在医疗健康产业的重要布局，在国内医药电商行业中处于领先地位。要想了解中国互联网医疗的发展，阿里健康是一个绕不开的话题。</p>
+    <p>本文还是以两个问题来揭示阿里健康是如何运作的：</p>
+    <ul>
+      <li>阿里健康所处市场环境如何；</li>
+      <li>阿里健康的业务分布和收益情况如何；</li>
+    </ul>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">01</div>
+        <h2>阿里健康所处市场环境</h2>
+      </div>
+      <p>要分析阿里健康所处的市场环境，无外乎还是围绕着以下几个点：①市场的规模如何；②目前入场的参与者；③政策环境。接下来将按照上述的顺序来阐述阿里健康所处的市场环境如何。</p>
+      <p><strong>第一，关于互联网医疗整体的市场规模。</strong>互联网医疗的业务存在多种形态，将整体互联网医疗市场划分为三个板块：问诊市场、药品市场、器械和保健品市场，分别来看这三个细分市场的规模，来推算出整体互联网医疗的市场规模。</p>
+      <p>首先，药品市场是目前互联网医疗中最引起关注的市场，从供给方来预测药品市场可以分为三个终端，分别为公立医院、公立基层医院、零售药店。</p>
+
+      <div class="quote">
+        <p>2021年我国三大终端六大市场的药品销售达到17747亿，同比增加8%，其中零售药店终端包含实体药店和网上药店两大市场，2021年的销售额分别为4405亿和368亿。</p>
+        <span class="src">—— 米内网：《【重磅】2021我国三大终端六大市场药品销售额达17747亿，同比增长8.0%》</span>
+      </div>
+
+      <p>同样也有相关机构对于药品市场进行预测和推算，预计在2025年线上药品交易接近千亿。</p>
+
+      <div class="quote">
+        <p>受益处方外流和OTC市场，预计零售端2025年的渗透率达19%，对应936亿人民币的线上零售药品销售规模。</p>
+        <span class="src">—— Hathaway，ECV Healthcare：《互联网医疗之医药电商行业研究分析》</span>
+      </div>
+
+      <p>其次，是器械和保健品市场，这个市场规模较大，无论是保健品还是医疗器械相比于药品有较高的线上渗透率。</p>
+
+      <div class="quote">
+        <p>2019年保健品及家用医疗器械的线上渗透率约33.27%。我们预计家用医疗器械和保健品市场2025年市场规模达8,015亿人民币，4 年的CAGR增速为15.8%，其中线上家用器械和保健品市场规模为2,805亿人民币。</p>
+        <span class="src">—— Hathaway，ECV Healthcare：《互联网医疗之医药电商行业研究分析》</span>
+      </div>
+
+      <p>最后就是问诊的市场规模，线上的问诊和线下问诊的适用场景存在差异。因此只能切掉一部分的问诊用户到线上。</p>
+
+      <div class="quote">
+        <p>2021年医院问诊市场规模约2,419亿人民币，基层医疗机构问诊市场规模1,257亿人民币。我们预计问诊人次将保持4%左右增速，而单价逐步提升，线上问诊需求主要来自慢病复查和轻症首诊，我们预计2025年线上问诊市场规模达917亿人民币，4年的CAGR增速为20.1%。</p>
+        <span class="src">—— Hathaway，ECV Healthcare：《互联网医疗之医药电商行业研究分析》</span>
+      </div>
+
+      <p>根据上述三方数据，这三个市场2025年的线上总和预计4658亿。</p>
+      <p><strong>第二，目前在医疗健康赛道下的参与者。</strong>根据股市市值，目前互联网三巨头分别为京东健康、阿里健康和平安好医生。截止于当前（2023年12月8日收盘），京东健康市值1181.38亿港币，阿里健康市值575.17亿港币，平安好医生市值202.37亿港币。</p>
+      <p><strong>第三，互联网医疗的政策环境。</strong>从下表可见，1999年-2022年互联网医疗健康政策汇总，互联网医疗已经发展二十多个年头，历经了四个阶段，分别为：①1999年起；②2010年后；③2015年后；④2019年后。</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>时间</th><th>法律法规</th><th>主要内容</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1999</td><td>《处方药和非处方药流通管理暂行规定》</td><td>处方药和非处方药禁止在网上进行销售。</td></tr>
+            <tr><td>2000</td><td>《药品电子商务试点监督办法》</td><td>在部分省市开展网上非处方药销售试点。</td></tr>
+            <tr><td>2000</td><td>《互联网信息服务管理办法》</td><td>允许互联网药品信息服务。</td></tr>
+            <tr><td>2005</td><td>《互联网药品交易服务审批暂行规定》</td><td>取得资质的企业可以在网上进行药品交易，向个人消费者提供互联网药品交易服务的企业只能在网上销售本企业经营的非处方药。</td></tr>
+            <tr><td>2013</td><td>《关于加强互联网药品销售管理的通知》</td><td>要求零售单体药店不得开展网上售药业务，同时对含麻黄碱类药物、处方药管理及药物配送提出了具体要求。</td></tr>
+            <tr><td>2014</td><td>《互联网食品药品经营监督管理办法（征求意见稿）》</td><td>规定取得相应资格证的互联网平台不仅可以销售处方药，还可以由第三方配送平台进行药品或者医疗器械的配送，同时将第三方交易审批权下放至省级药监部门。</td></tr>
+            <tr><td>2014</td><td>《关于落实2014年度一概重点任务提升药品流通服务水平和效率工作的通知》</td><td>提出要采取多种方式推进医药分开，在公立医院开展改革试点城市，探索由优质零售药店来承担医疗机构门诊药房服务等多种形式的改革，逐步形成医生负责门诊诊断，或者凭着处方到医疗机构或者零售药店自主购药的新模式。</td></tr>
+            <tr><td>2015</td><td>《关于推进和规范医师多点执业的若干意见》</td><td>提出推进医师合理流动，放宽调价、简化注册审批程序，探索实行备案管理或者区域注册，优化以实多点执业政策环境，医生的自有流通，有助于改善理疗资源配置不合理的困局，提高医疗资源的利用效率。</td></tr>
+            <tr><td>2015</td><td>《全国医疗卫生服务体系规划纲要（2015-2020）》</td><td>战略性的提出"健康中国云服务计划"，要求积极引用新技术手段推动全面健康信息服务和智慧医疗服务，到2020年实现全员信息、电子健康档案和电子病历三大数据库基本覆盖全国人口。</td></tr>
+            <tr><td>2016</td><td>《关于深化医药卫生体制改革2016年重点工作任务的通知》</td><td>采取多种形式推进医药分开，禁止医院限制处方外流，患者可自主选择在医院门诊药房或凭处方到零售药店购药。互联网药品经营者应当按照药品分类管理规定的要求，凭处方销售处方药；互联网药品、医疗器械经营者不得销售国家禁止互联网经营的药品、医疗器械。</td></tr>
+            <tr><td>2017</td><td>《网络药品经营监督管理办法(征求意见稿)》</td><td>互联网药品经营者应当按照药品分类管理规定的要求，凭处方销售处方药；互联网药品、医疗器械经营者不得销售国家禁止互联网经营的药品、医疗器械。</td></tr>
+            <tr><td>2018</td><td>《关于促进"互联网+医疗健康"发展的意见》</td><td>医生可以在线问诊，在线开处方。对线上开具的常见病、慢性病处方，经药师审核后，医疗机构、药品经营企业可委托符合条件的第三方机构配送。</td></tr>
+            <tr><td>2019</td><td>《药品网络销售监督管理办法（送审稿）》</td><td>允许三方平台向个人消费者售药；允许通过网络向个人消费者销售处方药；允许单体药店通过网络销售药品；允许向个人消费者售药网站发布处方药信息。</td></tr>
+            <tr><td>2019</td><td>《国务院办公厅关于印发深化医药卫生体制改革2019年重点工作任务的通知》</td><td>促进"互联网+医疗健康"发展，并提出要逐步将符合条件的互联网诊疗服务纳入医疗保险范围，开展省级机构试点。</td></tr>
+            <tr><td>2019</td><td>《国家医疗保障局关于完善"互联网+"医疗服务价格和医保支付政策的指导意见》</td><td>以深化"放管服"、分类管理、鼓励创新、线上线下协调发展为原则，主动适应"互联网+"新业态发展，支持"互联网+"发挥积极作用，在价格管理和项目定价方面出台明确规定。</td></tr>
+            <tr><td>2020</td><td>《国家卫生健康委办公厅关于加强信息化支撑新型冠状病毒感染的肺炎疫情防控工作的通知》</td><td>要积极组织各级医疗机构借助"互联网+"开展针对新冠肺炎的网上义务咨询、居家医学观察指导等服务，拓展线上医疗服务空间，引导患者有序就医，缓解线下门诊压力。</td></tr>
+            <tr><td>2020</td><td>《国家卫生健康委规划司关于转发部分省份有关互联网诊疗咨询服务典型做法的通知》</td><td>将北京、天津和浙江利用互联网诊疗抗击疫情的做法作为典型案例，供全国各地参考借鉴。</td></tr>
+            <tr><td>2020</td><td>《国家医保局国家卫生健康委关于推进新冠肺炎疫情防控期间开展"互联网+"医保服务的指导意见》</td><td>卫生健康行政部门批准设置的互联网医院，或经批准开展互联网诊疗活动的医疗保障定点医疗机构，为参保人员提供的常见病、慢性病"互联网+"复诊服务可纳入医疗保险基金支付范围。</td></tr>
+            <tr><td>2021</td><td>《"十四五"优质高效医疗卫生服务体系建设实施方案》</td><td>将开展"互联网+医疗健康"服务，作为中医特色重点医院建设的配套措施。</td></tr>
+            <tr><td>2021</td><td>《关于"十四五"全民医疗保障规划的通知》</td><td>提出完善"互联网+医疗健康"医保管理服务。完善"互联网+医疗健康"医保服务定点协议管理，健全"互联网+"医疗服务价格和医保支付政策，将医保管理服务延伸到"互联网+医疗健康"医疗行为，形成比较完善的"互联网+医疗健康"医保政策体系、服务体系和评价体系。</td></tr>
+            <tr><td>2021</td><td>《国家医疗保障局关于优化医保领域便民服务的意见》</td><td>提出加快完善"互联网+医疗服务"医保支付协议管理。</td></tr>
+            <tr><td>2022</td><td>《互联网诊疗监管细则（试行）》</td><td>明确了互联网诊疗监管的基本原则，从医疗机构监管、人员监管、业务监管、质量安全监管等方面提出了明确的监管要求。</td></tr>
+            <tr><td>2022</td><td>《"十四五"全民健康信息化规划》</td><td>将深化"互联网+医疗健康"服务体系作为"十四五"期间八大主要任务之一，构建覆盖全人群、服务全生命周期、提供全流程管理的医疗卫生服务管理体系。</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="caption">1999年-2022年"互联网+医疗"的政策汇总</p>
+
+      <p>四个阶段的发展脉络如下：</p>
+      <ul>
+        <li><strong>阶段1（2000年之后）：</strong>在这一阶段，整体互联网医疗整体是收口较严的。1999年颁布《处方药和非处方药流通管理暂行规定》禁止处方药和非处方药在网上进行售卖。在2000年时，才允许部分省市进行非处方药的试点售卖。在2005年后，对于取得资质的可以进行药品的售卖，但是仍然只能售卖非处方药。</li>
+        <li><strong>阶段2（2010年之后）：</strong>政策开始转向，获得资质的互联网机构可以开始售卖处方药品。同时开始推进医药分开，形成医生负责诊断，凭借处方患者可以自主购药的模式。</li>
+        <li><strong>阶段3（2015年之后）：</strong>进一步地推动医药分开，禁止医院限制处方外流。同时医生可以在线问诊，在线开处方，允许三方平台向个人消费者售药。</li>
+        <li><strong>阶段4（2019年之后）：</strong>疫情的出现进一步推动了互联网医疗的发展。在这一阶段，鼓励通过在线问诊，在线开方，在线售药，缓解线下门诊的压力。在这一阶段，互联网诊疗开始纳入医疗保险范围，由点及面推进，进一步完善价格、支付体系，对人员、机构、质量监管提出明确要求。</li>
+      </ul>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">02</div>
+        <h2>阿里健康的业务分布</h2>
+      </div>
+      <p>在这一节，主要探讨的是阿里健康的业务分布和对应的收益情况。看看阿里健康靠什么赚钱？由于阿里健康是上市公司，从阿里健康公开的财报可见一斑。</p>
+      <p>总体来看，阿里健康的总营收呈现总体上升的趋势。2023年11月28日发布的2024财年中期业绩（截至2023年9月30日止六个月）公告显示，阿里健康收入达人民币129.6亿元，同比增长12.7%；利润达4.45亿元，同比增长172.2%。</p>
+
+      <div class="quote">
+        <p>这上述报告期的半年内，阿里健康共计3.2万商家，为亿万用户提供6400万健康品的选择；与21万医疗工作者，在20个疾病领域患者做好健康管理；拉通国内外药企，为9000多款药品说明完成适老化适配。</p>
+        <span class="src">—— 阿里健康：《阿里健康2024财年中期业绩公告：践行初心 布局未来》</span>
+      </div>
+
+      <p>这是阿里健康在同天发布公告的首段，这三句话概括性地描述了阿里健康的业务分布以及相关成绩。阿里健康的业务总体来说就是【三朵云】：云药房、云医院、云基建。</p>
+      <ul>
+        <li><strong>1）云药房：</strong>云药房是指阿里健康B2C医药电商业务，这部分包括自营医药电商业务以及POP医药电商业务。从阿里健康公布的数据来看，阿里健康的商家规模约3.2万，SKU的数量达到6400万。</li>
+        <li><strong>2）云医院：</strong>云医院是泛指云医疗，患者全周期医疗健康管理，包括互联网医院和小鹿中医，签约医师、营养师和执药医师超21万。互联网医院指搭建患者、医生和药企的服务通道，提供线上问诊、复诊开方、网上购药、医疗教育和精准随访，目前在20个疾病领域和40家药企合作。2021年阿里收购小鹿中医，目前小鹿中医签约中医馆超500家，注册中医师11万，覆盖26个省和直辖市。</li>
+        <li><strong>3）云基建：</strong>包括基础追溯服务，覆盖药品生产、流通全价值链路，为9000多款药品完成适老化改造。</li>
+      </ul>
+      <p>【三朵云】业务模块的划分，是以云基建作为基础，核心还是在看病买药这条链路上，而看病买药的核心还是在买药。</p>
+
+      <div class="quote">
+        <p>報告期內，憑藉本集團的運營和品牌優勢，以及團隊高效的執行能力，醫藥自營業務收入達11,446.7百萬元人民幣，同比增長13.5%。截至2023年9月30日線上自營店的用戶會員數量已達7,700萬，同比增長21.0%。</p>
+        <p>醫藥電商平台業務包括本集團已從阿里巴巴集團收購的藥品、保健食品、醫療器械、成人計生、隱形眼鏡等類目電商平台業務，以及本集團為天貓醫藥平台（除已收購類目外的其他類目）提供的外包服務業務以及醫藥新零售。報告期內，上述業務的收入總額為人民幣1,021,241,000元，同比增長2.1%。</p>
+        <span class="src">—— 阿里健康：《截至2023年9月30日止六個月中期業績公告》</span>
+      </div>
+
+      <p>从阿里健康发布的数据来看，医药电商业务带来了主要的收入来源，医药电商的业务又可以区分为自营和pop，129.6亿的收入来自自营电商业务的114.5亿人民币，pop电商10.2亿人民币。</p>
+
+      <div class="quote">
+        <p>報告期內，本集團繼續升級醫療健康專業服務體驗，持續為來自淘寶、天貓、支付寶、「醫鹿」APP、高德、釘釘、夸克搜索等終端使用者提供包括中醫、體檢、檢測、問診、掛號、疫苗、口腔、心理、視光、護理等在內的線上線下一體的醫療健康服務。數字化服務業務包含追溯業務，本集團自主開發的「碼上放心」追溯平台業務保持穩定發展的節奏，拓展更多增值服務並進一步滲透到流通領域，提高對零售終端的覆蓋率。報告期內，本集團醫療健康及數字化服務業務的收入為人民幣488,096,000元，同比增長16.4%。</p>
+        <span class="src">—— 阿里健康：《截至2023年9月30日止六個月中期業績公告》</span>
+      </div>
+
+      <p>医疗健康服务和数字化服务就对应上文提到的云医院和云基建，这部分收入约4.9亿人民币。</p>
+      <p>阿里健康的收入分布上，明显医药电商占大部分比例，自营和pop医药电商业务所带来的收入占整体收入的96.2%。其中自营医药电商带来的收入远超pop医药电商带来的收入，自营业务的收入是pop医药电商的11倍。自营的业务相比于pop业务还需要自行负责运营以及后续履约，阿里健康的自营业务也有较高的运营成本，虽然自营业务带了主要的收入来源，但是基于整体的成本压力，使得阿里健康的净利润为4.5亿。</p>
+      <p>行文至末，回到开始的两个问题，阿里健康所处的市场环境以及阿里健康自身的业务发展。互联网医疗市场行业预计在2025年接近5000亿，其中不乏竞争者。梳理互联网医疗国家政策发展，目前互联网医疗受到国家政策的支持。阿里健康基于目前环境背景，以【三朵云】的打法，发展医疗电商、互联网医院以及基础建设，其中医疗电商业务还是占阿里健康收入大部分比例。</p>
+    </section>
+  </article>
+
+  <footer class="footnote">
+    <span>阿里健康靠什么赚钱？ · 行业信息调研 · 2023</span>
+    <a href="../index.html">← 返回作品集</a>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>双城记：解码美团KeeTa出海战略 · 行业信息调研</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;600&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1f2430;
+  --ink-soft:#5b6472;
+  --muted:#8a93a3;
+  --paper:#f6f5f2;
+  --surface:#ffffff;
+  --line:#e7e4dd;
+  --accent:#3d4cc4;
+  --accent-deep:#2c3a9e;
+  --glow:#0ea5a3;
+  --warn:#d97706;
+  --ok:#16a34a;
+  --radius:12px;
+  --radius-lg:16px;
+  --shadow:0 1px 2px rgba(31,36,48,.05),0 8px 24px rgba(31,36,48,.06);
+  --font-body:'Inter','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;
+  --font-head:'Noto Serif SC','Songti SC',serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font-body);
+  color:var(--ink);
+  background:var(--paper);
+  line-height:1.85;
+  font-size:16px;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:rgba(61,76,196,.14)}
+
+.topbar{
+  position:sticky;top:0;z-index:50;
+  height:56px;display:flex;align-items:center;gap:12px;
+  padding:0 24px;background:rgba(255,255,255,.88);
+  backdrop-filter:saturate(1.4) blur(10px);
+  border-bottom:1px solid var(--line);
+}
+.topbar .logo{
+  width:26px;height:26px;border-radius:8px;flex:none;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px;
+}
+.topbar a.brand{
+  font-family:var(--font-head);font-weight:600;font-size:14.5px;
+  color:var(--ink);text-decoration:none;letter-spacing:.3px;
+}
+.topbar a.brand:hover{color:var(--accent)}
+.topbar .badge{
+  margin-left:auto;font-size:12px;color:var(--muted);
+  border:1px solid var(--line);border-radius:999px;padding:3px 12px;
+  background:var(--surface);
+}
+
+.main{max-width:780px;margin:0 auto;padding:64px 28px 96px}
+
+.hero{padding:8px 0 40px;border-bottom:1px solid var(--line);margin-bottom:44px}
+.hero .kicker{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12.5px;font-weight:600;color:var(--accent);
+  letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;
+}
+.hero .kicker::before{content:"";width:22px;height:2px;background:var(--glow);border-radius:2px}
+.hero h1{
+  font-family:var(--font-head);
+  font-size:32px;line-height:1.4;letter-spacing:.5px;font-weight:600;
+}
+.hero .sub{
+  margin-top:16px;font-size:15.5px;color:var(--ink-soft);
+  max-width:660px;
+}
+.hero .meta{
+  margin-top:24px;display:flex;flex-wrap:wrap;gap:8px;
+}
+.hero .meta span{
+  font-size:12.5px;color:var(--ink-soft);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:4px 13px;
+}
+.hero .meta b{color:var(--ink);font-weight:600}
+.hero .meta a{color:var(--accent);text-decoration:none}
+.hero .meta a:hover{text-decoration:underline}
+
+.chapter{margin-bottom:60px}
+.ch-head{display:flex;gap:14px;align-items:center;margin-bottom:26px}
+.ch-num{
+  flex:none;width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--glow));
+  color:#fff;display:grid;place-items:center;
+  font-family:var(--mono);font-weight:700;font-size:15px;
+  box-shadow:0 5px 14px rgba(61,76,196,.25);
+}
+.ch-head h2{font-size:24px;font-weight:700;letter-spacing:-.3px;color:var(--ink)}
+
+.article p{margin-bottom:14px;text-align:justify}
+.article strong{color:var(--accent-deep);font-weight:600}
+.article .lead{color:var(--ink-soft)}
+
+.article ul,.article ol{margin:0 0 16px 24px}
+.article li{margin-bottom:8px}
+.article li::marker{color:var(--accent)}
+
+.quote{
+  font-size:15px;color:var(--ink-soft);
+  border-left:3px solid var(--accent);
+  background:rgba(61,76,196,.05);
+  padding:16px 20px;margin:20px 0;
+  border-radius:0 var(--radius) var(--radius) 0;
+}
+.quote p{margin-bottom:8px;text-align:justify}
+.quote p:last-child{margin-bottom:0}
+.quote .src{
+  display:block;margin-top:6px;font-size:12.5px;color:var(--muted);
+}
+.quote a{color:var(--accent)}
+
+.divider{text-align:center;color:var(--muted);letter-spacing:6px;margin:24px 0;font-size:14px}
+
+.footnote{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+  display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  font-size:12.5px;color:var(--muted);
+}
+.footnote a{color:var(--accent);text-decoration:none}
+.footnote a:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .main{padding:40px 18px 64px}
+  .hero h1{font-size:25px}
+  .ch-head h2{font-size:20px}
+  .topbar .badge{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">调</div>
+  <a class="brand" href="../index.html">龙薇 · 个人作品集</a>
+  <span class="badge">行业信息调研</span>
+</div>
+
+<div class="main">
+
+  <header class="hero">
+    <div class="kicker">行业调研</div>
+    <h1>双城记：解码美团KeeTa出海战略的香港实践与中东突围</h1>
+    <p class="sub">以香港与沙特为观察坐标，对比两地市场环境、运营策略与成效，解码美团海外扩张的商业逻辑。</p>
+    <div class="meta">
+      <span>✍️ 作者 <b>逗逗龙</b></span>
+      <span>📅 发布时间 <b>2025-04-08</b></span>
+      <span>📮 公众号 <b>逗逗龙的产品趣谈</b></span>
+      <span>🔗 <a href="https://mp.weixin.qq.com/s/S_JsXlwFwiSsZjjj6NJ7mw" target="_blank" rel="noopener">原文链接 ↗</a></span>
+    </div>
+  </header>
+
+  <article class="article">
+    <p class="lead">作为美团旗下内地知名外卖平台"美团外卖"的海外姊妹品牌，KeeTa自2023年5月在香港首发亮相以来，便肩负着集团全球化战略探路者的使命。这个被美团内部视为"出海试验田"的创新项目，在经历香港市场长达两年的激烈鏖战后，于去年10月悄然开启中东征程，目前已完成沙特阿拉伯主要城市的战略布局。</p>
+    <p>本文将以香港与沙特双城为观察坐标，通过对比分析两地市场环境、运营策略及发展成效，解码美团海外扩张的商业逻辑与实战经验。</p>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">01</div>
+        <h2>深耕成熟市场：香港</h2>
+      </div>
+      <p>2024年美团的财报里并未明确披露KeeTa的营收情况，而是统一归纳到新业务的版块，而美团新业务的2024年财务表现为亏损收窄。</p>
+
+      <div class="quote">
+        <p>美团2024年全年收入由2023年的2,767亿人民币增长了22%至3,376亿元，而新业务收入同比增长25.1%至人民币873亿元，经营亏损收窄人民币73亿元，经营亏损率改善至8.3%。</p>
+        <span class="src">—— 美团，2025年3月：《截至2024年12月31日止年度业绩报告》</span>
+      </div>
+
+      <p>作为美团出海的首个试验场，香港市场见证了KeeTa极具中国互联网特色的扩张路径。平台自2023年5月上线后，采取【以补贴换市场，以技术提效率】策略，通过用户端大力优惠与运力端效率优化，快速完成市场渗透。这种源自国内市场的"压强式投入"战术，使其在Foodpanda、Deliveroo等既有玩家主导的市场中撕开突破口。而美团在香港市场的成功主要有三点：</p>
+      <ul>
+        <li><strong>美团的成熟经验：</strong>直接复用内地美团外卖的算法调度系统（如骑手路径优化、动态定价），提升配送效率（香港平均配送时效30分钟，快于对手5-10分钟）。引入"准时保"服务（超时赔偿），差异化吸引时效敏感用户。</li>
+        <li><strong>补贴力度激进：</strong>新用户首单免运费+50港元优惠券，部分餐厅折扣低至5折。初期对商家实行"零佣金"政策（2023年5-8月），快速拓展合作餐厅至3000+家。</li>
+        <li><strong>本地化创新：</strong>针对香港高密度楼宇，推出"自提点"模式（用户下楼取餐可享额外折扣），降低配送成本。接入支付宝香港、八达通等本地支付方式，提升便利性。</li>
+      </ul>
+      <p>2024年3月，经营九年的英国公司Deliveroo宣布退出香港，其高端定位在价格敏感型竞争中显露疲态。这一退场事件既反映了成熟市场用户对性价比的追逐趋势，也印证了美团"快速试错、敏捷调整"的海外拓展逻辑。似乎在经济周期波动背景下，国内拼多多的成功，再一次在海外市场进行了验证。</p>
+      <p>户户送的撤退，香港的外卖市场将由Keeta以及foodpanda二分天下，Keeta就此成为香港最大的外卖平台，截止至2024年3月，美团KeeTa从订单维度占有率到44%，GMV占有率为38%。（图源：Measurable AI）</p>
+    </section>
+
+    <section class="chapter">
+      <div class="ch-head">
+        <div class="ch-num">02</div>
+        <h2>扩展新兴市场：沙特</h2>
+      </div>
+      <p>香港市场的成功经验能否在中东市场复刻？美团Keeta正面临全新的考验。自2024年10月低调进入沙特利雅得后，Keeta在半年内迅速覆盖沙特核心城市群，形成密集布局。</p>
+
+      <div class="quote">
+        <p>根据官网招聘信息显示，除了去年上线的阿尔卡吉、利雅得，今年1月上线的吉达、麦加，目前Keeta还开通了达曼Dammam、麦地那Madinah、胡富夫Hofuf、奈季兰Najran等城市。</p>
+        <span class="src">—— 岳轻，出海老斯基：《Keeta沙特"抢人"，不做"骆驼"做"猎豹"》</span>
+      </div>
+
+      <p>沙特作为中东地区政治、经济与宗教枢纽，其城市网络具有显著独特性：首都利雅得贡献全国近30%的GDP；吉达坐拥红海核心港口，承担沙特超60%的集装箱吞吐量，是连接欧亚非贸易的关键节点；麦加则承载每年超2000万穆斯林宗教游客。</p>
+      <p>美团采取"核心城市穿透"策略——率先抢占战略支点，依托高净值人群集聚效应建立品牌认知，再向次级城市梯度扩张。</p>
+
+      <div class="quote">
+        <p>美团仅用三个月便打破僵局——通过"首单五折""永久免运费"的补贴闪电战，Keeta在利雅得、吉达等四城迅速撕开缺口，至2025年1月下载量登顶沙特应用商店，市占率突破10%，跻身行业前三。</p>
+        <span class="src">—— 中东国际展览集团：《美团Keeta沙特连落四子，加速布局中东300亿外卖市场》</span>
+      </div>
+
+      <p>而美团同样也面临着苛刻的竞争环境。沙特外卖市场长期由三大玩家主导：德国Delivery Hero旗下Talabat、英国Deliveroo及本土平台Hunger Station。面对此格局，美团延续香港市场的价格穿透策略——通过高强度用户补贴（如"首单五折""永久免运费"）快速争夺市场份额，短期内实现订单量激增。</p>
+
+      <div class="quote">
+        <p>通胀压力、用户忠诚度缺失及同质化竞争仍是普遍挑战；地址数据不全、货到付款（COD）占比高、文化差异（斋月订餐习惯）也会给大量进入中东市场的企业带来本土化发展的挑战。这要求更精细的运营策略，优化履约网络效率，能否实现从"补贴驱动"转向"效率驱动"，将成为企业长期竞争力的关键。</p>
+        <span class="src">—— Kay，Roselake 非洲创投：《美团系Keeta破局沙特，中国本地生活服务如何进军中东？》</span>
+      </div>
+
+      <p>但隐忧依然存在。行业分析指出，沙特市场呈现三重挑战：其一，价格压力是否可持续；其二，本土化运营难题突出；其三，同质化竞争加剧。但是可预见的，中东地区本地生活的发展，因为Keeta这只鲇鱼刺激市场，而带来生机。</p>
+
+      <div class="divider">* * *</div>
+    </section>
+  </article>
+
+  <footer class="footnote">
+    <span>双城记：解码美团KeeTa出海战略 · 行业信息调研 · 2025</span>
+    <a href="../index.html">← 返回作品集</a>
+  </footer>
+
+</div>
+
+</body>
+</html>
